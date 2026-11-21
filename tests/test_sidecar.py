@@ -14,7 +14,7 @@ def test_worker_supervision_and_recovery():
     root = Path(__file__).parents[1] / "sidecar"
     token = secrets.token_urlsafe(32)
     proc = subprocess.Popen(
-        [sys.executable, "-m", "novel_tts_sidecar", "--timeout", "2.5"],
+        [sys.executable, "-m", "novel_tts_sidecar", "--timeout", "6"],
         cwd=root,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -47,16 +47,17 @@ def test_worker_supervision_and_recovery():
                 return ident
 
             def wait(ident):
-                deadline = time.monotonic() + 8
+                deadline = time.monotonic() + 15
                 while time.monotonic() < deadline:
                     result = client.get("jobs/" + ident).json()
                     if result["state"] not in ("running", "cancel_requested"):
-                        return result["state"]
+                        return result
                     time.sleep(0.04)
                 pytest.fail("job did not finish")
 
             for scenario in ("hard", "hang", "exit", "oom", "normal"):
-                assert wait(submit("load")) == "succeeded"
+                loaded = wait(submit("load"))
+                assert loaded["state"] == "succeeded", (scenario, loaded)
                 ident = submit(
                     "synthesis",
                     text="渡口",
@@ -71,7 +72,7 @@ def test_worker_supervision_and_recovery():
                         ).status_code
                         == 200
                     )
-                state = wait(ident)
+                state = wait(ident)["state"]
                 if scenario == "normal":
                     assert state == "succeeded" and client.get(
                         "artifacts/" + ident

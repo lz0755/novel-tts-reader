@@ -4,7 +4,6 @@ import wave
 from threading import Event, get_ident
 
 import pytest
-from PySide6.QtTest import QTest
 
 from novel_tts.infrastructure.paths import Paths
 from novel_tts.ui.window import ReaderWindow
@@ -14,7 +13,7 @@ def wait(app, predicate):
     deadline = time.monotonic() + 8
     while not predicate():
         app.processEvents()
-        QTest.qWait(5)
+        time.sleep(0.005)
         assert time.monotonic() < deadline
 
 

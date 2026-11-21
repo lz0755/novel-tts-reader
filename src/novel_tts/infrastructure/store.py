@@ -177,7 +177,7 @@ class Store(Edits, CacheIndex):
                     """SELECT id, json_extract(record, '$.job'), json_extract(record, '$.state'),
                               json_extract(record, '$.duplicate_charge_possible')
                        FROM attempts WHERE book=? AND json_extract(record, '$.logical_id')=?
-                       ORDER BY stamp DESC LIMIT 1""",
+                       ORDER BY stamp DESC, rowid DESC LIMIT 1""",
                     (book, row["logical_id"]),
                 ).fetchone()
                 if prior:
@@ -201,7 +201,7 @@ class Store(Edits, CacheIndex):
         return [
             json.loads(row[0])
             for row in self.db.execute(
-                "SELECT record FROM attempts ORDER BY stamp DESC LIMIT 100"
+                "SELECT record FROM attempts ORDER BY stamp DESC, rowid DESC LIMIT 100"
             )
         ]
 

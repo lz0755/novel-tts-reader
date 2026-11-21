@@ -19,9 +19,10 @@ from novel_tts.infrastructure.store import Store
 from novel_tts.providers.llm import RemoteLLM
 
 
-def test_lost_response_and_manual_resend_survive_restart(book):
+def test_lost_response_and_manual_resend_survive_restart(book, monkeypatch):
     store, _, _, view = book
     p = DEFAULTS["custom"]
+    monkeypatch.setattr("novel_tts.infrastructure.store.time.time", lambda: 1800000000.0)
 
     def lost(request):
         raise httpx.ReadTimeout("response lost")

@@ -55,8 +55,8 @@ class ControlClient:
                     raise ProviderError("local_worker_busy", True)
                 raise ProviderError(f"本地控制服务 HTTP {response.status_code}")
             return response
-        except httpx.HTTPError:
-            raise ProviderError("无法连接本地控制服务") from None
+        except httpx.HTTPError as exc:
+            raise ProviderError(f"无法连接本地控制服务（{type(exc).__name__}）") from exc
 
     def job(self, path, body, event, timeout=310):
         ident = uuid.uuid4().hex

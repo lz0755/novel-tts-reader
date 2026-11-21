@@ -123,8 +123,10 @@ class Controller:
                         self.active = None
                         if state == "failed":
                             self.reap()
-                    elif not self.proc.is_alive() or time.monotonic() > self.deadline:
-                        self.abort("worker_exit_or_timeout")
+                    elif not self.proc.is_alive():
+                        self.abort("worker_exit")
+                    elif time.monotonic() > self.deadline:
+                        self.abort("worker_timeout")
                 except (EOFError, OSError, ValueError):
                     self.abort("worker_exit")
 

@@ -17,12 +17,15 @@
 
 - Ubuntu 24.04.5 x86_64 用户空间，普通账户从只读安装目录在 X11 虚拟显示器启动核心包。隔离网络后仍能导入样书、生成 11 段固定语音并导出 371,937 帧。另以 Qt 和 PulseAudio 虚拟输出验证播放、暂停、倍速和原句内续听。 [发行包记录](evidence/packaged.json) · [真实媒体回环](evidence/qt-loopback.json) · [续听测量](evidence/qt-resume.json)
 - Windows x64 便携预览自带经摘要校验的 CPython 和原生 Windows wheels。Windows GUI 入口和样书自检已在 Wine 9 运行。Windows 11 原生干净机仍待测，Windows Server 上的 Nuitka 构建由 GitHub Actions 单独记录。 [发行包记录](evidence/packaged.json) · [原生构建记录](https://github.com/lz0755/novel-tts-reader/actions/workflows/package.yml)
-- 46 个自动化测试全部通过。112 万 Unicode 码点样本完成 20 次随机跳转和重开定位。十章、350 个带原文锚点的标注样本与 50 项纠音样本已入库。十章角色归属还需要独立人工复核。 [自动化测试](evidence/automated-tests.json) · [长书实测](evidence/long-book.json) · [样本清单](../fixtures/manifest.json)
+- 预览标签交付时，本地 46 个自动化测试通过。主分支修复 Windows 管道等待和同一时间戳的费用记录排序，补充父进程关闭输入后的退出测试。GitHub Actions 中 Ubuntu 24.04 和 Windows Server 2022 各通过 47 项测试，桌面入口烟测均正常退出。 [预览标签测试](evidence/automated-tests.json) · [双平台复测](https://github.com/lz0755/novel-tts-reader/actions/runs/44915411279)
+- 112 万 Unicode 码点样本完成 20 次随机跳转和重开定位。十章、350 个带原文锚点的标注样本与 50 项纠音样本已入库。十章角色归属还需要独立人工复核。 [长书实测](evidence/long-book.json) · [样本清单](../fixtures/manifest.json)
 - 52 项中 26 项通过，3 项待测，23 项阻塞。实体声卡听感、真实云端模型与账单、Windows/Ubuntu 目标桌面、8 GB GPU 两档 Qwen 加载、显存及 30 分钟长播尚缺相应证据。各项的阻塞条件和运行入口见验收表。 [52 项验收记录](ACCEPTANCE.md)
 
 ## GitHub 同步
 
 项目已同步到私有仓库 `lz0755/novel-tts-reader` 的 `main` 分支。远端保留 M0–M7 八个阶段标签与桌面预览标签 `desktop-0.1.0-preview`。八个 GitHub Milestones 分别列出对应验收编号、通过数及待测或阻塞数，可从各阶段进入证据记录。 [仓库](https://github.com/lz0755/novel-tts-reader) · [全部标签](https://github.com/lz0755/novel-tts-reader/tags) · [Milestones](https://github.com/lz0755/novel-tts-reader/milestones)
+
+GitHub Actions 从预览标签分别在 Ubuntu 24.04 和 Windows Server 2022 构建桌面包。两个可执行程序都在中文安装目录下完成两章样书自检，导出第一章的 11 段音频，共 371,937 帧。发布页提供原生包与各自的 SHA-256。 [桌面预览版](https://github.com/lz0755/novel-tts-reader/releases/tag/desktop-0.1.0-preview) · [对应的构建与自检日志](https://github.com/lz0755/novel-tts-reader/actions/runs/44914455355)
 
 `scripts/sync_milestones.py` 可以按阶段提交和标签推送并回读远端版本。当前交付的 `desktop-0.1.0-preview` 标签可在 GitHub Actions 触发 Windows 和 Ubuntu 原生构建并保留下载件。传入匹配的仓库名时，脚本还会根据 52 项实测结果更新 GitHub Milestones 描述和状态。阶段所有必需项通过后才会标记为完成。仓库地址如有变化先更新 origin。以下命令从已检出的项目目录执行。
 

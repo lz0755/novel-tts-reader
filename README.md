@@ -4,6 +4,8 @@
 
 ## 第一次使用
 
+Windows x64 与 Ubuntu 24.04 x86_64 的原生预览包可从同一发布页下载，每个包附有 SHA-256 校验文件。 [下载桌面预览版](https://github.com/lz0755/novel-tts-reader/releases/tag/desktop-0.1.0-preview)
+
 1. 解压完整的发行包。Ubuntu x86_64 运行 `./NovelTTSReader`，Windows x64 便携预览包双击 `NovelTTSReader.exe`。
 2. 点击「打开样书」，选第一章后点击「播放」。右侧显示当前说话人、朗读文本及音频来源。样书有两章、三种固定普通话音色，未收录的文本和音色组合使用标为 Mock 的测试音。
 3. 点击「预生成本章」，完成后点击「导出章节」，输入新文件夹名。输出包含 `chapter.wav` 和逐段 `manifest.json`。样章可直接试听。 [第一章音频](docs/evidence/demo-chapter/chapter.wav) · [导出清单](docs/evidence/demo-chapter/manifest.json)
@@ -35,4 +37,4 @@ uv run --no-sync pytest -q
 
 ## 版本与验收
 
-M0 至 M7 各有独立提交和标签。本轮 46 个自动化测试通过，52 项验收中 26 项通过、3 项待测、23 项受外部条件阻塞。Ubuntu 24.04.5 发行包在普通账户、断网、只读安装目录下完成自检。Windows x64 便携预览在 Wine 9 下自检。原生 Windows 11、实体声卡、真实云服务和目标 GPU 仍待验收。 [逐项验收](docs/ACCEPTANCE.md) · [交付状态与阶段标签](docs/STATUS.md) · [样本清单](fixtures/manifest.json)
+M0 至 M7 各有独立提交、标签和 GitHub Milestone。主分支在 Ubuntu 24.04 和 Windows Server 2022 上各通过 47 项自动化测试。预览版的 52 项验收中，26 项通过、3 项待测、23 项受外部条件阻塞。Ubuntu 24.04.5 发行包在普通账户、断网、只读安装目录下完成自检。Windows x64 便携预览在 Wine 9 下自检。原生 Windows 11、实体声卡、真实云服务和目标 GPU 仍待验收。 [GitHub 双平台测试](https://github.com/lz0755/novel-tts-reader/actions/runs/44915411279) · [逐项验收](docs/ACCEPTANCE.md) · [交付状态与阶段标签](docs/STATUS.md) · [样本清单](fixtures/manifest.json)

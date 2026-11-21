@@ -124,5 +124,47 @@
       "original_cp": 7,
       "integrity": "ok"
     }
+  },
+  "github_actions": {
+    "tag": "desktop-0.1.0-preview",
+    "source": "23663e181f22e9fd140ab79ea410a0b30bbde7e0",
+    "build_run": "https://github.com/lz0755/novel-tts-reader/actions/runs/44914455355",
+    "release": "https://github.com/lz0755/novel-tts-reader/releases/tag/desktop-0.1.0-preview",
+    "packages": [
+      {
+        "file": "NovelTTSReader-linux-x86_64.tar.gz",
+        "runner": "ubuntu-24.04",
+        "sha256": "3c8ac5aaeb1f38e7e3b9320e971bd8b33db8cb5f912c1200e4a795d22f200b6d",
+        "bytes": 84211436,
+        "job": "https://github.com/lz0755/novel-tts-reader/actions/runs/44914455355/job/136876959100",
+        "completed_at": "2026-11-21T14:39:58Z",
+        "self_test": {
+          "check": "mock_desktop",
+          "chapters": 2,
+          "segments": 11,
+          "frames": 371937,
+          "origin": [
+            "mock_fixture"
+          ]
+        }
+      },
+      {
+        "file": "NovelTTSReader-windows-x86_64.zip",
+        "runner": "windows-2022",
+        "sha256": "98a77cf339e4f3e79aa8197f343375f42f6ba540957f14c887da0ca779f5897f",
+        "bytes": 54700106,
+        "job": "https://github.com/lz0755/novel-tts-reader/actions/runs/44914455355/job/136876958794",
+        "completed_at": "2026-11-21T14:46:17Z",
+        "self_test": {
+          "check": "mock_desktop",
+          "chapters": 2,
+          "segments": 11,
+          "frames": 371937,
+          "origin": [
+            "mock_fixture"
+          ]
+        }
+      }
+    ]
   }
 }

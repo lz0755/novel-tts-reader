@@ -12,7 +12,7 @@
       "stage": "M0",
       "title": "双平台离线启动",
       "status": "阻塞",
-      "result": "Ubuntu 发行包与 Windows/Wine 自检已执行；Windows 11 原生启动待测。",
+      "result": "Ubuntu 离线包、Windows Server 与 Ubuntu 源码入口和原生包自检通过；Windows 11 原生断网启动仍待实机验证。",
       "evidence": "evidence/packaged.json"
     },
     {
@@ -332,7 +332,7 @@
       "stage": "M6",
       "title": "双平台核心发行",
       "status": "阻塞",
-      "result": "Ubuntu 原生构建、普通账户包自检与 Windows x64 便携包兼容层自检已执行；Windows 11 干净原生机与云端真使用待测。",
+      "result": "GitHub 已从同一预览标签在 Ubuntu 24.04 和 Windows Server 2022 分别构建原生包并完成样书自检。Ubuntu 普通账户断网复测通过；Windows 11 干净机和云端真实使用仍待测。",
       "evidence": "evidence/packaged.json"
     },
     {
@@ -340,7 +340,7 @@
       "stage": "M6",
       "title": "路径、权限与显示",
       "status": "待测",
-      "result": "Ubuntu 普通账户在只读安装目录运行，中文空格路径、150% 缩放及中文字体有窗口截图；Windows 便携包也在 Wine 中使用中文安装目录。双系统实际桌面的文件选择及显示仍待复核。",
+      "result": "Ubuntu 普通账户已在中文只读目录检验数据路径、150% 缩放及中文字体。Windows Server 原生包也从中文安装目录自检成功。两平台实际桌面的文件选择及显示仍待复核。",
       "evidence": "evidence/packaged.json"
     },
     {

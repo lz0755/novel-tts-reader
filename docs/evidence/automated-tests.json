@@ -194,5 +194,25 @@
       "name": "tests.test_text_and_edits.test_invalid_annotation_and_independent_people",
       "seconds": 0.023
     }
-  ]
+  ],
+  "github_actions": {
+    "source": "2093ebafa055188d255e32af8fd6353a57af66c9",
+    "run": "https://github.com/lz0755/novel-tts-reader/actions/runs/44915411279",
+    "runners": [
+      {
+        "job": "https://github.com/lz0755/novel-tts-reader/actions/runs/44915411279/job/136879845031",
+        "name": "core (ubuntu-24.04)",
+        "completed_at": "2026-11-21T14:44:22Z",
+        "passed": 47,
+        "smoke_exit": 0
+      },
+      {
+        "job": "https://github.com/lz0755/novel-tts-reader/actions/runs/44915411279/job/136879845225",
+        "name": "core (windows-2022)",
+        "completed_at": "2026-11-21T14:44:25Z",
+        "passed": 47,
+        "smoke_exit": 0
+      }
+    ]
+  }
 }

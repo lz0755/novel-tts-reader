@@ -8,7 +8,7 @@
 
 | 编号 | 验收项 | 状态 | 结果与证据 |
 |---|---|---|---|
-| AC-001 | 双平台离线启动 | 阻塞 | Ubuntu 发行包与 Windows/Wine 自检已执行；Windows 11 原生启动待测。 [发行包记录](evidence/packaged.json) |
+| AC-001 | 双平台离线启动 | 阻塞 | Ubuntu 离线包、Windows Server 与 Ubuntu 源码入口和原生包自检通过；Windows 11 原生断网启动仍待实机验证。 [发行包记录](evidence/packaged.json) |
 | AC-002 | 版本化业务契约 | 通过 | 核心导入、合成指纹、四种产物来源和含确定性的错误模型已验证。 [自动化测试](evidence/automated-tests.json) |
 | AC-003 | 线程隔离与退出 | 通过 | 窗口测试核对专属库线程身份；任务运行中可跳句和取消，关闭后可重新打开书库。 [自动化测试](evidence/automated-tests.json) |
 | AC-004 | 配置与凭据 | 通过 | 端点、协议、模型和 TTS 独立保存；系统凭据失效后仅会话有效，换主机不会复用环境密钥。 [自动化测试](evidence/automated-tests.json) |
@@ -78,8 +78,8 @@
 
 | 编号 | 验收项 | 状态 | 结果与证据 |
 |---|---|---|---|
-| AC-041 | 双平台核心发行 | 阻塞 | Ubuntu 原生构建、普通账户包自检与 Windows x64 便携包兼容层自检已执行；Windows 11 干净原生机与云端真使用待测。 [发行包记录](evidence/packaged.json) |
-| AC-042 | 路径、权限与显示 | 待测 | Ubuntu 普通账户在只读安装目录运行，中文空格路径、150% 缩放及中文字体有窗口截图；Windows 便携包也在 Wine 中使用中文安装目录。双系统实际桌面的文件选择及显示仍待复核。 [发行包记录](evidence/packaged.json) |
+| AC-041 | 双平台核心发行 | 阻塞 | GitHub 已从同一预览标签在 Ubuntu 24.04 和 Windows Server 2022 分别构建原生包并完成样书自检。Ubuntu 普通账户断网复测通过；Windows 11 干净机和云端真实使用仍待测。 [发行包记录](evidence/packaged.json) |
+| AC-042 | 路径、权限与显示 | 待测 | Ubuntu 普通账户已在中文只读目录检验数据路径、150% 缩放及中文字体。Windows Server 原生包也从中文安装目录自检成功。两平台实际桌面的文件选择及显示仍待复核。 [发行包记录](evidence/packaged.json) |
 | AC-043 | 目标音频设备 | 阻塞 | 取得 Qt 虚拟音频设备及回环记录；两平台实体输出、设备切换和现场试听待测。 [虚拟设备回环](evidence/qt-loopback.json) |
 | AC-044 | 离线能力、凭据与诊断 | 通过 | 断网发行包可使用样书；关闭云上传后缓存命中仍可重听，缓存缺失提示授权或加载运行时。会话凭据回退、本机真实 407 代理及自签证书握手失败均已验证。 [自动化测试](evidence/automated-tests.json) |
 | AC-045 | 升级和卸载 | 待测 | Ubuntu 核心包以原书库重复启动，v5→v6 迁移保留原文字节、手工区间、历史与断点，并生成可回读的 v5 备份。提供升级和卸载说明，原生 Windows 11 升级重装仍待测。 [发行包记录](evidence/packaged.json) |

@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "origin": "mock_fixture",
+  "attribution": "原创样书；eSpeak NG 普通话离线生成的固定合成语音。",
+  "clips": [
+    {
+      "text": "第一章 灯渡",
+      "voice": "旁白",
+      "file": "clip-00.wav",
+      "sha256": "8b3f28fa9cc047583fb932014b9562c856bd329a58b4a0b47c7938353e2b9ad2"
+    },
+    {
+      "text": "雨落在旧渡口。",
+      "voice": "旁白",
+      "file": "clip-01.wav",
+      "sha256": "1963ce815910c396d9abf9a57d14d8e65705dd869d993558dbc4220ab55d78d0"
+    },
+    {
+      "text": "林渊说：",
+      "voice": "旁白",
+      "file": "clip-02.wav",
+      "sha256": "c284296e4a85b74ee40814fe8be24d645335ad12397d112eadcecc5ad562d06b"
+    },
+    {
+      "text": "“别走。”",
+      "voice": "松墨",
+      "file": "clip-03.wav",
+      "sha256": "1e1b59c3bb464d78db75f36bd3f643832f7c00e22c282b4806456fdfc6322d03"
+    },
+    {
+      "text": "阿宁答：",
+      "voice": "旁白",
+      "file": "clip-04.wav",
+      "sha256": "b5952184d5565cdcf7f0d717af02b6d821149be789abc16aa64706d47f37ddc6"
+    },
+    {
+      "text": "“好。”",
+      "voice": "星禾",
+      "file": "clip-05.wav",
+      "sha256": "0864d7199ed853400da43dad2c83558dc12c03d2921835f24120d2769d4d3534"
+    },
+    {
+      "text": "一盏灯从水面漂过。",
+      "voice": "旁白",
+      "file": "clip-06.wav",
+      "sha256": "93f1bf95e707e3ec978ebf7229e1079570db0e8f9a5d9cf630e9914377a8a2d3"
+    },
+    {
+      "text": "林渊问：",
+      "voice": "旁白",
+      "file": "clip-07.wav",
+      "sha256": "32584a3e4a5673729dad945cc591f3d829944392e691142a2c6cd7f27dfe8346"
+    },
+    {
+      "text": "“听见钟声了吗？”",
+      "voice": "松墨",
+      "file": "clip-08.wav",
+      "sha256": "781895ec4599e32b0d22d6a8be6ca4a912fcf49c41e4b5a9c34be00b1b283fd4"
+    },
+    {
+      "text": "阿宁说：",
+      "voice": "旁白",
+      "file": "clip-09.wav",
+      "sha256": "ffefd8cdb641c6b2577e6b329e60f2c428b6276762cb9ad291d03a75a92e02a2"
+    },
+    {
+      "text": "“听见了。”",
+      "voice": "星禾",
+      "file": "clip-10.wav",
+      "sha256": "1899d4fb4b5dfa8a0610520ccc5ea167d0b12e4fda16af7829251f34d933058a"
+    },
+    {
+      "text": "第二章 过桥",
+      "voice": "旁白",
+      "file": "clip-11.wav",
+      "sha256": "d064fecbea389b41e63da14047a0314ea7c1518903ba0869d5e3def1c0e4df06"
+    },
+    {
+      "text": "晨雾里，石桥露出了轮廓。",
+      "voice": "旁白",
+      "file": "clip-12.wav",
+      "sha256": "93afcabae06d7f0845d17f7047da408fc5bad56ab19ff81383da7be4c58ae920"
+    },
+    {
+      "text": "“桥上有三盏灯。”",
+      "voice": "松墨",
+      "file": "clip-13.wav",
+      "sha256": "d2a7159947a2937d68910f6f2d9b715d6841d5eaec7b3a5e2c76baac897bc0da"
+    },
+    {
+      "text": "“我们一起数吧。”",
+      "voice": "星禾",
+      "file": "clip-14.wav",
+      "sha256": "628ecd9a67f8511f05e1d85ee4cef257f38bfa6998bfa682fc1be6b00cb1f65d"
+    },
+    {
+      "text": "远处的钟敲了12下。",
+      "voice": "旁白",
+      "file": "clip-15.wav",
+      "sha256": "5a3f3e66059ce6408983a139844f54418cb229ceb2d42e360f2e159e434f5fbe"
+    },
+    {
+      "text": "“是谁？”",
+      "voice": "旁白",
+      "file": "clip-16.wav",
+      "sha256": "6fcde3ccd23c58bf268a72fa50b1ff3a4cd949d530bdc439e8d8ae48939412ff"
+    },
+    {
+      "text": "渡口又安静下来。",
+      "voice": "旁白",
+      "file": "clip-17.wav",
+      "sha256": "63143df7d41d9da35b4bacbd84db0388486fc5fee3e60645e3553b7d3b6e8c43"
+    }
+  ]
+}

@@ -19,7 +19,8 @@ def start_check(app,window,root,screenshot=None):
     def tick():
         nonlocal stage
         if time.monotonic()>deadline:
-            print("SELF_CHECK_FAILED",window.note.text(),flush=True)
+            timer.stop()
+            print(json.dumps({"error":window.note.text(),"stage":stage}),flush=True)
             finish(3)
         elif stage==0:
             stage=1

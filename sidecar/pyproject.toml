@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "novel-tts-sidecar"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[project.optional-dependencies]
+qwen = [
+  "qwen-tts==0.1.1", "torch==2.8.0", "torchaudio==2.8.0",
+  "soundfile==0.13.1", "huggingface-hub==0.36.0", "regex==2025.11.3",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["novel_tts_sidecar"]
+
+[tool.uv]
+environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'", "sys_platform == 'linux' and platform_machine == 'x86_64'"]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }

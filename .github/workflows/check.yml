@@ -1,0 +1,18 @@
+name: Desktop checks
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked --python 3.12
+      - run: uv run --no-sync pytest -q
+      - run: uv run --no-sync python -m novel_tts --smoke

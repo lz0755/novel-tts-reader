@@ -72,7 +72,10 @@ def page_chunks(source):
         yield start, "".join(page)
 
 
-class Store:
+from novel_tts.infrastructure.edits import Edits
+
+
+class Store(Edits):
     def __init__(self, paths):
         self.paths = paths
         self.path = paths.data / "library.sqlite3"
@@ -81,7 +84,7 @@ class Store:
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA journal_mode=WAL")
         version = self.db.execute("PRAGMA user_version").fetchone()[0]
-        if version > 1:
+        if version > 2:
             self.db.close()
             raise RuntimeError("数据库来自更新版本")
         if version == 0:
@@ -89,6 +92,14 @@ class Store:
                 self.db.close()
                 raise RuntimeError("未知数据库结构，请先恢复备份")
             self.db.executescript("BEGIN;" + SCHEMA + "PRAGMA user_version=1; COMMIT;")
+
+        if version < 2:
+            if version:
+                self.backup(self.path.with_suffix(".before-v2.sqlite3"))
+            self.db.executescript("""BEGIN;
+                CREATE TABLE aliases(book TEXT,id TEXT,alias TEXT,PRIMARY KEY(book,id,alias),
+                  FOREIGN KEY(book,id) REFERENCES characters ON DELETE CASCADE);
+                PRAGMA user_version=2; COMMIT;""")
 
     def close(self):
         self.db.close()

@@ -1,0 +1,9 @@
+{
+  "environment": "Ubuntu 24.04.5 x86_64 · Qt 6.9.3 · PulseAudio virtual sink",
+  "command": "scripts/check_resume.py",
+  "original_cp": 7,
+  "saved_ms": 426,
+  "same_audio_ms": 426,
+  "new_audio_initial_ms": 0,
+  "different_fingerprint": true
+}

@@ -139,6 +139,12 @@ def test_error_budget_and_unknown(book):
         "http_429",
     )
     test_error(
+        lambda r: httpx.Response(503, headers={"Retry-After": "0"}),
+        "503",
+        2,
+        "http_503",
+    )
+    test_error(
         lambda r: httpx.Response(
             200,
             json={

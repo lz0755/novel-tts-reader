@@ -1,0 +1,427 @@
+{
+  "date": "2026-11-21",
+  "implementation": "408a4bec0afab3472c52157ff1243d402a464ce9",
+  "counts": {
+    "阻塞": 23,
+    "通过": 26,
+    "待测": 3
+  },
+  "items": [
+    {
+      "id": "AC-001",
+      "stage": "M0",
+      "title": "双平台离线启动",
+      "status": "阻塞",
+      "result": "Ubuntu 发行包与 Windows/Wine 自检已执行；Windows 11 原生启动待测。",
+      "evidence": "evidence/packaged.json"
+    },
+    {
+      "id": "AC-002",
+      "stage": "M0",
+      "title": "版本化业务契约",
+      "status": "通过",
+      "result": "核心导入、合成指纹、四种产物来源和含确定性的错误模型已验证。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-003",
+      "stage": "M0",
+      "title": "线程隔离与退出",
+      "status": "通过",
+      "result": "窗口测试核对专属库线程身份；任务运行中可跳句和取消，关闭后可重新打开书库。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-004",
+      "stage": "M0",
+      "title": "配置与凭据",
+      "status": "通过",
+      "result": "端点、协议、模型和 TTS 独立保存；系统凭据失效后仅会话有效，换主机不会复用环境密钥。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-005",
+      "stage": "M0",
+      "title": "控制协议",
+      "status": "通过",
+      "result": "握手拒绝非法版本、未知字段及非回环地址；控制服务拒绝未认证请求。",
+      "evidence": "control-protocol.md"
+    },
+    {
+      "id": "AC-006",
+      "stage": "M1",
+      "title": "导入与书架",
+      "status": "通过",
+      "result": "从桌面导入两章样书，取消事务后检查书架未增加半成品。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-007",
+      "stage": "M1",
+      "title": "确定性标注与配音",
+      "status": "通过",
+      "result": "固定角色线索映射为原文区间，重试、跨章及重开保持绑定；样书三种音色均有对应 WAV。",
+      "evidence": "evidence/demo-chapter/manifest.json"
+    },
+    {
+      "id": "AC-008",
+      "stage": "M1",
+      "title": "固定语音、测试音与导出",
+      "status": "阻塞",
+      "result": "固定语音、音调、真实播放器及导出清单已验证；实体音频设备试听待补。",
+      "evidence": "evidence/qt-loopback.json"
+    },
+    {
+      "id": "AC-009",
+      "stage": "M1",
+      "title": "播放器控制与出错",
+      "status": "通过",
+      "result": "Qt 播放、暂停、跳句均取真实媒体状态，输出设备缺失有提示；损坏的缓存会校验并重新生成。",
+      "evidence": "evidence/qt-loopback.json"
+    },
+    {
+      "id": "AC-010",
+      "stage": "M1",
+      "title": "高亮与断点",
+      "status": "通过",
+      "result": "窗口按源句高亮，实际媒体流暂停、重开、复播位置已核对。",
+      "evidence": "evidence/qt-resume.json"
+    },
+    {
+      "id": "AC-011",
+      "stage": "M1",
+      "title": "离线和故障注入",
+      "status": "通过",
+      "result": "断网包自检、首次失败后重试、乱序、超时、损坏和模拟推理进程异常路径均可复现。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-012",
+      "stage": "M2",
+      "title": "编码与原文快照",
+      "status": "通过",
+      "result": "BOM、严格 UTF-8、GB18030、UTF-16、CRLF 和选区映射均已验证，库中保留原文件及编码。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-013",
+      "stage": "M2",
+      "title": "章节预览与长书",
+      "status": "通过",
+      "result": "1,120,000 码点无标题样本走桌面导入；20 个随机锚点逐个比对原文，重开定位一致。",
+      "evidence": "evidence/long-book.json"
+    },
+    {
+      "id": "AC-014",
+      "stage": "M2",
+      "title": "码点与 Qt 坐标",
+      "status": "通过",
+      "result": "扩展汉字、组合符号、ZWJ、换行的安全边界和 Qt 实际选区对照通过。",
+      "evidence": "evidence/long-book.json"
+    },
+    {
+      "id": "AC-015",
+      "stage": "M2",
+      "title": "模型区间校验",
+      "status": "通过",
+      "result": "检查结构、非空、方向、完整覆盖、角色引用、目标 ID 和修订；正文始终切自快照。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-016",
+      "stage": "M2",
+      "title": "新角色自动绑定",
+      "status": "通过",
+      "result": "20 个新角色经重复提交、跨章打开与新建连接重开后，身份和音色均保持。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-017",
+      "stage": "M2",
+      "title": "手工修订优先",
+      "status": "通过",
+      "result": "旧响应拒绝覆盖，选区可更换说话人并撤销；换模型与缺失音色保留原人工选择。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-018",
+      "stage": "M2",
+      "title": "三层纠音与局部再生成",
+      "status": "阻塞",
+      "result": "单句、单书、全局优先级及无关缓存复用通过。50 项真实音色听测缺少设备和音色。",
+      "evidence": "../fixtures/pronunciation.tsv"
+    },
+    {
+      "id": "AC-019",
+      "stage": "M2",
+      "title": "连续短句与句级定位",
+      "status": "阻塞",
+      "result": "可选连读从独立 PCM 确定帧边界，角色、音色、风格变化或下一句未缓存时回到单句；30 个短句的真实听感仍待验证。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-020",
+      "stage": "M3",
+      "title": "队列顺序与去重",
+      "status": "通过",
+      "result": "相同指纹并发 8 次只生成一次，预取上限 4 段，当前句和精确帧顺序决定播放及导出。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-021",
+      "stage": "M3",
+      "title": "迟到与播放会话",
+      "status": "通过",
+      "result": "20 次连续跳句只有最后的播放意图能消费结果，软取消与进程硬取消分别处理。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-022",
+      "stage": "M3",
+      "title": "修订与删除",
+      "status": "通过",
+      "result": "提交前核对书、修订、尝试及指纹；删除书后迟到结果无法重建数据。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-023",
+      "stage": "M3",
+      "title": "有效音频指纹",
+      "status": "通过",
+      "result": "音色、模型、实际指令、朗读文本及处理版本参与指纹。音量和播放速度仅进入媒体播放器。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-024",
+      "stage": "M3",
+      "title": "跨文件与数据库恢复",
+      "status": "通过",
+      "result": "子进程分别在写临时文件、改名后入库前强退；重开清理残留、保留书籍进度，并检查 SQLite 完整性。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-025",
+      "stage": "M3",
+      "title": "缓存容量、占用与磁盘写满",
+      "status": "待测",
+      "result": "播放及导出持有文件租约，ENOSPC 和清理均有测试。Wine 中 Win32 句柄拒绝共享删除时保留文件和索引，关闭句柄后回收 69,516 字节。Windows 11 原生仍待测。",
+      "evidence": "evidence/packaged.json"
+    },
+    {
+      "id": "AC-026",
+      "stage": "M3",
+      "title": "倍速与预取",
+      "status": "阻塞",
+      "result": "1、1.5、2 倍速缓冲换算与实际播放器切速通过；实体设备的保调听感待测。",
+      "evidence": "evidence/qt-loopback.json"
+    },
+    {
+      "id": "AC-027",
+      "stage": "M3",
+      "title": "音频指纹与句内断点",
+      "status": "通过",
+      "result": "同一音频保存及重开均为 426 ms；换声音后定位原句，新指纹的初始偏移为 0。",
+      "evidence": "evidence/qt-resume.json"
+    },
+    {
+      "id": "AC-028",
+      "stage": "M3",
+      "title": "进程外监督与硬取消",
+      "status": "通过",
+      "result": "真实回环、动态端口、随机令牌、spawn；注入卡死、退出及模拟 OOM 后回收旧进程，下一任务合成成功。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-029",
+      "stage": "M3",
+      "title": "数据库升级、备份与关闭",
+      "status": "通过",
+      "result": "历史库在线备份、迁移、故障回滚、修复后重开及连续运行退出通过。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-030",
+      "stage": "M4",
+      "title": "供应商与协议能力",
+      "status": "阻塞",
+      "result": "三类配置、两种协议、三种输出能力及固定样本探测入口已实现。实际账号能力快照待取得。",
+      "evidence": "evidence/M4.md"
+    },
+    {
+      "id": "AC-031",
+      "stage": "M4",
+      "title": "OpenAI 与 DeepSeek 真调用",
+      "status": "阻塞",
+      "result": "两条真实探测命令分别执行，均在缺少凭据时退出；自定义回环 HTTP 服务通过验证。",
+      "evidence": "evidence/M4.md"
+    },
+    {
+      "id": "AC-032",
+      "stage": "M4",
+      "title": "上下文预算与局部回退",
+      "status": "通过",
+      "result": "分块只提交目标段；超限缩小当前批一次，拒答时保留最近有效版本。回环协议和故障用例通过。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-033",
+      "stage": "M4",
+      "title": "固定集标注质量",
+      "status": "阻塞",
+      "result": "10 章、350 个带锚点句段含 150 个明确对白、30 个歧义对白和 30 个多人父段，附评分脚本。独立人工复核和真实模型评分待执行。",
+      "evidence": "../fixtures/regression.json"
+    },
+    {
+      "id": "AC-034",
+      "stage": "M4",
+      "title": "重试、关联与潜在费用",
+      "status": "通过",
+      "result": "读超时记为结果未知且不自动重发。重开后手工重试同一逻辑内容，新的作业保留原尝试与潜在重复费用标记；429、5xx、鉴权和退避上限均有记录。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-035",
+      "stage": "M4",
+      "title": "十章费用与预算",
+      "status": "阻塞",
+      "result": "十章费用报告可按实际端点、模型、定价和整书长度预估费用区间；未知成本及不同配置拒绝外推。请求预算和停用保护已验证。缺少真实十章账单。",
+      "evidence": "evidence/M4.md"
+    },
+    {
+      "id": "AC-036",
+      "stage": "M5",
+      "title": "主供应商真实声音",
+      "status": "阻塞",
+      "result": "独立 Qwen HTTP 适配器与正式入口已接入；缺少地域匹配的工作区和凭据。第二供应商 Realtime 为可选项。",
+      "evidence": "evidence/M5.md"
+    },
+    {
+      "id": "AC-037",
+      "stage": "M5",
+      "title": "音色与表演指令",
+      "status": "阻塞",
+      "result": "按实际配置发送 voice ID 和已验证的指令能力；测试覆盖不支持指令时的省略。真实音色对比待测。",
+      "evidence": "evidence/M5.md"
+    },
+    {
+      "id": "AC-038",
+      "stage": "M5",
+      "title": "归一化与音频下载",
+      "status": "阻塞",
+      "result": "二进制、Base64、限时 URL 与 12 kHz 双声道归一化已验证。真实供应商音频和服务端链接过期仍待测。",
+      "evidence": "evidence/M5.md"
+    },
+    {
+      "id": "AC-039",
+      "stage": "M5",
+      "title": "共用缓存、队列及取消",
+      "status": "阻塞",
+      "result": "契约测试复用现有队列、语音指纹与缓存；停止云上传后可重听命中段。真实费用和跨来源流程待测。",
+      "evidence": "evidence/M5.md"
+    },
+    {
+      "id": "AC-040",
+      "stage": "M5",
+      "title": "云端整章导出",
+      "status": "阻塞",
+      "result": "公共导出链路已校验源顺序、缺段、帧数和已有目标保护。缺真实云端章节与听测。",
+      "evidence": "evidence/demo-chapter/manifest.json"
+    },
+    {
+      "id": "AC-041",
+      "stage": "M6",
+      "title": "双平台核心发行",
+      "status": "阻塞",
+      "result": "Ubuntu 原生构建、普通账户包自检与 Windows x64 便携包兼容层自检已执行；Windows 11 干净原生机与云端真使用待测。",
+      "evidence": "evidence/packaged.json"
+    },
+    {
+      "id": "AC-042",
+      "stage": "M6",
+      "title": "路径、权限与显示",
+      "status": "待测",
+      "result": "Ubuntu 普通账户在只读安装目录运行，中文空格路径、150% 缩放及中文字体有窗口截图；Windows 便携包也在 Wine 中使用中文安装目录。双系统实际桌面的文件选择及显示仍待复核。",
+      "evidence": "evidence/packaged.json"
+    },
+    {
+      "id": "AC-043",
+      "stage": "M6",
+      "title": "目标音频设备",
+      "status": "阻塞",
+      "result": "取得 Qt 虚拟音频设备及回环记录；两平台实体输出、设备切换和现场试听待测。",
+      "evidence": "evidence/qt-loopback.json"
+    },
+    {
+      "id": "AC-044",
+      "stage": "M6",
+      "title": "离线能力、凭据与诊断",
+      "status": "通过",
+      "result": "断网发行包可使用样书；关闭云上传后缓存命中仍可重听，缓存缺失提示授权或加载运行时。会话凭据回退、本机真实 407 代理及自签证书握手失败均已验证。",
+      "evidence": "evidence/automated-tests.json"
+    },
+    {
+      "id": "AC-045",
+      "stage": "M6",
+      "title": "升级和卸载",
+      "status": "待测",
+      "result": "Ubuntu 核心包以原书库重复启动，v5→v6 迁移保留原文字节、手工区间、历史与断点，并生成可回读的 v5 备份。提供升级和卸载说明，原生 Windows 11 升级重装仍待测。",
+      "evidence": "evidence/packaged.json"
+    },
+    {
+      "id": "AC-046",
+      "stage": "M7",
+      "title": "独立运行时与模型资源",
+      "status": "阻塞",
+      "result": "独立依赖锁、固定模型提交、可恢复下载与逐文件核验入口已交付；目标机未下载或加载权重。",
+      "evidence": "local-runtime.md"
+    },
+    {
+      "id": "AC-047",
+      "stage": "M7",
+      "title": "两档切换与指令",
+      "status": "阻塞",
+      "result": "0.6B 省略指令，1.7B 接受有效风格，模型指纹分开。真实 0.6B→1.7B→0.6B、单卡驻留及试听待测。",
+      "evidence": "local-runtime.md"
+    },
+    {
+      "id": "AC-048",
+      "stage": "M7",
+      "title": "预热与 GPU 设置",
+      "status": "阻塞",
+      "result": "已实现 Ampere 能力判断、TF32/Benchmark 开关及 2–3 次预热。缺目标 GPU 的 A/B。",
+      "evidence": "local-runtime.md"
+    },
+    {
+      "id": "AC-049",
+      "stage": "M7",
+      "title": "动态预算与截断拒绝",
+      "status": "阻塞",
+      "result": "安全切分、token 估算及异常进程回收已测试。真实 EOS、长句尾音与生成预算校准待测。",
+      "evidence": "local-runtime.md"
+    },
+    {
+      "id": "AC-050",
+      "stage": "M7",
+      "title": "性能与连续播放",
+      "status": "阻塞",
+      "result": "已交付冷启动及未缓存测量入口，无目标 GPU、显存曲线、物理首音或 30 分钟真实预取记录。",
+      "evidence": "local-runtime.md"
+    },
+    {
+      "id": "AC-051",
+      "stage": "M7",
+      "title": "忠实朗读与纠音听测",
+      "status": "阻塞",
+      "result": "已交付 50 项纠音和短对白样本。两档模型的漏/重复/串角、句尾与风格 A/B 听测待执行。",
+      "evidence": "../fixtures/pronunciation.tsv"
+    },
+    {
+      "id": "AC-052",
+      "stage": "M7",
+      "title": "最终包的目标机回归",
+      "status": "阻塞",
+      "result": "发布包中的本地入口及模拟协议通过；原生目标机、新句离线合成、8 GB 硬件和长播回归缺少实测设备。",
+      "evidence": "local-runtime.md"
+    }
+  ]
+}

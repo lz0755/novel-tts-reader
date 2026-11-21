@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-21T13:11:25+00:00",
+  "build_source": "408a4bec0afab3472c52157ff1243d402a464ce9",
+  "application_source": "accefef085d71bc065fa0271f4c3e183bfd31603",
+  "linux": {
+    "file": "NovelTTSReader-linux-x86_64.tar.gz",
+    "bytes": 84209546,
+    "sha256": "21eca278c27d9f2cc5b98ac9d68d075dd9fa303d85abb94ae07affa37108fb68",
+    "evidence": "PACKAGED",
+    "build": "Ubuntu 24.04.5 native x86_64 · Nuitka 4.3.5",
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "qt": "6.9.3",
+    "deployment": {
+      "os": "Ubuntu 24.04.5 LTS in a separate container",
+      "platform": "xcb",
+      "display": "Xvfb 1920×1200",
+      "scale_factor": 1.5,
+      "font": "Noto CJK",
+      "user": "ubuntu (uid 1000)",
+      "network_interfaces": {},
+      "system_python3": false,
+      "system_cc": false,
+      "install_read_only": true,
+      "install_directory": "/opt/发行 最终版",
+      "cwd": "/tmp",
+      "tmpdir": "/home/ubuntu/中文 路径",
+      "data_dir": "/home/ubuntu/中文 路径/最终 升级书库",
+      "repeated_launches": 2,
+      "screenshot": "reader-150.png",
+      "screenshot_pixels": [
+        1620,
+        1080
+      ]
+    },
+    "self_test": {
+      "check": "mock_desktop",
+      "chapters": 2,
+      "segments": 11,
+      "frames": 371937,
+      "origin": [
+        "mock_fixture"
+      ]
+    },
+    "upgrade": {
+      "backup": {
+        "schema": 5,
+        "source_sha256": "51e6ed0fb32ef7a1fbfa6a0c6a690ac945d8e0f1c89acd7c9d48c64f99e5869c",
+        "manual_ranges": [
+          [
+            7,
+            14,
+            "unknown",
+            "轻声"
+          ]
+        ],
+        "history": 1,
+        "codepoint": 7,
+        "integrity_check": "ok"
+      },
+      "reopened": {
+        "schema": 6,
+        "source_sha256": "51e6ed0fb32ef7a1fbfa6a0c6a690ac945d8e0f1c89acd7c9d48c64f99e5869c",
+        "manual_ranges": [
+          [
+            7,
+            14,
+            "unknown",
+            "轻声"
+          ]
+        ],
+        "history": 1,
+        "codepoint": 7,
+        "integrity_check": "ok"
+      }
+    },
+    "limitations": [
+      "虚拟显示器与音频回环，实体设备试听另测",
+      "本次未调用云端、未加载 GPU 模型"
+    ]
+  },
+  "windows": {
+    "file": "NovelTTSReader-windows-x64-preview.zip",
+    "bytes": 261740224,
+    "sha256": "ba902c8b310a3ebf3c2ebe559846e6f9ea090d902e64d45286210b00a30dd726",
+    "evidence": "PACKAGED",
+    "build": "Pinned Windows CPython 3.12.16, native PySide6 6.9.3 wheels and Win32 GUI launcher",
+    "runner": "Wine 9 on Ubuntu 24.04.5 x86_64",
+    "unicode_install_directory": "Windows 小说/最终 便携/NovelTTSReader",
+    "launcher": "NovelTTSReader.exe",
+    "launcher_exit_code": 0,
+    "self_test": {
+      "check": "mock_desktop",
+      "chapters": 2,
+      "segments": 11,
+      "frames": 371937,
+      "origin": [
+        "mock_fixture"
+      ]
+    },
+    "win32_cache_sharing": {
+      "platform": "Windows-10-10.0.19043-SP0",
+      "held": {
+        "removed": 0,
+        "remaining_bytes": 69516
+      },
+      "released": {
+        "removed": 1,
+        "remaining_bytes": 0
+      }
+    },
+    "limitations": [
+      "Windows 11 原生系统及实体设备未测",
+      "Windows 原生 Nuitka 构建待 GitHub Actions 或目标机构建"
+    ],
+    "upgrade": {
+      "versions": [
+        5,
+        6
+      ],
+      "manual_range": [
+        7,
+        14
+      ],
+      "original_cp": 7,
+      "integrity": "ok"
+    }
+  }
+}

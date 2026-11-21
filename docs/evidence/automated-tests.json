@@ -1,12 +1,14 @@
 {
-  "stand": "Debian 13 · Qt offscreen",
-  "implementation": "c0bcd67993785dad5b3a8925e12222608294ae1b",
+  "stand": "Debian 13 x86_64 · Qt 6.9.3 offscreen",
+  "implementation": "accefef085d71bc065fa0271f4c3e183bfd31603",
   "python": "3.12.14",
-  "tests": 31,
+  "command": "uv run --no-sync pytest -q",
+  "date": "2026-11-21T13:00:27.753822+00:00",
+  "tests": 46,
   "failures": 0,
   "errors": 0,
   "skipped": 0,
-  "seconds": 9.981,
+  "seconds": 11.378,
   "cases": [
     {
       "name": "tests.test_acceptance_edges.test_corpus_and_pronunciation",
@@ -18,39 +20,71 @@
     },
     {
       "name": "tests.test_acceptance_edges.test_corrupt_cache_self_heals",
-      "seconds": 0.017
+      "seconds": 0.019
     },
     {
       "name": "tests.test_acceptance_edges.test_disk_full_during_staging",
-      "seconds": 0.014
+      "seconds": 0.013
     },
     {
       "name": "tests.test_acceptance_edges.test_concurrent_audio_deduplication",
-      "seconds": 0.028
+      "seconds": 0.055
     },
     {
       "name": "tests.test_acceptance_edges.test_migration_backup_and_preexisting_data",
-      "seconds": 0.051
+      "seconds": 0.038
     },
     {
-      "name": "tests.test_cloud_tts.test_audio_protocol[url]",
+      "name": "tests.test_annotation_regression.test_twenty_bindings_survive_retry_new_chapter_and_restart",
       "seconds": 0.015
     },
     {
-      "name": "tests.test_cloud_tts.test_audio_protocol[base64]",
+      "name": "tests.test_annotation_regression.test_chunk_split_and_rejection_preserve_source",
+      "seconds": 0.024
+    },
+    {
+      "name": "tests.test_batches.test_exact_sample_frames_for_optional_short_batch",
+      "seconds": 0.038
+    },
+    {
+      "name": "tests.test_batches.test_first_failure_can_retry_without_placeholder",
       "seconds": 0.014
+    },
+    {
+      "name": "tests.test_billing_and_network.test_lost_response_and_manual_resend_survive_restart",
+      "seconds": 0.016
+    },
+    {
+      "name": "tests.test_billing_and_network.test_ten_chapter_cost_preview_matches_active_pricing",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.test_billing_and_network.test_real_transport_diagnostics[proxy]",
+      "seconds": 0.562
+    },
+    {
+      "name": "tests.test_billing_and_network.test_real_transport_diagnostics[certificate]",
+      "seconds": 0.603
+    },
+    {
+      "name": "tests.test_cloud_tts.test_audio_protocol[url]",
+      "seconds": 0.03
+    },
+    {
+      "name": "tests.test_cloud_tts.test_audio_protocol[base64]",
+      "seconds": 0.016
     },
     {
       "name": "tests.test_cloud_tts.test_audio_protocol[binary]",
-      "seconds": 0.014
+      "seconds": 0.013
     },
     {
       "name": "tests.test_cloud_tts.test_incomplete_or_corrupt_has_no_success",
-      "seconds": 0.014
+      "seconds": 0.013
     },
     {
       "name": "tests.test_contracts.test_pure_core_import",
-      "seconds": 0.052
+      "seconds": 0.038
     },
     {
       "name": "tests.test_contracts.test_fingerprint_and_error",
@@ -58,79 +92,107 @@
     },
     {
       "name": "tests.test_contracts.test_handshake",
-      "seconds": 0.007
+      "seconds": 0.006
     },
     {
       "name": "tests.test_llm.test_loopback_protocol[responses-json_schema]",
-      "seconds": 0.588
+      "seconds": 0.543
     },
     {
       "name": "tests.test_llm.test_loopback_protocol[chat_completions-json_object]",
-      "seconds": 0.542
+      "seconds": 0.545
     },
     {
       "name": "tests.test_llm.test_loopback_protocol[chat_completions-text]",
-      "seconds": 0.55
+      "seconds": 0.558
     },
     {
       "name": "tests.test_llm.test_error_budget_and_unknown",
-      "seconds": 0.019
+      "seconds": 0.021
     },
     {
       "name": "tests.test_local_adapter.test_qprocess_local_adapter",
-      "seconds": 0.473
+      "seconds": 0.496
     },
     {
       "name": "tests.test_local_adapter.test_two_model_effective_style_and_budgets",
-      "seconds": 0.004
+      "seconds": 0.003
     },
     {
       "name": "tests.test_mock_flow.test_chapter_cache_export",
-      "seconds": 0.092
+      "seconds": 0.085
     },
     {
       "name": "tests.test_mock_flow.test_window_import_generate_and_resume",
-      "seconds": 2.327
+      "seconds": 1.445
     },
     {
       "name": "tests.test_reliability.test_reconcile_and_quota",
-      "seconds": 0.027
+      "seconds": 0.017
     },
     {
       "name": "tests.test_reliability.test_old_attempt_and_deletion",
-      "seconds": 0.014
+      "seconds": 0.025
     },
     {
       "name": "tests.test_reliability.test_twenty_jumps",
-      "seconds": 1.224
+      "seconds": 1.191
     },
     {
       "name": "tests.test_reliability.test_different_rates",
       "seconds": 0.0
     },
     {
-      "name": "tests.test_sidecar.test_worker_supervision_and_recovery",
-      "seconds": 3.365
+      "name": "tests.test_remaining_contracts.test_actual_crash_at_publication[partial-71-partial]",
+      "seconds": 0.222
     },
     {
-      "name": "tests.test_text_and_edits.test_encodings_mapping",
-      "seconds": 0.002
+      "name": "tests.test_remaining_contracts.test_actual_crash_at_publication[after_rename-72-orphan]",
+      "seconds": 0.18
     },
     {
-      "name": "tests.test_text_and_edits.test_million_char_window_and_20_random_anchors",
-      "seconds": 0.136
+      "name": "tests.test_remaining_contracts.test_cancelled_import_rolls_back",
+      "seconds": 0.022
     },
     {
-      "name": "tests.test_text_and_edits.test_manual_priority_stale_and_undo",
+      "name": "tests.test_remaining_contracts.test_keyring_session_fallback_and_redaction",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.test_remaining_contracts.test_explicit_capability_downgrade_with_two_attempt_limit",
       "seconds": 0.013
     },
     {
-      "name": "tests.test_text_and_edits.test_rules_locality",
+      "name": "tests.test_remaining_contracts.test_temporary_voice_mapping_does_not_overwrite_manual",
       "seconds": 0.01
     },
     {
+      "name": "tests.test_remaining_contracts.test_failed_migration_rolls_back_and_releases_db",
+      "seconds": 0.031
+    },
+    {
+      "name": "tests.test_sidecar.test_worker_supervision_and_recovery",
+      "seconds": 3.465
+    },
+    {
+      "name": "tests.test_text_and_edits.test_encodings_mapping",
+      "seconds": 0.007
+    },
+    {
+      "name": "tests.test_text_and_edits.test_million_char_window_and_20_random_anchors",
+      "seconds": 0.426
+    },
+    {
+      "name": "tests.test_text_and_edits.test_manual_priority_stale_and_undo",
+      "seconds": 0.032
+    },
+    {
+      "name": "tests.test_text_and_edits.test_rules_locality",
+      "seconds": 0.015
+    },
+    {
       "name": "tests.test_text_and_edits.test_invalid_annotation_and_independent_people",
-      "seconds": 0.009
+      "seconds": 0.023
     }
   ]
 }

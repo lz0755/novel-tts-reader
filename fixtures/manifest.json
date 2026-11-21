@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "scope": "本项目开发、演示及兼容性验收。没有外部小说或音频语料。",
+  "entries": [
+    {
+      "path": "src/novel_tts/resources/demo.txt",
+      "purpose": "桌面演示、提示词与回归开发",
+      "source": "原创中文小说两章",
+      "sha256": "51e6ed0fb32ef7a1fbfa6a0c6a690ac945d8e0f1c89acd7c9d48c64f99e5869c"
+    },
+    {
+      "path": "src/novel_tts/resources/samples/manifest.json",
+      "purpose": "样书离线试听",
+      "source": "原创文本，eSpeak NG 合成的 18 个固定普通话语音片段，逐段摘要见清单",
+      "sha256": "4e1a6dece583b7275f710ad4b0d2665e1f0be10c2d1f959089c1b5cc2cbe3679"
+    },
+    {
+      "path": "fixtures/regression.json",
+      "purpose": "十章质量和费用验收集",
+      "source": "原创受控模板和作者指定的锚点，尚待独立人工盲审",
+      "sha256": "63e57c02a2fedb17b029902834fca24f3b07553214c8c6caf2b5f2ba6eeb02e6"
+    },
+    {
+      "path": "fixtures/pronunciation.tsv",
+      "purpose": "五十项纠音回听",
+      "source": "按样书题材编写的专名、多音字和数字",
+      "sha256": "b52f79cee4a5ab44eafa03951b727f7e437c7be905c62b0d4532ea594032e1c5"
+    },
+    {
+      "path": "scripts/check_long_book.py",
+      "purpose": "长书测试集生成器",
+      "source": "确定性生成；实际 112 万码点输入摘要和抽样见 docs/evidence/long-book.json",
+      "sha256": "31ab6854618d203a52829f95b0c6ccb422cfe3e3f04615c9438514f0ecd37c00"
+    },
+    {
+      "path": "tests/test_cloud_tts.py",
+      "purpose": "音频边界",
+      "source": "测试内生成的正常和异常音频",
+      "sha256": "2fe707ed4f930474124e01036d0e0b84be7ce6247ca1a4ca16e11153e4fb2edb"
+    },
+    {
+      "path": "tests/test_text_and_edits.py",
+      "purpose": "格式边界与原文",
+      "source": "测试内生成的文本字节、扩展汉字和组合字符",
+      "sha256": "18fb11770f4396abd99f5843be22931eda67f26d41d620d18558a6d71a500fca"
+    }
+  ]
+}

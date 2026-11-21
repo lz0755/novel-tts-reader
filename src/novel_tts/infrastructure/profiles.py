@@ -54,7 +54,7 @@ DEFAULTS = {
     "custom":Profile("custom","http://127.0.0.1:8080/v1","custom-model","chat_completions","text"),
     "qwen_cloud":Profile("qwen_cloud","https://YOUR_WORKSPACE_ID.ap-southeast-1.maas.aliyuncs.com/api/v1/services/audio/tts/SpeechSynthesizer",
                          "qwen-audio-3.1-tts-flash","qwen_audio_http",env="DASHSCOPE_API_KEY",
-                         voices=("longanhuan_v3.1",),unit="characters"),
+                         voices=("longanhuan_v3.1","xunanchuan_v3.1","longanlingxin_v3.1"),unit="characters"),
 }
 
 

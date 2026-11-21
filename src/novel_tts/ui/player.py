@@ -32,7 +32,7 @@ class Playback:
         self.voice.setCurrentText(line.voice)
         req = self.provider.prepare(line.spoken,line.voice,line.style)
         self.origin.setText(LABELS[req.origin]+(" · 临时替代音色" if line.substitute else ""))
-        self.spoken.setText("朗读文本\n"+line.spoken)
+        self.spoken.setText("朗读文本\n"+line.spoken + (("\n表演提示 · "+line.style+("（已应用）" if req.style else "（此音色未应用）")) if line.style else ""))
 
     def clicked_text(self,pos):
         if self.view and self.view.lines:

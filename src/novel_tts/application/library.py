@@ -72,6 +72,32 @@ class Library:
             finally:
                 temp.unlink(missing_ok=True)
 
+    def clean(self, limit_bytes):
+        entries = self.db.call("entries")
+        files = []
+        for key,_digest in entries:
+            path = self.paths.cache/(key+".wav")
+            try:
+                files.append((key,path,path.stat().st_size))
+            except FileNotFoundError:
+                pass
+        total = sum(size for _,_,size in files)
+        removed = 0
+        for key,path,size in files:
+            if total <= limit_bytes:
+                break
+            with self.mutex:
+                if key in self.pins:
+                    continue
+                try:
+                    path.unlink(missing_ok=True)
+                except PermissionError:
+                    continue
+                self.db.call("forget_audio",key)
+                total -= size
+                removed += 1
+        return {"removed":removed,"remaining_bytes":total}
+
     def chapter(self, view, provider, event, destination=None, notify=lambda done,total:None):
         count = 0
         def segments(stack):

@@ -137,7 +137,11 @@ class Playback:
         if not self.intent or not self.view:
             return
         view,provider = self.view,self.provider
-        for line in view.lines[self.index+1:self.index+3]:
+        from novel_tts.application.buffering import prefetch_count
+        remaining = max(0,(self.media.duration()-self.media.position())/1000) if self.media else 0.0
+        lines = view.lines[self.index+1:self.index+5]
+        count = prefetch_count(remaining,float(self.speed.currentText()),[max(.5,len(line.spoken)/4) for line in lines])
+        for line in lines[:count]:
             event = self.run("预取",lambda e,l=line:self.library.audio(view,l,provider,e),lambda _:None,
                              guard=lambda:False,priority=-1)
             if event:

@@ -75,7 +75,10 @@ def page_chunks(source):
 from novel_tts.infrastructure.edits import Edits
 
 
-class Store(Edits):
+from novel_tts.infrastructure.cache import CacheIndex
+
+
+class Store(Edits,CacheIndex):
     def __init__(self, paths):
         self.paths = paths
         self.path = paths.data / "library.sqlite3"
@@ -100,6 +103,8 @@ class Store(Edits):
                 CREATE TABLE aliases(book TEXT,id TEXT,alias TEXT,PRIMARY KEY(book,id,alias),
                   FOREIGN KEY(book,id) REFERENCES characters ON DELETE CASCADE);
                 PRAGMA user_version=2; COMMIT;""")
+
+        self.recovery = self.recover()
 
     def close(self):
         self.db.close()

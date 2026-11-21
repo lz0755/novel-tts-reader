@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def main():
-    from PySide6.QtCore import QTimer
+    from PySide6.QtCore import QLockFile, QTimer
     from PySide6.QtWidgets import QApplication
     from novel_tts.infrastructure.paths import Paths
     from novel_tts.ui.window import ReaderWindow
@@ -17,7 +17,13 @@ def main():
     args = parser.parse_args()
     app = QApplication.instance() or QApplication(sys.argv[:1])
     app.setApplicationName("NovelTTSReader")
-    window = ReaderWindow(Paths(args.data_dir), args.scenario)
+    paths = Paths(args.data_dir)
+    lock = QLockFile(str(paths.data / "reader.lock"))
+    lock.setStaleLockTime(0)
+    if not lock.tryLock(0):
+        print("书库已由另一窗口打开",file=sys.stderr)
+        return 2
+    window = ReaderWindow(paths, args.scenario)
     window.show()
     if args.smoke:
         QTimer.singleShot(450, window.close)

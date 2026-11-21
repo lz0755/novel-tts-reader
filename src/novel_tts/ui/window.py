@@ -6,7 +6,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, Signal, Slot
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QFileDialog, QHBoxLayout, QLabel, QListWidget, QMainWindow,
+    QComboBox, QDialog, QInputDialog, QFileDialog, QHBoxLayout, QLabel, QListWidget, QMainWindow,
     QPushButton, QSlider, QSplitter, QVBoxLayout, QWidget,
 )
 
@@ -53,6 +53,7 @@ class ReaderWindow(Editing,Playback,QMainWindow):
         self.resume = None
         self.build_ui()
         self.init_editing()
+        self.menuBar().addAction("清理缓存",self.clean_cache)
         self.counter.connect(self.count_update)
         self.clock = QTimer(self)
         self.clock.setInterval(1500)
@@ -284,6 +285,12 @@ class ReaderWindow(Editing,Playback,QMainWindow):
         self.stop()
         self.run("保存音色",lambda _: self.repo.call("set_voice",view,line.speaker,caps,voice),
                  lambda _: self.load_page(view.page,line.start),guard=lambda:self.view is view)
+
+    def clean_cache(self):
+        mib,ok = QInputDialog.getInt(self,"清理缓存","保留最近使用的音频（MiB）",512,0,100000)
+        if ok:
+            self.run("清理缓存",lambda _:self.library.clean(mib*1024**2),
+                     lambda r:self.note.setText(f"已移除 {r['removed']} 个音频文件"),task=True)
 
     def generate(self):
         self.chapter_task(None)

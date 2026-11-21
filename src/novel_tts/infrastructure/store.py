@@ -87,7 +87,7 @@ class Store(Edits,CacheIndex):
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA journal_mode=WAL")
         version = self.db.execute("PRAGMA user_version").fetchone()[0]
-        if version > 2:
+        if version > 3:
             self.db.close()
             raise RuntimeError("数据库来自更新版本")
         if version == 0:
@@ -104,7 +104,21 @@ class Store(Edits,CacheIndex):
                   FOREIGN KEY(book,id) REFERENCES characters ON DELETE CASCADE);
                 PRAGMA user_version=2; COMMIT;""")
 
+        if version < 3:
+            if version:
+                self.backup(self.path.with_suffix(".before-v3.sqlite3"))
+            self.db.executescript("""BEGIN;
+                CREATE TABLE attempts(id TEXT PRIMARY KEY,book TEXT,stamp REAL,record TEXT);
+                PRAGMA user_version=3; COMMIT;""")
         self.recovery = self.recover()
+
+    def record_attempt(self,book,row):
+        with self.db:
+            self.db.execute("INSERT OR REPLACE INTO attempts VALUES(?,?,?,?)",
+                            (row["attempt"],book,time.time(),json.dumps(row,ensure_ascii=False)))
+
+    def attempts(self):
+        return [json.loads(row[0]) for row in self.db.execute("SELECT record FROM attempts ORDER BY stamp DESC LIMIT 100")]
 
     def close(self):
         self.db.close()

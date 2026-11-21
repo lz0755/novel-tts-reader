@@ -18,6 +18,7 @@ from novel_tts.infrastructure.threads import Background, Repository
 from novel_tts.providers.mock import MockTTS
 from novel_tts.ui.player import Playback
 from novel_tts.ui.editing import Editing
+from novel_tts.ui.cloud import CloudSettings
 from novel_tts.ui.widgets import ImportPreview, SourceText
 
 
@@ -28,7 +29,7 @@ def button(text, fn, layout):
     return widget
 
 
-class ReaderWindow(Editing,Playback,QMainWindow):
+class ReaderWindow(CloudSettings,Editing,Playback,QMainWindow):
     counter = Signal(str, int)
 
     def __init__(self, paths, scenario=None):
@@ -53,6 +54,7 @@ class ReaderWindow(Editing,Playback,QMainWindow):
         self.resume = None
         self.build_ui()
         self.init_editing()
+        self.init_cloud()
         self.menuBar().addAction("清理缓存",self.clean_cache)
         self.counter.connect(self.count_update)
         self.clock = QTimer(self)

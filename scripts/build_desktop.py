@@ -8,6 +8,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tempfile
 from importlib import metadata
 from pathlib import Path
 
@@ -70,9 +71,20 @@ def main():
         / "PySide6/qt-plugins/egldeviceintegrations/libqeglfs-kms-integration.so"
     )
     embedded.unlink(missing_ok=True)
-    exe = directory / binary
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONUTF8="1")
-    subprocess.run([str(exe), "--self-test"], cwd=out, env=env, check=True, timeout=120)
+    with tempfile.TemporaryDirectory(prefix="小说 朗读室 ", dir=out) as test_root:
+        installed = Path(test_root) / "安装"
+        directory.rename(installed)
+        try:
+            subprocess.run(
+                [str(installed / binary), "--self-test"],
+                cwd=out,
+                env=env,
+                check=True,
+                timeout=120,
+            )
+        finally:
+            installed.rename(directory)
     shutil.copy2(root / "docs/installation.md", directory / "使用说明.md")
     shutil.copy2(root / "uv.lock", directory / "desktop-uv.lock")
     shutil.copy2(root / "docs/third-party.md", directory / "THIRD-PARTY.md")

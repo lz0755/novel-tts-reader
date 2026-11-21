@@ -17,7 +17,7 @@ novel-tts = "novel_tts.__main__:main"
 
 [dependency-groups]
 dev = ["pytest==8.4.2"]
-build = ["Nuitka==2.8.4", "ordered-set==4.1.0", "zstandard==0.25.0", "patchelf==0.17.2.4; sys_platform == 'linux'"]
+build = ["Nuitka==4.3.5", "ordered-set==4.1.0", "zstandard==0.25.0", "patchelf==0.17.2.4; sys_platform == 'linux'"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/novel_tts"]

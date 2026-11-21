@@ -290,7 +290,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 build = [
-    { name = "nuitka", specifier = "==2.8.4" },
+    { name = "nuitka", specifier = "==4.3.5" },
     { name = "ordered-set", specifier = "==4.1.0" },
     { name = "patchelf", marker = "sys_platform == 'linux'", specifier = "==0.17.2.4" },
     { name = "zstandard", specifier = "==0.25.0" },
@@ -299,13 +299,9 @@ dev = [{ name = "pytest", specifier = "==8.4.2" }]
 
 [[package]]
 name = "nuitka"
-version = "2.8.4"
+version = "4.3.5"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "ordered-set" },
-    { name = "zstandard" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6f/87/f20ffda1b6dc04361fa95390f4d47d974ee194e6e1e7688f13d324f3d89b/Nuitka-2.8.4.tar.gz", hash = "sha256:06b020ef33be97194f888dcfcd4c69c8452ceb61b31c7622e610d5156eb7923d", size = 3885111, upload-time = "2025-10-21T10:28:45.499Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5f/ec/a9a448d2c429865483fdecf3e4d60e4dcdb8738085337cbd2482ec6468ef/nuitka-4.3.5.tar.gz", hash = "sha256:ca1dabc274b95efa7a46597f464ec27484b30f32cb89872d14d66541284d4f01", size = 4780637, upload-time = "2026-11-08T13:01:00.034Z" }
 
 [[package]]
 name = "ordered-set"

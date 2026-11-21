@@ -1,0 +1,59 @@
+name: Attach native preview downloads
+
+on:
+  workflow_run:
+    workflows: [Native desktop packages]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      build_run:
+        description: Successful desktop tag build run ID
+        required: true
+        type: string
+
+jobs:
+  attach:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'desktop-'))
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUILD_ID: ${{ inputs.build_run || github.event.workflow_run.id }}
+    steps:
+      - name: Verify the release tag and upload checked packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$BUILD_ID" =~ ^[0-9]+$ ]]
+          run=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_ID")
+          jq -e --arg repo "$GITHUB_REPOSITORY" '
+            .conclusion == "success" and .event == "push" and
+            .head_repository.full_name == $repo and .path == ".github/workflows/package.yml"
+          ' <<< "$run" > /dev/null
+          tag=$(jq -r .head_branch <<< "$run")
+          [[ "$tag" =~ ^desktop-[a-zA-Z0-9._-]+$ ]]
+          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" = "$(jq -r .head_sha <<< "$run")"
+          release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json apiUrl,isDraft,isPrerelease)
+          jq -e '.isDraft or .isPrerelease' <<< "$release" > /dev/null
+          release_url=$(jq -r .apiUrl <<< "$release")
+          assets=$(gh api "$release_url" --jq .assets)
+          gh run download "$BUILD_ID" --repo "$GITHUB_REPOSITORY" --pattern 'NovelTTSReader-*' --dir downloaded
+          for target in linux windows; do
+            ext=tar.gz
+            if [[ "$target" == windows ]]; then ext=zip; fi
+            name="NovelTTSReader-$target-x86_64.$ext"
+            package="downloaded/NovelTTSReader-$target-x86_64/$name"
+            actual=$(sha256sum "$package" | cut -d' ' -f1)
+            test "$actual" = "$(cut -d' ' -f1 "$package.sha256")"
+            for file in "$package" "$package.sha256"; do
+              name=$(basename "$file")
+              digest=$(sha256sum "$file" | cut -d' ' -f1)
+              if jq -e --arg name "$name" 'any(.[]; .name == $name)' <<< "$assets" > /dev/null; then
+                jq -e --arg name "$name" --arg sum "sha256:$digest" 'any(.[]; .name == $name and .digest == $sum)' <<< "$assets" > /dev/null
+              else
+                gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY"
+              fi
+            done
+          done

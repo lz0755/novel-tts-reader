@@ -7,6 +7,7 @@ from threading import Lock
 
 import httpx
 
+from novel_tts.application.costs import pricing_key
 from novel_tts.domain.models import Cancelled, ProviderError, fingerprint
 
 
@@ -46,8 +47,9 @@ class ContextLimit(ProviderError):
 
 
 class Attempts:
-    def __init__(self):
+    def __init__(self, logical_id=None):
         self.job = uuid.uuid4().hex
+        self.logical_id = logical_id
         self.count = 0
         self.deadline = time.monotonic() + 90
 
@@ -78,15 +80,19 @@ class Remote:
                 row = dict(
                     job=job,
                     attempt=uuid.uuid4().hex,
+                    logical_id=group.logical_id
+                    or fingerprint([url, self.profile.protocol, request_hash]),
                     number=attempt + 1,
                     hash=request_hash,
                     provider=self.profile.name,
                     protocol=self.profile.protocol,
                     model=self.profile.model,
+                    requested_model=self.profile.model,
                     endpoint=self.profile.endpoint,
                     usage={},
                     cost=None,
                     price_date=self.profile.price_date,
+                    pricing_key=pricing_key(self.profile),
                     currency=self.profile.currency,
                     unit=self.profile.unit,
                     state="sent",
@@ -125,6 +131,24 @@ class Remote:
                     self.record(row)
                     raise ProviderError(
                         "响应丢失，供应商可能已执行并计费", False, "unknown"
+                    ) from None
+                except httpx.ProxyError:
+                    row["state"] = "proxy_failed"
+                    self.record(row)
+                    raise ProviderError(
+                        "代理连接或认证失败，请检查 HTTPS 代理配置", True
+                    ) from None
+                except httpx.ConnectError as exc:
+                    if "CERTIFICATE_VERIFY_FAILED" in str(exc):
+                        row["state"] = "certificate_failed"
+                        self.record(row)
+                        raise ProviderError(
+                            "TLS 证书校验失败，请核对域名、系统时间及可信 CA"
+                        ) from None
+                    row["state"] = "connection_failed"
+                    self.record(row)
+                    raise ProviderError(
+                        "连接失败，请检查端点、网络和代理配置", True
                     ) from None
                 except httpx.RequestError:
                     row["state"] = "connection_failed"

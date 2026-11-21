@@ -101,7 +101,7 @@ class Store(Edits, CacheIndex):
 
     def migrate(self):
         version = self.db.execute("PRAGMA user_version").fetchone()[0]
-        if version > 5:
+        if version > 6:
             raise RuntimeError("数据库来自更新版本")
         if version == 0:
             if self.db.execute(
@@ -155,9 +155,38 @@ class Store(Edits, CacheIndex):
                 CREATE INDEX parts_by_parent ON parts(chapter,parent,manual);
                 CREATE INDEX pages_by_anchor ON pages(chapter,start);
                 PRAGMA user_version=5; COMMIT;""")
+        if version < 6:
+            if version:
+                self.backup(self.path.with_suffix(".before-v6.sqlite3"))
+            self.db.executescript("""BEGIN;
+                CREATE INDEX attempts_by_content ON attempts(
+                    book, json_extract(record, '$.logical_id'), stamp DESC
+                );
+                PRAGMA user_version=6; COMMIT;""")
 
     def record_attempt(self, book, row):
         with self.db:
+            row = dict(row)
+            existing = self.db.execute(
+                "SELECT record FROM attempts WHERE id=?", (row["attempt"],)
+            ).fetchone()
+            if existing:
+                row = json.loads(existing[0]) | row
+            elif row.get("logical_id"):
+                prior = self.db.execute(
+                    """SELECT id, json_extract(record, '$.job'), json_extract(record, '$.state'),
+                              json_extract(record, '$.duplicate_charge_possible')
+                       FROM attempts WHERE book=? AND json_extract(record, '$.logical_id')=?
+                       ORDER BY stamp DESC LIMIT 1""",
+                    (book, row["logical_id"]),
+                ).fetchone()
+                if prior:
+                    row["previous_attempt"], row["previous_job"] = prior[0], prior[1]
+                    row["duplicate_charge_possible"] = bool(
+                        prior[3]
+                        or prior[2] in ("sent", "unknown", "received")
+                        or prior[2].startswith("http_5")
+                    )
             self.db.execute(
                 "INSERT OR REPLACE INTO attempts VALUES(?,?,?,?)",
                 (
@@ -198,6 +227,13 @@ class Store(Edits, CacheIndex):
                 "SELECT id,title FROM chapters WHERE book=? ORDER BY ordinal", (book,)
             )
         ]
+
+    def book_length(self, book):
+        return self.db.execute(
+            """SELECT COALESCE(SUM(length(p.source)),0) FROM pages p
+               JOIN chapters c ON c.id=p.chapter WHERE c.book=?""",
+            (book,),
+        ).fetchone()[0]
 
     def add_book(self, draft, cuts, cancel):
         book = uuid.uuid4().hex

@@ -82,8 +82,9 @@ def main():
     (bundle / "NovelTTSReader.cmd").write_bytes(
         b'@echo off\r\nstart "" "%~dp0python\\pythonw.exe" -X utf8 -I -m novel_tts %*\r\n'
     )
+    entry = "NovelTTSReader.exe" if args.launcher else "NovelTTSReader.cmd"
     (bundle / "README.txt").write_text(
-        "Windows x64 portable preview. Extract the entire folder and double-click NovelTTSReader.cmd.\n"
+        f"Windows x64 portable preview. Extract the entire folder and double-click {entry}.\n"
         "Offline self test: python\\python.exe -I -m novel_tts --self-test\n"
         "CPython 3.12.16 and Windows wheels are bundled. Hardware listening tests are listed in the acceptance report.\n",
         encoding="utf-8",

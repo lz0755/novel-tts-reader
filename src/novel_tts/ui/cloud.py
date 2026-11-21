@@ -1,10 +1,13 @@
 from dataclasses import replace
+import json
+from pathlib import Path
 
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDialog,
+    QFileDialog,
     QInputDialog,
     QLineEdit,
     QMessageBox,
@@ -14,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from novel_tts.application.analysis import analyze_chapter
+from novel_tts.application.costs import estimate, pricing_key
 from novel_tts.infrastructure.profiles import Profiles
 from novel_tts.providers.llm import RemoteLLM
 
@@ -30,6 +34,7 @@ class CloudSettings:
         menu.addAction("测试模型列表连接", self.probe_connection)
         menu.addAction("以固定样本测试标注能力…", self.probe_schema)
         menu.addAction("云端标注本章…", self.analyze_cloud)
+        menu.addAction("导入十章费用样本…", self.import_cost_sample)
         menu.addAction("批量标注整本书…", self.analyze_book)
         menu.addAction("请求与费用记录", self.show_attempts)
         self.provider_menu = menu
@@ -238,8 +243,53 @@ class CloudSettings:
         if not self.view:
             return
         view = self.view
+        self.run(
+            "准备批量预算",
+            lambda _: self.repo.call("book_length", view.book),
+            lambda size: self.confirm_book_analysis(view, size),
+            guard=lambda: self.view is view,
+        )
+
+    def import_cost_sample(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "选择 cost_summary 生成的费用样本", filter="JSON (*.json)"
+        )
+        if not path:
+            return
+        profile = self.profiles.all()[self.llm_name]
+
+        def read_sample(_):
+            with Path(path).open("rb") as stream:
+                raw = stream.read(65537)
+            if len(raw) > 65536:
+                raise ValueError("费用样本超过 64 KiB")
+            data = json.loads(raw)
+            rates = estimate(data, pricing_key(profile), 1)
+            return json.dumps(
+                dict(
+                    version=1,
+                    chapters=10,
+                    pricing_key=pricing_key(profile),
+                    currency=data["currency"],
+                    per_codepoint=rates,
+                )
+            )
+
+        def save(sample):
+            self.prefs.setValue("costs/" + profile.name, sample)
+            self.note.setText("十章费用样本已保存，整书标注前将显示费用区间")
+
+        self.run("读取费用样本", read_sample, save)
+
+    def confirm_book_analysis(self, view, size):
         chapters = tuple(self.chapters)
         p = self.profiles.all()[self.llm_name]
+        try:
+            sample = json.loads(self.prefs.value("costs/" + p.name, "{}"))
+            low, high = estimate(sample, pricing_key(p), size)
+            forecast = f"按十章样本外推，{size} 个原文码点约 {low:.4g}–{high:.4g} {p.currency}。"
+        except (ValueError, TypeError):
+            forecast = "费用待估，可先导入相同定价配置的十章样本。"
         caps = self.provider.capabilities()
         title = next(name for key, name in self.books if key == view.book)
         if (
@@ -247,8 +297,7 @@ class CloudSettings:
                 self,
                 "整书云端分析",
                 f"将《{title}》的 {len(chapters)} 章正文和角色表逐块发送到 {p.endpoint}。"
-                f"本次共用 {p.budget} 次请求预算（含重试）。费用依据此配置的真实用量结算，费用未知时不会记为零。"
-                "是否开始整书标注？",
+                f"本次共用 {p.budget} 次请求预算（含重试）。{forecast}是否开始整书标注？",
             )
             != QMessageBox.StandardButton.Yes
         ):
@@ -276,8 +325,6 @@ class CloudSettings:
         )
 
     def show_attempts(self):
-        import json
-
         def show(rows):
             dialog = QDialog(self)
             dialog.setWindowTitle("最近 100 次供应商尝试")

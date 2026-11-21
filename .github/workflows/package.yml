@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libxkbcommon-x11-0 libxcb-cursor0 libpulse0 libasound2t64 patchelf
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libxkbcommon-x11-0 libxcb-cursor0 libpulse0 libasound2t64 libgssapi-krb5-2 libatomic1 libcups2t64 libgtk-3-0t64 libwayland-cursor0 libwayland-egl1 patchelf
       - run: uv sync --locked --python 3.12 --group build
       - run: uv run --no-sync python scripts/build_desktop.py --platform ${{ matrix.target }}
       - uses: actions/upload-artifact@v4

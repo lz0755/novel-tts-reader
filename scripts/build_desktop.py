@@ -36,7 +36,6 @@ def main():
         "platforminputcontexts",
         "platformthemes",
         "xcbglintegrations",
-        "egldeviceintegrations",
         "wayland-decoration-client",
         "wayland-graphics-integration-client",
         "wayland-shell-integration",
@@ -65,6 +64,12 @@ def main():
         cmd.insert(-1, "--msvc=latest")
     subprocess.run(cmd, cwd=root, check=True)
     directory = out / "launcher.dist"
+    # The Qt wheel also advertises embedded EGLFS plugins; this desktop targets xcb and Wayland.
+    embedded = (
+        directory
+        / "PySide6/qt-plugins/egldeviceintegrations/libqeglfs-kms-integration.so"
+    )
+    embedded.unlink(missing_ok=True)
     exe = directory / binary
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONUTF8="1")
     subprocess.run([str(exe), "--self-test"], cwd=out, env=env, check=True, timeout=120)
@@ -108,6 +113,11 @@ def main():
         ),
         encoding="utf-8",
     )
+    if args.platform == "linux":
+        for path in [directory, *directory.rglob("*")]:
+            if not path.is_symlink():
+                executable = path.is_dir() or bool(path.stat().st_mode & 0o100)
+                path.chmod(0o755 if executable else 0o644)
     base = out / f"{name}-{args.platform}-x86_64"
     archive = Path(
         shutil.make_archive(

@@ -11,6 +11,7 @@ from novel_tts.domain.models import (
     Capabilities,
     Part,
     ProviderError,
+    fingerprint,
 )
 from novel_tts.providers.http import Attempts, ContextLimit, Remote, UnsupportedFormat
 
@@ -160,7 +161,11 @@ class RemoteLLM(Remote):
             "chat_completions": ChatCompletionsAdapter,
         }[p.protocol]
         mode = p.output
-        group = Attempts()
+        content = payload(req)
+        logical_inputs = {k: v for k, v in content.items() if k != "batch_id"}
+        group = Attempts(
+            fingerprint([p.endpoint, p.model, p.protocol, req.chapter, logical_inputs])
+        )
         while True:
             instructions = (
                 SYSTEM
@@ -173,7 +178,7 @@ class RemoteLLM(Remote):
                 {"role": "system", "content": instructions},
                 {
                     "role": "user",
-                    "content": json.dumps(payload(req), ensure_ascii=False),
+                    "content": json.dumps(content, ensure_ascii=False),
                 },
             ]
             body = adapter.body(p.model, messages, mode)

@@ -44,9 +44,7 @@ def git(*args, capture=False):
 
 def gh_api(path, method="GET", body=None):
     command = ["gh", "api", path]
-    if body is None:
-        command += ["--paginate", "--slurp"]
-    else:
+    if body is not None:
         command += ["--method", method, "--input", "-"]
     result = subprocess.run(
         command,
@@ -61,9 +59,14 @@ def gh_api(path, method="GET", body=None):
 
 def update_tracker(repo, revision):
     path = "repos/" + repo + "/milestones"
-    existing = {
-        m["title"]: m for page in gh_api(path + "?state=all&per_page=100") for m in page
-    }
+    existing = {}
+    page = 1
+    while True:
+        milestones = gh_api(f"{path}?state=all&per_page=100&page={page}")
+        existing.update((item["title"], item) for item in milestones)
+        if len(milestones) < 100:
+            break
+        page += 1
     data = json.loads(
         (
             Path(__file__).resolve().parents[1] / "docs/evidence/acceptance.json"

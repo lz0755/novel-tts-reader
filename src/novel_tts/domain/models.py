@@ -1,4 +1,5 @@
 """Immutable cross-thread contracts. All text offsets are Unicode code points."""
+
 from __future__ import annotations
 
 import hashlib
@@ -12,7 +13,9 @@ Origin = Literal["mock_fixture", "mock_tone", "cloud", "local"]
 
 
 def fingerprint(value: object) -> str:
-    packed = json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    packed = json.dumps(
+        value, sort_keys=True, ensure_ascii=False, separators=(",", ":")
+    )
     return hashlib.sha256(packed.encode("utf-8")).hexdigest()
 
 

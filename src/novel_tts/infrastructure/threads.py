@@ -1,4 +1,5 @@
 """The repository thread owns its connection. Blocking callers run in the pool."""
+
 from concurrent.futures import Future
 from threading import Event, get_ident
 

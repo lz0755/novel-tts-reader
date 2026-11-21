@@ -94,10 +94,10 @@
       "sha256": "628ecd9a67f8511f05e1d85ee4cef257f38bfa6998bfa682fc1be6b00cb1f65d"
     },
     {
-      "text": "远处的钟敲了12下。",
+      "text": "远处的钟敲了十二下。",
       "voice": "旁白",
       "file": "clip-15.wav",
-      "sha256": "5a3f3e66059ce6408983a139844f54418cb229ceb2d42e360f2e159e434f5fbe"
+      "sha256": "b50ad713af7aeddb77c4e20504cd5eaaa722a2805b28c27c1c7d5301577f97e2"
     },
     {
       "text": "“是谁？”",

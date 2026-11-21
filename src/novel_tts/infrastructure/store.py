@@ -1,16 +1,21 @@
 """Transaction methods used exclusively by the repository thread."""
+
 from __future__ import annotations
 
-import hashlib
 import json
 import sqlite3
 import time
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
 
 from novel_tts.domain.annotations import MockLLM, validate
-from novel_tts.domain.models import AnnotationRequest, Parent, Stale, Ticket
+from novel_tts.domain.models import (
+    AnnotationRequest,
+    Parent,
+    Stale,
+    Ticket,
+    fingerprint,
+)
 from novel_tts.domain.text import chapters, parents
 
 SCHEMA = """
@@ -78,7 +83,7 @@ from novel_tts.infrastructure.edits import Edits
 from novel_tts.infrastructure.cache import CacheIndex
 
 
-class Store(Edits,CacheIndex):
+class Store(Edits, CacheIndex):
     def __init__(self, paths):
         self.paths = paths
         self.path = paths.data / "library.sqlite3"
@@ -87,11 +92,13 @@ class Store(Edits,CacheIndex):
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA journal_mode=WAL")
         version = self.db.execute("PRAGMA user_version").fetchone()[0]
-        if version > 3:
+        if version > 4:
             self.db.close()
             raise RuntimeError("数据库来自更新版本")
         if version == 0:
-            if self.db.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]:
+            if self.db.execute(
+                "SELECT count(*) FROM sqlite_master WHERE type='table'"
+            ).fetchone()[0]:
                 self.db.close()
                 raise RuntimeError("未知数据库结构，请先恢复备份")
             self.db.executescript("BEGIN;" + SCHEMA + "PRAGMA user_version=1; COMMIT;")
@@ -110,67 +117,148 @@ class Store(Edits,CacheIndex):
             self.db.executescript("""BEGIN;
                 CREATE TABLE attempts(id TEXT PRIMARY KEY,book TEXT,stamp REAL,record TEXT);
                 PRAGMA user_version=3; COMMIT;""")
+        if version < 4:
+            if version:
+                self.backup(self.path.with_suffix(".before-v4.sqlite3"))
+            with self.db:
+                self.db.execute("BEGIN")
+                self.db.execute("ALTER TABLE books ADD COLUMN import_revision TEXT")
+                self.db.execute(
+                    "CREATE TABLE preferences(name TEXT PRIMARY KEY,value TEXT)"
+                )
+                for b in self.db.execute(
+                    "SELECT id,digest,encoding FROM books"
+                ).fetchall():
+                    starts = [
+                        r[0]
+                        for r in self.db.execute(
+                            "SELECT start FROM chapters WHERE book=? ORDER BY ordinal",
+                            (b[0],),
+                        )
+                    ]
+                    self.db.execute(
+                        "UPDATE books SET import_revision=? WHERE id=?",
+                        (fingerprint([b[1], b[2], starts]), b[0]),
+                    )
+                self.db.execute("PRAGMA user_version=4")
         self.recovery = self.recover()
 
-    def record_attempt(self,book,row):
+    def record_attempt(self, book, row):
         with self.db:
-            self.db.execute("INSERT OR REPLACE INTO attempts VALUES(?,?,?,?)",
-                            (row["attempt"],book,time.time(),json.dumps(row,ensure_ascii=False)))
+            self.db.execute(
+                "INSERT OR REPLACE INTO attempts VALUES(?,?,?,?)",
+                (
+                    row["attempt"],
+                    book,
+                    time.time(),
+                    json.dumps(row, ensure_ascii=False),
+                ),
+            )
 
     def attempts(self):
-        return [json.loads(row[0]) for row in self.db.execute("SELECT record FROM attempts ORDER BY stamp DESC LIMIT 100")]
+        return [
+            json.loads(row[0])
+            for row in self.db.execute(
+                "SELECT record FROM attempts ORDER BY stamp DESC LIMIT 100"
+            )
+        ]
 
     def close(self):
         self.db.close()
 
     def backup(self, destination):
-        with sqlite3.connect(destination) as dest:
+        from contextlib import closing
+
+        with closing(sqlite3.connect(destination)) as dest:
             self.db.backup(dest)
 
     def library(self):
-        return [tuple(r) for r in self.db.execute("SELECT id,title FROM books ORDER BY opened DESC")]
+        return [
+            tuple(r)
+            for r in self.db.execute("SELECT id,title FROM books ORDER BY opened DESC")
+        ]
 
     def toc(self, book):
-        return [tuple(r) for r in self.db.execute("SELECT id,title FROM chapters WHERE book=? ORDER BY ordinal", (book,))]
+        return [
+            tuple(r)
+            for r in self.db.execute(
+                "SELECT id,title FROM chapters WHERE book=? ORDER BY ordinal", (book,)
+            )
+        ]
 
     def add_book(self, draft, cuts, cancel):
         book = uuid.uuid4().hex
         with self.db:
-            self.db.execute("INSERT INTO books VALUES(?,?,?,?,?,0,?)", (
-                book, draft.title, draft.digest, draft.encoding, draft.raw, time.time()))
-            self.db.executemany("INSERT INTO characters VALUES(?,?,?,?)", [
-                (book, "narrator", "旁白", ""), (book, "unknown", "待确认", "")])
+            self.db.execute(
+                "INSERT INTO books VALUES(?,?,?,?,?,0,?,?)",
+                (
+                    book,
+                    draft.title,
+                    draft.digest,
+                    draft.encoding,
+                    draft.raw,
+                    time.time(),
+                    fingerprint([draft.digest, draft.encoding, tuple(cuts)]),
+                ),
+            )
+            self.db.executemany(
+                "INSERT INTO characters VALUES(?,?,?,?)",
+                [(book, "narrator", "旁白", ""), (book, "unknown", "待确认", "")],
+            )
             for i, (offset, title, source) in enumerate(chapters(draft, cuts)):
                 chapter = uuid.uuid4().hex
-                self.db.execute("INSERT INTO chapters VALUES(?,?,?,?,?)", (chapter, book, i, title, offset))
+                self.db.execute(
+                    "INSERT INTO chapters VALUES(?,?,?,?,?)",
+                    (chapter, book, i, title, offset),
+                )
                 for n, (start, text) in enumerate(page_chunks(source)):
                     if cancel.is_set():
                         from novel_tts.domain.models import Cancelled
+
                         raise Cancelled()
-                    self.db.execute("INSERT INTO pages VALUES(?,?,?,?)", (chapter, n, start, text))
+                    self.db.execute(
+                        "INSERT INTO pages VALUES(?,?,?,?)", (chapter, n, start, text)
+                    )
         return book
 
     def delete_book(self, book):
         with self.db:
-            self.db.execute("DELETE FROM dictionary WHERE scope=? OR scope LIKE ?", (book, book + "/%"))
+            self.db.execute(
+                "DELETE FROM dictionary WHERE scope=? OR scope LIKE ?",
+                (book, book + "/%"),
+            )
             self.db.execute("DELETE FROM books WHERE id=?", (book,))
 
     def progress(self, book):
-        row = self.db.execute("SELECT chapter,cp,hash,ms,rate FROM progress WHERE book=?", (book,)).fetchone()
+        row = self.db.execute(
+            "SELECT chapter,cp,hash,ms,rate FROM progress WHERE book=?", (book,)
+        ).fetchone()
         return tuple(row) if row else None
 
     def save_progress(self, book, chapter, cp, key, ms, rate):
         with self.db:
-            if self.db.execute("SELECT 1 FROM chapters WHERE id=? AND book=?", (chapter,book)).fetchone():
-                self.db.execute("INSERT OR REPLACE INTO progress VALUES(?,?,?,?,?,?)", (book,chapter,cp,key,ms,rate))
-                self.db.execute("UPDATE books SET opened=? WHERE id=?", (time.time(), book))
+            if self.db.execute(
+                "SELECT 1 FROM chapters WHERE id=? AND book=?", (chapter, book)
+            ).fetchone():
+                self.db.execute(
+                    "INSERT OR REPLACE INTO progress VALUES(?,?,?,?,?,?)",
+                    (book, chapter, cp, key, ms, rate),
+                )
+                self.db.execute(
+                    "UPDATE books SET opened=? WHERE id=?", (time.time(), book)
+                )
 
     def page_at(self, chapter, cp):
-        row = self.db.execute("SELECT num FROM pages WHERE chapter=? AND start<=? ORDER BY start DESC LIMIT 1", (chapter,cp)).fetchone()
+        row = self.db.execute(
+            "SELECT num FROM pages WHERE chapter=? AND start<=? ORDER BY start DESC LIMIT 1",
+            (chapter, cp),
+        ).fetchone()
         return row[0] if row else 0
 
     def revision(self, book):
-        row = self.db.execute("SELECT revision FROM books WHERE id=?", (book,)).fetchone()
+        row = self.db.execute(
+            "SELECT revision FROM books WHERE id=?", (book,)
+        ).fetchone()
         if not row:
             raise Stale("书籍已删除")
         return row[0]
@@ -183,39 +271,83 @@ class Store(Edits,CacheIndex):
         self.db.execute("UPDATE books SET revision=revision+1 WHERE id=?", (book,))
 
     def characters(self, book):
-        return tuple(tuple(r) for r in self.db.execute("SELECT id,name FROM characters WHERE book=? ORDER BY rowid", (book,)))
+        return tuple(
+            tuple(r)
+            for r in self.db.execute(
+                "SELECT id,name FROM characters WHERE book=? ORDER BY rowid", (book,)
+            )
+        )
 
     def request(self, chapter, page):
-        row = self.db.execute("""SELECT b.id,b.digest,b.revision,p.start,p.source FROM pages p
+        row = self.db.execute(
+            """SELECT b.id,b.import_revision,b.revision,p.start,p.source FROM pages p
             JOIN chapters c ON p.chapter=c.id JOIN books b ON c.book=b.id WHERE p.chapter=? AND p.num=?""",
-            (chapter,page)).fetchone()
+            (chapter, page),
+        ).fetchone()
         if not row:
             raise Stale("章节已删除")
-        targets = tuple(Parent(f"p{row[3]+p.start}", row[3]+p.start, p.text) for p in parents(row[4]))
-        prev = self.db.execute("SELECT substr(source,-256) FROM pages WHERE chapter=? AND num=?", (chapter,page-1)).fetchone()
-        return AnnotationRequest(row[0],chapter,row[1],row[2],uuid.uuid4().hex,targets,prev[0] if prev else "",self.characters(row[0]))
+        targets = tuple(
+            Parent(f"p{row[3] + p.start}", row[3] + p.start, p.text)
+            for p in parents(row[4])
+        )
+        prev = self.db.execute(
+            "SELECT substr(source,-256) FROM pages WHERE chapter=? AND num=?",
+            (chapter, page - 1),
+        ).fetchone()
+        return AnnotationRequest(
+            row[0],
+            chapter,
+            row[1],
+            row[2],
+            uuid.uuid4().hex,
+            targets,
+            prev[0] if prev else "",
+            self.characters(row[0]),
+        )
 
     def commit_annotations(self, req, result, caps, initial=False):
-        validate(req,result)
+        validate(req, result)
         with self.db:
-            self.guard(req.book,req.revision)
-            owner = self.db.execute("SELECT book FROM chapters WHERE id=?", (req.chapter,)).fetchone()
+            self.guard(req.book, req.revision)
+            owner = self.db.execute(
+                "SELECT book FROM chapters WHERE id=?", (req.chapter,)
+            ).fetchone()
             if not owner or owner[0] != req.book:
                 raise Stale("章节不属于此书")
             refs = {}
             for candidate in result.candidates:
                 evidence = f"{req.chapter}/{candidate.span_id}/{candidate.start}/{candidate.end}/{candidate.ref}"
                 cid = uuid.uuid5(uuid.UUID(req.book), evidence).hex
-                self.db.execute("INSERT OR IGNORE INTO characters VALUES(?,?,?,?)", (req.book,cid,candidate.name,evidence))
+                self.db.execute(
+                    "INSERT OR IGNORE INTO characters VALUES(?,?,?,?)",
+                    (req.book, cid, candidate.name, evidence),
+                )
                 refs[candidate.ref] = cid
-                self.binding(req.book,cid,caps)
-            for p, (_, parts) in zip(req.targets,result.lines):
-                if self.db.execute("SELECT 1 FROM parts WHERE chapter=? AND parent=? AND manual=1", (req.chapter,p.id)).fetchone():
+                self.binding(req.book, cid, caps)
+            for p, (_, parts) in zip(req.targets, result.lines):
+                if self.db.execute(
+                    "SELECT 1 FROM parts WHERE chapter=? AND parent=? AND manual=1",
+                    (req.chapter, p.id),
+                ).fetchone():
                     continue
-                self.db.execute("DELETE FROM parts WHERE chapter=? AND parent=?", (req.chapter,p.id))
-                self.db.executemany("INSERT INTO parts VALUES(?,?,?,?,?,?,0)", [
-                    (req.chapter,p.id,p.start+part.start,p.start+part.end,refs.get(part.speaker,part.speaker),part.style)
-                    for part in parts])
+                self.db.execute(
+                    "DELETE FROM parts WHERE chapter=? AND parent=?",
+                    (req.chapter, p.id),
+                )
+                self.db.executemany(
+                    "INSERT INTO parts VALUES(?,?,?,?,?,?,0)",
+                    [
+                        (
+                            req.chapter,
+                            p.id,
+                            p.start + part.start,
+                            p.start + part.end,
+                            refs.get(part.speaker, part.speaker),
+                            part.style,
+                        )
+                        for part in parts
+                    ],
+                )
             if not initial:
                 self.bump(req.book)
 
@@ -224,91 +356,180 @@ class Store(Edits,CacheIndex):
         voices = caps.voices
         if not voices:
             raise ValueError("所选语音配置没有可用音色")
-        row = self.db.execute("SELECT voice FROM bindings WHERE book=? AND id=? AND profile=?", (book,cid,profile)).fetchone()
+        row = self.db.execute(
+            "SELECT voice FROM bindings WHERE book=? AND id=? AND profile=?",
+            (book, cid, profile),
+        ).fetchone()
         if row:
-            return (row[0],False) if row[0] in voices else (voices[0], True)
+            return (row[0], False) if row[0] in voices else (voices[0], True)
         voice = voices[0]
-        if cid not in ("narrator","unknown") and len(voices) > 1:
-            count = self.db.execute("SELECT count(*) FROM bindings WHERE book=? AND profile=? AND id NOT IN ('narrator','unknown')", (book,profile)).fetchone()[0]
-            voice = voices[1+count % (len(voices)-1)]
-        self.db.execute("INSERT INTO bindings VALUES(?,?,?,?,0)", (book,cid,profile,voice))
-        return voice,False
+        if cid not in ("narrator", "unknown") and len(voices) > 1:
+            count = self.db.execute(
+                "SELECT count(*) FROM bindings WHERE book=? AND profile=? AND id NOT IN ('narrator','unknown')",
+                (book, profile),
+            ).fetchone()[0]
+            voice = voices[1 + count % (len(voices) - 1)]
+        self.db.execute(
+            "INSERT INTO bindings VALUES(?,?,?,?,0)", (book, cid, profile, voice)
+        )
+        return voice, False
 
     def view(self, chapter, page, caps):
-        row = self.db.execute("""SELECT c.book,c.title,p.start,p.source,(SELECT count(*) FROM pages WHERE chapter=c.id)
-            FROM chapters c JOIN pages p ON c.id=p.chapter WHERE c.id=? AND p.num=?""",(chapter,page)).fetchone()
+        row = self.db.execute(
+            """SELECT c.book,c.title,p.start,p.source,(SELECT count(*) FROM pages WHERE chapter=c.id)
+            FROM chapters c JOIN pages p ON c.id=p.chapter WHERE c.id=? AND p.num=?""",
+            (chapter, page),
+        ).fetchone()
         if not row:
             raise Stale("找不到章节页")
-        book,title,offset,source,count = row
-        if not self.db.execute("SELECT 1 FROM parts WHERE chapter=? AND start=?", (chapter,offset)).fetchone():
-            req = self.request(chapter,page)
-            self.commit_annotations(req,MockLLM().analyze_chunk(req),caps,initial=True)
-        rows = self.db.execute("""SELECT parent,start,end,speaker,style,manual FROM parts
+        book, title, offset, source, count = row
+        if not self.db.execute(
+            "SELECT 1 FROM parts WHERE chapter=? AND start=?", (chapter, offset)
+        ).fetchone():
+            req = self.request(chapter, page)
+            self.commit_annotations(
+                req, MockLLM().analyze_chunk(req), caps, initial=True
+            )
+        rows = self.db.execute(
+            """SELECT parent,start,end,speaker,style,manual FROM parts
             WHERE chapter=? AND start>=? AND start<? AND speaker!='skip' ORDER BY start""",
-            (chapter,offset,offset+len(source))).fetchall()
+            (chapter, offset, offset + len(source)),
+        ).fetchall()
         lines = []
         with self.db:
-            rules = self.rules(book,chapter)
-            for parent,start,end,cid,style,manual in rows:
-                display = source[start-offset:end-offset]
-                voice,subst = self.binding(book,cid,caps)
+            rules = self.rules(book, chapter)
+            for parent, start, end, cid, style, manual in rows:
+                display = source[start - offset : end - offset]
+                voice, subst = self.binding(book, cid, caps)
                 spoken = self.spoken(rules, start, display)
-                lines.append(Line(parent,start,end,cid,style,bool(manual),display,spoken,voice,subst))
-        return View(book,chapter,title,self.revision(book),page,count,offset,source,tuple(lines),self.characters(book))
+                lines.append(
+                    Line(
+                        parent,
+                        start,
+                        end,
+                        cid,
+                        style,
+                        bool(manual),
+                        display,
+                        spoken,
+                        voice,
+                        subst,
+                    )
+                )
+        return View(
+            book,
+            chapter,
+            title,
+            self.revision(book),
+            page,
+            count,
+            offset,
+            source,
+            tuple(lines),
+            self.characters(book),
+        )
 
     def rules(self, book, chapter):
-        scopes = ["*",book]
-        rows = self.db.execute("SELECT scope,word,replacement FROM dictionary WHERE scope IN (?,?) OR scope LIKE ?",
-                               (*scopes,book+"/"+chapter+"/%")).fetchall()
+        scopes = ["*", book]
+        rows = self.db.execute(
+            "SELECT scope,word,replacement FROM dictionary WHERE scope IN (?,?) OR scope LIKE ?",
+            (*scopes, book + "/" + chapter + "/%"),
+        ).fetchall()
         global_rules, book_rules, lines = {}, {}, {}
-        for scope,word,repl in rows:
-            if scope=="*":
-                global_rules[word]=repl
-            elif scope==book:
-                book_rules[word]=repl
+        for scope, word, repl in rows:
+            if scope == "*":
+                global_rules[word] = repl
+            elif scope == book:
+                book_rules[word] = repl
             else:
-                lines.setdefault(int(scope.rsplit("/",1)[1]),{})[word]=repl
-        return global_rules | book_rules, lines
+                lines.setdefault(int(scope.rsplit("/", 1)[1]), {})[word] = repl
+        return global_rules, book_rules, lines
 
     @staticmethod
     def spoken(rules, start, display):
         import re
-        terms = rules[0] | rules[1].get(start,{})
-        if not terms:
-            return display
-        pattern = "|".join(re.escape(s) for s in sorted(terms,key=len,reverse=True))
-        return re.sub(pattern,lambda m:terms[m.group()],display)
+        from novel_tts.domain.normalize import spoken_form
+
+        layers = (rules[2].get(start, {}), rules[1], rules[0])
+
+        # Match each scope before the lower scopes. Never rewrite a replacement again.
+        def apply_layer(text, depth):
+            if depth == len(layers):
+                return spoken_form(text)
+            terms = layers[depth]
+            if not terms:
+                return apply_layer(text, depth + 1)
+            out = []
+            offset = 0
+            pattern = "|".join(
+                re.escape(word) for word in sorted(terms, key=len, reverse=True)
+            )
+            for match in re.finditer(pattern, text):
+                out.extend(
+                    (
+                        apply_layer(text[offset : match.start()], depth + 1),
+                        terms[match[0]],
+                    )
+                )
+                offset = match.end()
+            out.append(apply_layer(text[offset:], depth + 1))
+            return "".join(out)
+
+        return apply_layer(display, 0)
 
     def set_voice(self, view, cid, caps, voice):
         if voice not in caps.voices:
             raise ValueError("音色不在可用列表")
         with self.db:
-            self.guard(view.book,view.revision)
-            self.db.execute("INSERT OR REPLACE INTO bindings VALUES(?,?,?,?,1)", (view.book,cid,caps.provider+"/"+caps.model,voice))
+            self.guard(view.book, view.revision)
+            self.db.execute(
+                "INSERT OR REPLACE INTO bindings VALUES(?,?,?,?,1)",
+                (view.book, cid, caps.provider + "/" + caps.model, voice),
+            )
             self.bump(view.book)
 
     def audio_info(self, key):
-        row = self.db.execute("SELECT digest,frames FROM audio WHERE hash=?", (key,)).fetchone()
+        row = self.db.execute(
+            "SELECT digest,frames FROM audio WHERE hash=?", (key,)
+        ).fetchone()
         if row:
             with self.db:
-                self.db.execute("UPDATE audio SET last_used=? WHERE hash=?", (time.time(),key))
+                self.db.execute(
+                    "UPDATE audio SET last_used=? WHERE hash=?", (time.time(), key)
+                )
         return tuple(row) if row else None
 
     def begin(self, ticket: Ticket):
         with self.db:
-            self.guard(ticket.book,ticket.revision)
-            self.db.execute("INSERT OR REPLACE INTO jobs VALUES(?,?,?,?,?,'running')",
-                (ticket.job_id,ticket.attempt_id,ticket.request_hash,ticket.book,ticket.revision))
+            self.guard(ticket.book, ticket.revision)
+            self.db.execute(
+                "INSERT OR REPLACE INTO jobs VALUES(?,?,?,?,?,'running')",
+                (
+                    ticket.job_id,
+                    ticket.attempt_id,
+                    ticket.request_hash,
+                    ticket.book,
+                    ticket.revision,
+                ),
+            )
 
     def finish_audio(self, ticket, artifact):
         with self.db:
-            self.guard(ticket.book,ticket.revision)
-            cur = self.db.execute("""UPDATE jobs SET state='done' WHERE id=? AND attempt=? AND hash=? AND state='running'""",
-                                  (ticket.job_id,ticket.attempt_id,ticket.request_hash))
+            self.guard(ticket.book, ticket.revision)
+            cur = self.db.execute(
+                """UPDATE jobs SET state='done' WHERE id=? AND attempt=? AND hash=? AND state='running'""",
+                (ticket.job_id, ticket.attempt_id, ticket.request_hash),
+            )
             if not cur.rowcount or artifact.request.key != ticket.request_hash:
                 raise Stale("合成尝试已过期")
-            self.db.execute("INSERT OR REPLACE INTO audio VALUES(?,?,?,?)", (ticket.request_hash,artifact.sha256,artifact.frames,time.time()))
+            self.db.execute(
+                "INSERT OR REPLACE INTO audio VALUES(?,?,?,?)",
+                (ticket.request_hash, artifact.sha256, artifact.frames, time.time()),
+            )
 
     def end_job(self, ticket, state):
         with self.db:
-            self.db.execute("UPDATE jobs SET state=? WHERE id=? AND attempt=? AND state='running'", (state,ticket.job_id,ticket.attempt_id))
+            self.db.execute(
+                "UPDATE jobs SET state=? WHERE id=? AND attempt=? AND state='running'",
+                (state, ticket.job_id, ticket.attempt_id),
+            )

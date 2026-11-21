@@ -1,0 +1,3028 @@
+{
+  "version": 1,
+  "provenance": "原创受控模板及人工指定角色；未经独立盲审。",
+  "characters": [
+    "林渊",
+    "阿宁",
+    "周雪",
+    "江荻",
+    "沈禾",
+    "叶舟",
+    "陈星",
+    "许桥",
+    "夏石",
+    "金桐",
+    "郭溪",
+    "齐韵",
+    "梅青",
+    "何西",
+    "方朔",
+    "罗茵",
+    "季桦",
+    "陆笙",
+    "唐平",
+    "杜雨"
+  ],
+  "chapters": [
+    {
+      "title": "第1章 渡口",
+      "genre": "叙事",
+      "parents": [
+        {
+          "id": "c1p1",
+          "kind": "multi",
+          "text": "林渊问：“那是最后一条船吗？”阿宁停下笔说：“好。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "林渊"
+            },
+            {
+              "start": 15,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "阿宁"
+            }
+          ]
+        },
+        {
+          "id": "c1p2",
+          "kind": "multi",
+          "text": "阿宁轻声说：“那是最后一条船吗？”周雪点头说：“走。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 17,
+              "speaker": "阿宁"
+            },
+            {
+              "start": 17,
+              "end": 23,
+              "speaker": "narrator"
+            },
+            {
+              "start": 23,
+              "end": 27,
+              "speaker": "周雪"
+            }
+          ]
+        },
+        {
+          "id": "c1p3",
+          "kind": "multi",
+          "text": "周雪回头答：“那是最后一条船吗？”江荻想了想，答：“等。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 17,
+              "speaker": "周雪"
+            },
+            {
+              "start": 17,
+              "end": 25,
+              "speaker": "narrator"
+            },
+            {
+              "start": 25,
+              "end": 29,
+              "speaker": "江荻"
+            }
+          ]
+        },
+        {
+          "id": "c1p4",
+          "kind": "clear",
+          "text": "林渊问：“那是最后一条船吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "林渊"
+            }
+          ]
+        },
+        {
+          "id": "c1p5",
+          "kind": "clear",
+          "text": "阿宁轻声说：“等我系好缆绳。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "阿宁"
+            }
+          ]
+        },
+        {
+          "id": "c1p6",
+          "kind": "clear",
+          "text": "周雪回头答：“我在渡口等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "周雪"
+            }
+          ]
+        },
+        {
+          "id": "c1p7",
+          "kind": "clear",
+          "text": "江荻停下笔说：“那是最后一条船吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 18,
+              "speaker": "江荻"
+            }
+          ]
+        },
+        {
+          "id": "c1p8",
+          "kind": "clear",
+          "text": "沈禾点头说：“等我系好缆绳。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "沈禾"
+            }
+          ]
+        },
+        {
+          "id": "c1p9",
+          "kind": "clear",
+          "text": "叶舟想了想，答：“我在渡口等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "叶舟"
+            }
+          ]
+        },
+        {
+          "id": "c1p10",
+          "kind": "clear",
+          "text": "陈星问：“那是最后一条船吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "陈星"
+            }
+          ]
+        },
+        {
+          "id": "c1p11",
+          "kind": "clear",
+          "text": "许桥轻声说：“等我系好缆绳。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "许桥"
+            }
+          ]
+        },
+        {
+          "id": "c1p12",
+          "kind": "clear",
+          "text": "夏石回头答：“我在渡口等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "夏石"
+            }
+          ]
+        },
+        {
+          "id": "c1p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c1p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c1p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c1p16",
+          "kind": "narration",
+          "text": "长桨拨开了第三道水纹。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 11,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c1p17",
+          "kind": "narration",
+          "text": "渡口的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第2章 灯市",
+      "genre": "叙事",
+      "parents": [
+        {
+          "id": "c2p1",
+          "kind": "multi",
+          "text": "周雪问：“还有蓝色的纸吗？”江荻停下笔说：“走。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "周雪"
+            },
+            {
+              "start": 14,
+              "end": 21,
+              "speaker": "narrator"
+            },
+            {
+              "start": 21,
+              "end": 25,
+              "speaker": "江荻"
+            }
+          ]
+        },
+        {
+          "id": "c2p2",
+          "kind": "multi",
+          "text": "江荻轻声说：“还有蓝色的纸吗？”沈禾点头说：“等。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "江荻"
+            },
+            {
+              "start": 16,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "沈禾"
+            }
+          ]
+        },
+        {
+          "id": "c2p3",
+          "kind": "multi",
+          "text": "沈禾回头答：“还有蓝色的纸吗？”叶舟想了想，答：“听。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "沈禾"
+            },
+            {
+              "start": 16,
+              "end": 24,
+              "speaker": "narrator"
+            },
+            {
+              "start": 24,
+              "end": 28,
+              "speaker": "叶舟"
+            }
+          ]
+        },
+        {
+          "id": "c2p4",
+          "kind": "clear",
+          "text": "周雪问：“还有蓝色的纸吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "周雪"
+            }
+          ]
+        },
+        {
+          "id": "c2p5",
+          "kind": "clear",
+          "text": "江荻轻声说：“我给你裁一张。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "江荻"
+            }
+          ]
+        },
+        {
+          "id": "c2p6",
+          "kind": "clear",
+          "text": "沈禾回头答：“我在灯市等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "沈禾"
+            }
+          ]
+        },
+        {
+          "id": "c2p7",
+          "kind": "clear",
+          "text": "叶舟停下笔说：“还有蓝色的纸吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 17,
+              "speaker": "叶舟"
+            }
+          ]
+        },
+        {
+          "id": "c2p8",
+          "kind": "clear",
+          "text": "陈星点头说：“我给你裁一张。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "陈星"
+            }
+          ]
+        },
+        {
+          "id": "c2p9",
+          "kind": "clear",
+          "text": "许桥想了想，答：“我在灯市等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "许桥"
+            }
+          ]
+        },
+        {
+          "id": "c2p10",
+          "kind": "clear",
+          "text": "夏石问：“还有蓝色的纸吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "夏石"
+            }
+          ]
+        },
+        {
+          "id": "c2p11",
+          "kind": "clear",
+          "text": "金桐轻声说：“我给你裁一张。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "金桐"
+            }
+          ]
+        },
+        {
+          "id": "c2p12",
+          "kind": "clear",
+          "text": "郭溪回头答：“我在灯市等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "郭溪"
+            }
+          ]
+        },
+        {
+          "id": "c2p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c2p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c2p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c2p16",
+          "kind": "narration",
+          "text": "新灯笼上画着一尾小鱼。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 11,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c2p17",
+          "kind": "narration",
+          "text": "灯市的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第3章 驿站",
+      "genre": "叙事",
+      "parents": [
+        {
+          "id": "c3p1",
+          "kind": "multi",
+          "text": "沈禾问：“信要在今晚送到。”叶舟停下笔说：“等。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "沈禾"
+            },
+            {
+              "start": 14,
+              "end": 21,
+              "speaker": "narrator"
+            },
+            {
+              "start": 21,
+              "end": 25,
+              "speaker": "叶舟"
+            }
+          ]
+        },
+        {
+          "id": "c3p2",
+          "kind": "multi",
+          "text": "叶舟轻声说：“信要在今晚送到。”陈星点头说：“听。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "叶舟"
+            },
+            {
+              "start": 16,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "陈星"
+            }
+          ]
+        },
+        {
+          "id": "c3p3",
+          "kind": "multi",
+          "text": "陈星回头答：“信要在今晚送到。”许桥想了想，答：“快。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "陈星"
+            },
+            {
+              "start": 16,
+              "end": 24,
+              "speaker": "narrator"
+            },
+            {
+              "start": 24,
+              "end": 28,
+              "speaker": "许桥"
+            }
+          ]
+        },
+        {
+          "id": "c3p4",
+          "kind": "clear",
+          "text": "沈禾问：“信要在今晚送到。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "沈禾"
+            }
+          ]
+        },
+        {
+          "id": "c3p5",
+          "kind": "clear",
+          "text": "叶舟轻声说：“马已经备好了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "叶舟"
+            }
+          ]
+        },
+        {
+          "id": "c3p6",
+          "kind": "clear",
+          "text": "陈星回头答：“我在驿站等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "陈星"
+            }
+          ]
+        },
+        {
+          "id": "c3p7",
+          "kind": "clear",
+          "text": "许桥停下笔说：“信要在今晚送到。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 17,
+              "speaker": "许桥"
+            }
+          ]
+        },
+        {
+          "id": "c3p8",
+          "kind": "clear",
+          "text": "夏石点头说：“马已经备好了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "夏石"
+            }
+          ]
+        },
+        {
+          "id": "c3p9",
+          "kind": "clear",
+          "text": "金桐想了想，答：“我在驿站等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "金桐"
+            }
+          ]
+        },
+        {
+          "id": "c3p10",
+          "kind": "clear",
+          "text": "郭溪问：“信要在今晚送到。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "郭溪"
+            }
+          ]
+        },
+        {
+          "id": "c3p11",
+          "kind": "clear",
+          "text": "齐韵轻声说：“马已经备好了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "齐韵"
+            }
+          ]
+        },
+        {
+          "id": "c3p12",
+          "kind": "clear",
+          "text": "梅青回头答：“我在驿站等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "梅青"
+            }
+          ]
+        },
+        {
+          "id": "c3p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c3p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c3p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c3p16",
+          "kind": "narration",
+          "text": "铜铃上结了一圈白霜。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c3p17",
+          "kind": "narration",
+          "text": "驿站的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第4章 测站",
+      "genre": "调查记录",
+      "parents": [
+        {
+          "id": "c4p1",
+          "kind": "multi",
+          "text": "陈星问：“前一组读数是多少？”许桥停下笔说：“听。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "陈星"
+            },
+            {
+              "start": 15,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "许桥"
+            }
+          ]
+        },
+        {
+          "id": "c4p2",
+          "kind": "multi",
+          "text": "许桥轻声说：“前一组读数是多少？”夏石点头说：“快。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 17,
+              "speaker": "许桥"
+            },
+            {
+              "start": 17,
+              "end": 23,
+              "speaker": "narrator"
+            },
+            {
+              "start": 23,
+              "end": 27,
+              "speaker": "夏石"
+            }
+          ]
+        },
+        {
+          "id": "c4p3",
+          "kind": "multi",
+          "text": "夏石回头答：“前一组读数是多少？”金桐想了想，答：“嗯。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 17,
+              "speaker": "夏石"
+            },
+            {
+              "start": 17,
+              "end": 25,
+              "speaker": "narrator"
+            },
+            {
+              "start": 25,
+              "end": 29,
+              "speaker": "金桐"
+            }
+          ]
+        },
+        {
+          "id": "c4p4",
+          "kind": "clear",
+          "text": "陈星问：“前一组读数是多少？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "陈星"
+            }
+          ]
+        },
+        {
+          "id": "c4p5",
+          "kind": "clear",
+          "text": "许桥轻声说：“请再校准一次。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "许桥"
+            }
+          ]
+        },
+        {
+          "id": "c4p6",
+          "kind": "clear",
+          "text": "夏石回头答：“我在测站等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "夏石"
+            }
+          ]
+        },
+        {
+          "id": "c4p7",
+          "kind": "clear",
+          "text": "金桐停下笔说：“前一组读数是多少？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 18,
+              "speaker": "金桐"
+            }
+          ]
+        },
+        {
+          "id": "c4p8",
+          "kind": "clear",
+          "text": "郭溪点头说：“请再校准一次。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "郭溪"
+            }
+          ]
+        },
+        {
+          "id": "c4p9",
+          "kind": "clear",
+          "text": "齐韵想了想，答：“我在测站等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "齐韵"
+            }
+          ]
+        },
+        {
+          "id": "c4p10",
+          "kind": "clear",
+          "text": "梅青问：“前一组读数是多少？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "梅青"
+            }
+          ]
+        },
+        {
+          "id": "c4p11",
+          "kind": "clear",
+          "text": "何西轻声说：“请再校准一次。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "何西"
+            }
+          ]
+        },
+        {
+          "id": "c4p12",
+          "kind": "clear",
+          "text": "方朔回头答：“我在测站等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "方朔"
+            }
+          ]
+        },
+        {
+          "id": "c4p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c4p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c4p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c4p16",
+          "kind": "narration",
+          "text": "指针停在刻度线以西。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c4p17",
+          "kind": "narration",
+          "text": "测站的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第5章 库房",
+      "genre": "调查记录",
+      "parents": [
+        {
+          "id": "c5p1",
+          "kind": "multi",
+          "text": "夏石问：“箱底还有一本账册。”金桐停下笔说：“快。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "夏石"
+            },
+            {
+              "start": 15,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "金桐"
+            }
+          ]
+        },
+        {
+          "id": "c5p2",
+          "kind": "multi",
+          "text": "金桐轻声说：“箱底还有一本账册。”郭溪点头说：“嗯。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 17,
+              "speaker": "金桐"
+            },
+            {
+              "start": 17,
+              "end": 23,
+              "speaker": "narrator"
+            },
+            {
+              "start": 23,
+              "end": 27,
+              "speaker": "郭溪"
+            }
+          ]
+        },
+        {
+          "id": "c5p3",
+          "kind": "multi",
+          "text": "郭溪回头答：“箱底还有一本账册。”齐韵想了想，答：“好。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 17,
+              "speaker": "郭溪"
+            },
+            {
+              "start": 17,
+              "end": 25,
+              "speaker": "narrator"
+            },
+            {
+              "start": 25,
+              "end": 29,
+              "speaker": "齐韵"
+            }
+          ]
+        },
+        {
+          "id": "c5p4",
+          "kind": "clear",
+          "text": "夏石问：“箱底还有一本账册。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "夏石"
+            }
+          ]
+        },
+        {
+          "id": "c5p5",
+          "kind": "clear",
+          "text": "金桐轻声说：“编号能对上吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "金桐"
+            }
+          ]
+        },
+        {
+          "id": "c5p6",
+          "kind": "clear",
+          "text": "郭溪回头答：“我在库房等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "郭溪"
+            }
+          ]
+        },
+        {
+          "id": "c5p7",
+          "kind": "clear",
+          "text": "齐韵停下笔说：“箱底还有一本账册。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 18,
+              "speaker": "齐韵"
+            }
+          ]
+        },
+        {
+          "id": "c5p8",
+          "kind": "clear",
+          "text": "梅青点头说：“编号能对上吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "梅青"
+            }
+          ]
+        },
+        {
+          "id": "c5p9",
+          "kind": "clear",
+          "text": "何西想了想，答：“我在库房等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "何西"
+            }
+          ]
+        },
+        {
+          "id": "c5p10",
+          "kind": "clear",
+          "text": "方朔问：“箱底还有一本账册。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 15,
+              "speaker": "方朔"
+            }
+          ]
+        },
+        {
+          "id": "c5p11",
+          "kind": "clear",
+          "text": "罗茵轻声说：“编号能对上吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "罗茵"
+            }
+          ]
+        },
+        {
+          "id": "c5p12",
+          "kind": "clear",
+          "text": "季桦回头答：“我在库房等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "季桦"
+            }
+          ]
+        },
+        {
+          "id": "c5p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c5p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c5p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c5p16",
+          "kind": "narration",
+          "text": "清单上的数字是12。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c5p17",
+          "kind": "narration",
+          "text": "库房的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第6章 档案室",
+      "genre": "调查记录",
+      "parents": [
+        {
+          "id": "c6p1",
+          "kind": "multi",
+          "text": "郭溪问：“这个日期被改过。”齐韵停下笔说：“嗯。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "郭溪"
+            },
+            {
+              "start": 14,
+              "end": 21,
+              "speaker": "narrator"
+            },
+            {
+              "start": 21,
+              "end": 25,
+              "speaker": "齐韵"
+            }
+          ]
+        },
+        {
+          "id": "c6p2",
+          "kind": "multi",
+          "text": "齐韵轻声说：“这个日期被改过。”梅青点头说：“好。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "齐韵"
+            },
+            {
+              "start": 16,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "梅青"
+            }
+          ]
+        },
+        {
+          "id": "c6p3",
+          "kind": "multi",
+          "text": "梅青回头答：“这个日期被改过。”何西想了想，答：“走。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "梅青"
+            },
+            {
+              "start": 16,
+              "end": 24,
+              "speaker": "narrator"
+            },
+            {
+              "start": 24,
+              "end": 28,
+              "speaker": "何西"
+            }
+          ]
+        },
+        {
+          "id": "c6p4",
+          "kind": "clear",
+          "text": "郭溪问：“这个日期被改过。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "郭溪"
+            }
+          ]
+        },
+        {
+          "id": "c6p5",
+          "kind": "clear",
+          "text": "齐韵轻声说：“把原件拿到灯下。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "齐韵"
+            }
+          ]
+        },
+        {
+          "id": "c6p6",
+          "kind": "clear",
+          "text": "梅青回头答：“我在档案室等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "梅青"
+            }
+          ]
+        },
+        {
+          "id": "c6p7",
+          "kind": "clear",
+          "text": "何西停下笔说：“这个日期被改过。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 17,
+              "speaker": "何西"
+            }
+          ]
+        },
+        {
+          "id": "c6p8",
+          "kind": "clear",
+          "text": "方朔点头说：“把原件拿到灯下。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "方朔"
+            }
+          ]
+        },
+        {
+          "id": "c6p9",
+          "kind": "clear",
+          "text": "罗茵想了想，答：“我在档案室等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 18,
+              "speaker": "罗茵"
+            }
+          ]
+        },
+        {
+          "id": "c6p10",
+          "kind": "clear",
+          "text": "季桦问：“这个日期被改过。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "季桦"
+            }
+          ]
+        },
+        {
+          "id": "c6p11",
+          "kind": "clear",
+          "text": "陆笙轻声说：“把原件拿到灯下。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "陆笙"
+            }
+          ]
+        },
+        {
+          "id": "c6p12",
+          "kind": "clear",
+          "text": "唐平回头答：“我在档案室等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "唐平"
+            }
+          ]
+        },
+        {
+          "id": "c6p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c6p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c6p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c6p16",
+          "kind": "narration",
+          "text": "抽屉深处露出半张车票。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 11,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c6p17",
+          "kind": "narration",
+          "text": "档案室的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 11,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第7章 修理铺",
+      "genre": "生活散文",
+      "parents": [
+        {
+          "id": "c7p1",
+          "kind": "multi",
+          "text": "梅青问：“先关掉传动轴。”何西停下笔说：“好。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 13,
+              "speaker": "梅青"
+            },
+            {
+              "start": 13,
+              "end": 20,
+              "speaker": "narrator"
+            },
+            {
+              "start": 20,
+              "end": 24,
+              "speaker": "何西"
+            }
+          ]
+        },
+        {
+          "id": "c7p2",
+          "kind": "multi",
+          "text": "何西轻声说：“先关掉传动轴。”方朔点头说：“走。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "何西"
+            },
+            {
+              "start": 15,
+              "end": 21,
+              "speaker": "narrator"
+            },
+            {
+              "start": 21,
+              "end": 25,
+              "speaker": "方朔"
+            }
+          ]
+        },
+        {
+          "id": "c7p3",
+          "kind": "multi",
+          "text": "方朔回头答：“先关掉传动轴。”罗茵想了想，答：“等。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "方朔"
+            },
+            {
+              "start": 15,
+              "end": 23,
+              "speaker": "narrator"
+            },
+            {
+              "start": 23,
+              "end": 27,
+              "speaker": "罗茵"
+            }
+          ]
+        },
+        {
+          "id": "c7p4",
+          "kind": "clear",
+          "text": "梅青问：“先关掉传动轴。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 13,
+              "speaker": "梅青"
+            }
+          ]
+        },
+        {
+          "id": "c7p5",
+          "kind": "clear",
+          "text": "何西轻声说：“新的轴承合适吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "何西"
+            }
+          ]
+        },
+        {
+          "id": "c7p6",
+          "kind": "clear",
+          "text": "方朔回头答：“我在修理铺等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "方朔"
+            }
+          ]
+        },
+        {
+          "id": "c7p7",
+          "kind": "clear",
+          "text": "罗茵停下笔说：“先关掉传动轴。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 16,
+              "speaker": "罗茵"
+            }
+          ]
+        },
+        {
+          "id": "c7p8",
+          "kind": "clear",
+          "text": "季桦点头说：“新的轴承合适吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "季桦"
+            }
+          ]
+        },
+        {
+          "id": "c7p9",
+          "kind": "clear",
+          "text": "陆笙想了想，答：“我在修理铺等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 18,
+              "speaker": "陆笙"
+            }
+          ]
+        },
+        {
+          "id": "c7p10",
+          "kind": "clear",
+          "text": "唐平问：“先关掉传动轴。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 13,
+              "speaker": "唐平"
+            }
+          ]
+        },
+        {
+          "id": "c7p11",
+          "kind": "clear",
+          "text": "杜雨轻声说：“新的轴承合适吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "杜雨"
+            }
+          ]
+        },
+        {
+          "id": "c7p12",
+          "kind": "clear",
+          "text": "林渊回头答：“我在修理铺等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "林渊"
+            }
+          ]
+        },
+        {
+          "id": "c7p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c7p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c7p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c7p16",
+          "kind": "narration",
+          "text": "小扳手落在木桌边缘。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c7p17",
+          "kind": "narration",
+          "text": "修理铺的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 11,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第8章 旧巷",
+      "genre": "生活散文",
+      "parents": [
+        {
+          "id": "c8p1",
+          "kind": "multi",
+          "text": "方朔问：“桂花又开了。”罗茵停下笔说：“走。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 12,
+              "speaker": "方朔"
+            },
+            {
+              "start": 12,
+              "end": 19,
+              "speaker": "narrator"
+            },
+            {
+              "start": 19,
+              "end": 23,
+              "speaker": "罗茵"
+            }
+          ]
+        },
+        {
+          "id": "c8p2",
+          "kind": "multi",
+          "text": "罗茵轻声说：“桂花又开了。”季桦点头说：“等。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 14,
+              "speaker": "罗茵"
+            },
+            {
+              "start": 14,
+              "end": 20,
+              "speaker": "narrator"
+            },
+            {
+              "start": 20,
+              "end": 24,
+              "speaker": "季桦"
+            }
+          ]
+        },
+        {
+          "id": "c8p3",
+          "kind": "multi",
+          "text": "季桦回头答：“桂花又开了。”陆笙想了想，答：“听。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 14,
+              "speaker": "季桦"
+            },
+            {
+              "start": 14,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "陆笙"
+            }
+          ]
+        },
+        {
+          "id": "c8p4",
+          "kind": "clear",
+          "text": "方朔问：“桂花又开了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 12,
+              "speaker": "方朔"
+            }
+          ]
+        },
+        {
+          "id": "c8p5",
+          "kind": "clear",
+          "text": "罗茵轻声说：“给邻居留一枝吧。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "罗茵"
+            }
+          ]
+        },
+        {
+          "id": "c8p6",
+          "kind": "clear",
+          "text": "季桦回头答：“我在旧巷等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "季桦"
+            }
+          ]
+        },
+        {
+          "id": "c8p7",
+          "kind": "clear",
+          "text": "陆笙停下笔说：“桂花又开了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 15,
+              "speaker": "陆笙"
+            }
+          ]
+        },
+        {
+          "id": "c8p8",
+          "kind": "clear",
+          "text": "唐平点头说：“给邻居留一枝吧。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "唐平"
+            }
+          ]
+        },
+        {
+          "id": "c8p9",
+          "kind": "clear",
+          "text": "杜雨想了想，答：“我在旧巷等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "杜雨"
+            }
+          ]
+        },
+        {
+          "id": "c8p10",
+          "kind": "clear",
+          "text": "林渊问：“桂花又开了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 12,
+              "speaker": "林渊"
+            }
+          ]
+        },
+        {
+          "id": "c8p11",
+          "kind": "clear",
+          "text": "阿宁轻声说：“给邻居留一枝吧。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "阿宁"
+            }
+          ]
+        },
+        {
+          "id": "c8p12",
+          "kind": "clear",
+          "text": "周雪回头答：“我在旧巷等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "周雪"
+            }
+          ]
+        },
+        {
+          "id": "c8p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c8p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c8p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c8p16",
+          "kind": "narration",
+          "text": "梧桐的影子越过矮墙。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c8p17",
+          "kind": "narration",
+          "text": "旧巷的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第9章 田埂",
+      "genre": "生活散文",
+      "parents": [
+        {
+          "id": "c9p1",
+          "kind": "multi",
+          "text": "季桦问：“今天的风真轻。”陆笙停下笔说：“等。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 13,
+              "speaker": "季桦"
+            },
+            {
+              "start": 13,
+              "end": 20,
+              "speaker": "narrator"
+            },
+            {
+              "start": 20,
+              "end": 24,
+              "speaker": "陆笙"
+            }
+          ]
+        },
+        {
+          "id": "c9p2",
+          "kind": "multi",
+          "text": "陆笙轻声说：“今天的风真轻。”唐平点头说：“听。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "陆笙"
+            },
+            {
+              "start": 15,
+              "end": 21,
+              "speaker": "narrator"
+            },
+            {
+              "start": 21,
+              "end": 25,
+              "speaker": "唐平"
+            }
+          ]
+        },
+        {
+          "id": "c9p3",
+          "kind": "multi",
+          "text": "唐平回头答：“今天的风真轻。”杜雨想了想，答：“快。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "唐平"
+            },
+            {
+              "start": 15,
+              "end": 23,
+              "speaker": "narrator"
+            },
+            {
+              "start": 23,
+              "end": 27,
+              "speaker": "杜雨"
+            }
+          ]
+        },
+        {
+          "id": "c9p4",
+          "kind": "clear",
+          "text": "季桦问：“今天的风真轻。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 13,
+              "speaker": "季桦"
+            }
+          ]
+        },
+        {
+          "id": "c9p5",
+          "kind": "clear",
+          "text": "陆笙轻声说：“小鹭还在等鱼。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "陆笙"
+            }
+          ]
+        },
+        {
+          "id": "c9p6",
+          "kind": "clear",
+          "text": "唐平回头答：“我在田埂等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "唐平"
+            }
+          ]
+        },
+        {
+          "id": "c9p7",
+          "kind": "clear",
+          "text": "杜雨停下笔说：“今天的风真轻。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 16,
+              "speaker": "杜雨"
+            }
+          ]
+        },
+        {
+          "id": "c9p8",
+          "kind": "clear",
+          "text": "林渊点头说：“小鹭还在等鱼。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "林渊"
+            }
+          ]
+        },
+        {
+          "id": "c9p9",
+          "kind": "clear",
+          "text": "阿宁想了想，答：“我在田埂等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "阿宁"
+            }
+          ]
+        },
+        {
+          "id": "c9p10",
+          "kind": "clear",
+          "text": "周雪问：“今天的风真轻。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 13,
+              "speaker": "周雪"
+            }
+          ]
+        },
+        {
+          "id": "c9p11",
+          "kind": "clear",
+          "text": "江荻轻声说：“小鹭还在等鱼。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "江荻"
+            }
+          ]
+        },
+        {
+          "id": "c9p12",
+          "kind": "clear",
+          "text": "沈禾回头答：“我在田埂等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "沈禾"
+            }
+          ]
+        },
+        {
+          "id": "c9p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c9p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c9p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c9p16",
+          "kind": "narration",
+          "text": "露水沿着稻叶慢慢滑落。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 11,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c9p17",
+          "kind": "narration",
+          "text": "田埂的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第10章 海堤",
+      "genre": "生活散文",
+      "parents": [
+        {
+          "id": "c10p1",
+          "kind": "multi",
+          "text": "唐平问：“再坐一会儿好吗？”杜雨停下笔说：“听。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "唐平"
+            },
+            {
+              "start": 14,
+              "end": 21,
+              "speaker": "narrator"
+            },
+            {
+              "start": 21,
+              "end": 25,
+              "speaker": "杜雨"
+            }
+          ]
+        },
+        {
+          "id": "c10p2",
+          "kind": "multi",
+          "text": "杜雨轻声说：“再坐一会儿好吗？”林渊点头说：“快。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "杜雨"
+            },
+            {
+              "start": 16,
+              "end": 22,
+              "speaker": "narrator"
+            },
+            {
+              "start": 22,
+              "end": 26,
+              "speaker": "林渊"
+            }
+          ]
+        },
+        {
+          "id": "c10p3",
+          "kind": "multi",
+          "text": "林渊回头答：“再坐一会儿好吗？”阿宁想了想，答：“嗯。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 16,
+              "speaker": "林渊"
+            },
+            {
+              "start": 16,
+              "end": 24,
+              "speaker": "narrator"
+            },
+            {
+              "start": 24,
+              "end": 28,
+              "speaker": "阿宁"
+            }
+          ]
+        },
+        {
+          "id": "c10p4",
+          "kind": "clear",
+          "text": "唐平问：“再坐一会儿好吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "唐平"
+            }
+          ]
+        },
+        {
+          "id": "c10p5",
+          "kind": "clear",
+          "text": "杜雨轻声说：“我去泡一壶茶。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "杜雨"
+            }
+          ]
+        },
+        {
+          "id": "c10p6",
+          "kind": "clear",
+          "text": "林渊回头答：“我在海堤等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "林渊"
+            }
+          ]
+        },
+        {
+          "id": "c10p7",
+          "kind": "clear",
+          "text": "阿宁停下笔说：“再坐一会儿好吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 7,
+              "speaker": "narrator"
+            },
+            {
+              "start": 7,
+              "end": 17,
+              "speaker": "阿宁"
+            }
+          ]
+        },
+        {
+          "id": "c10p8",
+          "kind": "clear",
+          "text": "周雪点头说：“我去泡一壶茶。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "周雪"
+            }
+          ]
+        },
+        {
+          "id": "c10p9",
+          "kind": "clear",
+          "text": "江荻想了想，答：“我在海堤等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 8,
+              "speaker": "narrator"
+            },
+            {
+              "start": 8,
+              "end": 17,
+              "speaker": "江荻"
+            }
+          ]
+        },
+        {
+          "id": "c10p10",
+          "kind": "clear",
+          "text": "沈禾问：“再坐一会儿好吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 4,
+              "speaker": "narrator"
+            },
+            {
+              "start": 4,
+              "end": 14,
+              "speaker": "沈禾"
+            }
+          ]
+        },
+        {
+          "id": "c10p11",
+          "kind": "clear",
+          "text": "叶舟轻声说：“我去泡一壶茶。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "叶舟"
+            }
+          ]
+        },
+        {
+          "id": "c10p12",
+          "kind": "clear",
+          "text": "陈星回头答：“我在海堤等你。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "narrator"
+            },
+            {
+              "start": 6,
+              "end": 15,
+              "speaker": "陈星"
+            }
+          ]
+        },
+        {
+          "id": "c10p13",
+          "kind": "ambiguous",
+          "text": "“是谁？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 5,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c10p14",
+          "kind": "ambiguous",
+          "text": "“还在吗？”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c10p15",
+          "kind": "ambiguous",
+          "text": "“听到了。”",
+          "gold": [
+            {
+              "start": 0,
+              "end": 6,
+              "speaker": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "c10p16",
+          "kind": "narration",
+          "text": "潮声从窗缝漫进屋里。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        },
+        {
+          "id": "c10p17",
+          "kind": "narration",
+          "text": "海堤的路渐渐安静了。",
+          "gold": [
+            {
+              "start": 0,
+              "end": 10,
+              "speaker": "narrator"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

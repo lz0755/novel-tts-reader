@@ -13,23 +13,21 @@ def parent_watch():
 
 
 def worker(pipe, folder, engine, settings):
-    threading.Thread(target=parent_watch,daemon=True).start()
+    threading.Thread(target=parent_watch, daemon=True).start()
     if engine == "qwen":
         from .qwen import Runner
     else:
         from .mock import Runner
     runner = Runner(settings)
     while True:
-        kind,job,data = pipe.recv()
+        kind, job, data = pipe.recv()
         try:
-            if kind=="load":
+            if kind == "load":
                 result = runner.load(data)
             else:
-                result = runner.synthesize(data,Path(folder)/(job+".wav"))
-            pipe.send((job,"succeeded",result))
+                result = runner.synthesize(data, Path(folder) / (job + ".wav"))
+            pipe.send((job, "succeeded", result))
         except Exception as exc:
             # Only a short category leaves the inference process; prompts and credentials are private.
-            code = getattr(exc,"code",type(exc).__name__)
-            pipe.send((job,"failed",{"error":str(code)[:90]}))
-
-
+            code = getattr(exc, "code", type(exc).__name__)
+            pipe.send((job, "failed", {"error": str(code)[:90]}))

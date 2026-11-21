@@ -71,7 +71,8 @@ class ReaderWindow(
         self.books, self.chapters = [], []
         self.view, self.book, self.chapter = None, "", ""
         self.generation = self.epoch = self.index = 0
-        self.media = self.audio = self.media_pin = None
+        self.media = self.audio = self.media_pin = self.batch = None
+        self.member_start_ms = 0
         self.intent = False
         self.waiters = []
         self.durations = {}
@@ -85,6 +86,9 @@ class ReaderWindow(
         if not force_mock:
             self.restore_voice_source()
         self.init_library_tools()
+        playback_menu = self.menuBar().addMenu("播放")
+        self.batch_action = playback_menu.addAction("连续播放同角色的已缓存短句")
+        self.batch_action.setCheckable(True)
         self.counter.connect(self.count_update)
         self.clock = QTimer(self)
         self.clock.setInterval(1500)
@@ -162,6 +166,9 @@ class ReaderWindow(
         bar.addWidget(self.pos)
         bar.addStretch()
         self.speed = QComboBox()
+        self.speed.setToolTip(
+            "倍速仅作用于播放器。此 Qt 版本的保调效果取决于系统后端。"
+        )
         self.speed.addItems(["0.75", "1.0", "1.25", "1.5", "2.0"])
         self.speed.setCurrentText("1.0")
         self.speed.currentTextChanged.connect(self.speed_changed)

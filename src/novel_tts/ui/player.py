@@ -1,4 +1,6 @@
 import bisect
+from novel_tts.application.batch import AudioBatch, playable
+from novel_tts.infrastructure.audio import RATE
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QColor, QTextCursor
@@ -107,10 +109,9 @@ class Playback:
         self.intent = True
         self.play_button.setText("暂停")
         self.note.setText("等待音频")
-        epoch, view, line, provider = (
+        epoch, view, provider = (
             self.epoch,
             self.view,
-            self.view.lines[self.index],
             self.provider,
         )
 
@@ -118,9 +119,10 @@ class Playback:
             self.stop()
             self.note.setText(f"播放失败 · {exc}")
 
+        index, combine = self.index, self.batch_action.isChecked()
         event = self.run(
             "准备音频",
-            lambda e: self.library.audio(view, line, provider, e),
+            lambda e: playable(self.library, view, index, provider, e, combine),
             self.play_artifact,
             guard=lambda: self.epoch == epoch and self.intent,
             failed=failed,
@@ -134,8 +136,12 @@ class Playback:
             self.stop()
             self.note.setText("没有可用音频输出设备。可以预生成并导出 WAV。")
             return
+        self.batch = artifact if isinstance(artifact, AudioBatch) else None
+        self.member_start_ms = 0
         self.prefetching.discard(artifact.request.key)
-        self.durations[artifact.request.key] = artifact.seconds
+        self.durations[artifact.request.key] = (
+            self.batch.members[0].audio.seconds if self.batch else artifact.seconds
+        )
         self.media_pin = self.library.lease(artifact.request.key)
         self.media_pin.__enter__()
         self.media = media = QMediaPlayer(self)
@@ -160,6 +166,8 @@ class Playback:
                     self.pending_ms = 0
                 media.play()
             elif state == QMediaPlayer.MediaStatus.EndOfMedia and self.intent:
+                if self.batch:
+                    self.index = self.batch.members[-1].index
                 if (
                     self.index + 1 < len(self.view.lines)
                     or self.view.page + 1 < self.view.page_count
@@ -187,10 +195,25 @@ class Playback:
         media.mediaStatusChanged.connect(status)
         media.errorOccurred.connect(error)
         media.playbackStateChanged.connect(changed)
-        media.positionChanged.connect(
-            lambda ms: self.media is media
-            and self.pos.setText(f"{ms / 1000:.1f} / {media.duration() / 1000:.1f} 秒")
-        )
+
+        def position(ms):
+            if self.media is not media:
+                return
+            if self.batch:
+                member = self.batch.member_at(ms)
+                self.current_key = member.audio.request.key
+                self.member_start_ms = round(member.first_frame * 1000 / RATE)
+                if self.index != member.index:
+                    self.index = member.index
+                    self.paint_line()
+                duration = member.audio.seconds
+            else:
+                duration = media.duration() / 1000
+            self.pos.setText(
+                f"{max(0, ms - self.member_start_ms) / 1000:.1f} / {duration:.1f} 秒"
+            )
+
+        media.positionChanged.connect(position)
         media.setSource(QUrl.fromLocalFile(str(artifact.path)))
         self.prefetch()
 
@@ -217,7 +240,8 @@ class Playback:
             if self.media
             else 0.0
         )
-        lines = view.lines[self.index + 1 : self.index + 5]
+        last = self.batch.members[-1].index if self.batch else self.index
+        lines = view.lines[last + 1 : last + 5]
         keys = [
             provider.prepare(line.spoken, line.voice, line.style).key for line in lines
         ]
@@ -265,7 +289,10 @@ class Playback:
         if self.view and self.view.lines:
             line = self.view.lines[self.index]
             if self.media:
-                key, ms = self.current_key, self.media.position()
+                key, ms = (
+                    self.current_key,
+                    max(0, self.media.position() - self.member_start_ms),
+                )
             elif (
                 self.resume
                 and self.resume[0] == self.view.chapter
@@ -291,7 +318,7 @@ class Playback:
                 self.view.chapter,
                 self.view.lines[self.index].start,
                 self.current_key,
-                self.media.position(),
+                max(0, self.media.position() - self.member_start_ms),
                 float(self.speed.currentText()),
             )
         self.epoch += 1
@@ -311,6 +338,9 @@ class Playback:
             media.stop()
             media.setSource(QUrl())
             media.deleteLater()
+        if self.batch:
+            self.batch.temporary.cleanup()
+            self.batch = None
         if self.media_pin:
             self.media_pin.__exit__(None, None, None)
             self.media_pin = None

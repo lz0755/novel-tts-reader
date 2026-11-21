@@ -35,6 +35,15 @@ class CacheIndex:
         with self.db:
             self.db.execute("UPDATE jobs SET state='interrupted' WHERE state='running'")
             for path in folder.iterdir():
+                if (
+                    path.is_dir()
+                    and not path.is_symlink()
+                    and path.name.startswith("play-batch-")
+                ):
+                    import shutil
+
+                    shutil.rmtree(path, ignore_errors=True)
+                    continue
                 if path.is_symlink() or not path.is_file():
                     continue
                 kind = None

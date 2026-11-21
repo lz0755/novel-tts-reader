@@ -57,10 +57,8 @@ def test_window_import_generate_and_resume(app, tmp_path):
         wait(app, lambda: "预生成本章完成" in win.note.text())
         win.chapter_task(tmp_path / "test export")
         wait(app, lambda: (tmp_path / "test export/manifest.json").exists())
-        assert (
-            win.text.extraSelections()[0].cursor.selectedText()
-            == win.view.lines[2].display
-        )
+        selections = win.text.extraSelections()
+        assert selections[0].cursor.selectedText() == win.view.lines[2].display
     finally:
         win.close()
     reopened = ReaderWindow(paths)

@@ -5,6 +5,7 @@ import math
 import shutil
 import sys
 import wave
+from threading import Lock
 
 from novel_tts.domain.models import (
     Cancelled,
@@ -43,6 +44,8 @@ def tone(path, voice, length=0.42):
 class MockTTS:
     def __init__(self, scenario=None):
         self.scenario = scenario
+        self.fail_once = scenario == "fail_once"
+        self.fault_lock = Lock()
         manifest = json.loads(
             (RESOURCES / "samples/manifest.json").read_text(encoding="utf-8")
         )
@@ -63,6 +66,10 @@ class MockTTS:
         )
 
     def synthesize(self, request, destination, cancel):
+        with self.fault_lock:
+            if self.fail_once:
+                self.fail_once = False
+                raise ProviderError("模拟首次生成失败，可从任务记录重试", True)
         if self.scenario in ("slow", "out_of_order", "late_result_after_cancel"):
             if cancel.wait(0.85 if sum(request.text.encode()) % 2 else 0.12):
                 raise Cancelled()

@@ -19,3 +19,7 @@ Windows x64 将 ZIP 解压到独立目录，双击 NovelTTSReader.exe。Linux x8
 ## 源码与构建
 
 安装 Python 3.12 环境及 uv 后，运行 uv sync --locked 和 uv run python -m novel_tts。使用 uv sync --locked --group build 安装独立的构建组。在各自平台运行 uv run --no-sync python scripts/build_desktop.py --platform linux 或 --platform windows。Windows 构建需要 MSVC Build Tools，Ubuntu 构建需要 C 编译器及上述系统依赖。构建使用 PySide6 官方部署路线的 Nuitka standalone 后端。目标机解压包运行无需编译器或开发环境。
+
+「播放 → 连续播放同角色的已缓存短句」会把至多四个兼容、相邻的已缓存短句按 PCM 帧顺序组装，按实际帧边界高亮。新句、旁白、待确认、换人、换声或风格变化时保留独立段。单句缓存继续用于按原文定位、纠音和导出。
+
+从「书库」可备份数据库、删除当前书和设置缓存容量。从「任务记录」可查看本次桌面任务的结果、取消运行中的任务或重试失败；供应商的持久化尝试和费用位于「供应商 → 请求与费用记录」。真实模式需选择对应服务并明确授权发送文本，重启后云端缓存可用，新的上传按章重新授权。

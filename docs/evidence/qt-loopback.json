@@ -1,0 +1,33 @@
+{
+  "result": "passed",
+  "devices": [
+    "Novel_virtual_output"
+  ],
+  "trace": [
+    [
+      "playing",
+      0,
+      170
+    ],
+    [
+      "paused",
+      0,
+      170
+    ],
+    [
+      "jumped",
+      2,
+      170,
+      1.5
+    ]
+  ],
+  "evidence": "MOCK_LOG",
+  "environment": "Ubuntu 24.04.5 container, Qt 6.9.3 FFmpeg, PulseAudio virtual monitor",
+  "sample_rate": 24000,
+  "channels": 1,
+  "sample_count": 62545,
+  "nonzero": 6187,
+  "minimum": -3696,
+  "maximum": 3675,
+  "sha256": "eabc5c8dc5899a1543a1d3f4fe7189e3831532c639fb80147d16dde1c85c090d"
+}

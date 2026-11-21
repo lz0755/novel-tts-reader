@@ -91,15 +91,22 @@ class Store(Edits, CacheIndex):
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA journal_mode=WAL")
-        version = self.db.execute("PRAGMA user_version").fetchone()[0]
-        if version > 4:
+        try:
+            self.migrate()
+            self.recovery = self.recover()
+        except Exception:
+            self.db.rollback()
             self.db.close()
+            raise
+
+    def migrate(self):
+        version = self.db.execute("PRAGMA user_version").fetchone()[0]
+        if version > 5:
             raise RuntimeError("数据库来自更新版本")
         if version == 0:
             if self.db.execute(
                 "SELECT count(*) FROM sqlite_master WHERE type='table'"
             ).fetchone()[0]:
-                self.db.close()
                 raise RuntimeError("未知数据库结构，请先恢复备份")
             self.db.executescript("BEGIN;" + SCHEMA + "PRAGMA user_version=1; COMMIT;")
 
@@ -141,7 +148,13 @@ class Store(Edits, CacheIndex):
                         (fingerprint([b[1], b[2], starts]), b[0]),
                     )
                 self.db.execute("PRAGMA user_version=4")
-        self.recovery = self.recover()
+        if version < 5:
+            if version:
+                self.backup(self.path.with_suffix(".before-v5.sqlite3"))
+            self.db.executescript("""BEGIN;
+                CREATE INDEX parts_by_parent ON parts(chapter,parent,manual);
+                CREATE INDEX pages_by_anchor ON pages(chapter,start);
+                PRAGMA user_version=5; COMMIT;""")
 
     def record_attempt(self, book, row):
         with self.db:
@@ -396,11 +409,14 @@ class Store(Edits, CacheIndex):
             (chapter, offset, offset + len(source)),
         ).fetchall()
         lines = []
+        voices = {}
         with self.db:
             rules = self.rules(book, chapter)
             for parent, start, end, cid, style, manual in rows:
                 display = source[start - offset : end - offset]
-                voice, subst = self.binding(book, cid, caps)
+                if cid not in voices:
+                    voices[cid] = self.binding(book, cid, caps)
+                voice, subst = voices[cid]
                 spoken = self.spoken(rules, start, display)
                 lines.append(
                     Line(

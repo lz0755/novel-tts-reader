@@ -88,3 +88,30 @@ def test_worker_supervision_and_recovery():
         if proc.poll() is None:
             proc.kill()
             proc.wait()
+
+
+def test_parent_closing_input_shuts_down_control_service():
+    root = Path(__file__).parents[1] / "sidecar"
+    token = secrets.token_urlsafe(32)
+    with subprocess.Popen(
+        [sys.executable, "-m", "novel_tts_sidecar"],
+        cwd=root,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
+    ) as proc:
+        try:
+            proc.stdin.write(token + "\n")
+            proc.stdin.flush()
+            hello = json.loads(proc.stdout.readline())
+            with httpx.Client(trust_env=False, timeout=4) as client:
+                health = client.get(
+                    f"http://127.0.0.1:{hello['port']}/v1/health",
+                    headers={"Authorization": "Bearer " + token},
+                )
+                assert health.json()["accepting"]
+            proc.stdin.close()
+            assert proc.wait(8) == 0
+        finally:
+            if proc.poll() is None:
+                proc.kill()

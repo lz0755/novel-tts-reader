@@ -18,6 +18,44 @@ from pathlib import Path
 from .worker import worker
 
 
+def monitor_parent(server):
+    if os.name == "nt" and not sys.stdin.isatty():
+        import ctypes
+        import msvcrt
+        from ctypes import wintypes
+
+        # A pending synchronous ReadFile can block the Windows spawn path when it
+        # inspects the same standard handle. Only drain bytes known to be ready.
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        peek = kernel.PeekNamedPipe
+        peek.argtypes = [
+            wintypes.HANDLE,
+            wintypes.LPVOID,
+            wintypes.DWORD,
+            wintypes.LPDWORD,
+            wintypes.LPDWORD,
+            wintypes.LPDWORD,
+        ]
+        peek.restype = wintypes.BOOL
+        fd = sys.stdin.fileno()
+        handle = msvcrt.get_osfhandle(fd)
+        available = wintypes.DWORD()
+        while not server.control.stop.wait(0.1):
+            if not peek(handle, None, 0, None, ctypes.byref(available), None):
+                break
+            if available.value:
+                try:
+                    if not os.read(fd, min(available.value, 4096)):
+                        break
+                except OSError:
+                    break
+        else:
+            return
+    else:
+        sys.stdin.read()
+    server.shutdown()
+
+
 class Controller:
     def __init__(self, folder, engine, settings, timeout):
         self.folder, self.engine, self.settings, self.timeout = (
@@ -277,11 +315,7 @@ def main():
             flush=True,
         )
 
-        def monitor_parent():
-            sys.stdin.read()
-            server.shutdown()
-
-        threading.Thread(target=monitor_parent, daemon=True).start()
+        threading.Thread(target=monitor_parent, args=(server,), daemon=True).start()
         try:
             server.serve_forever(poll_interval=0.05)
         finally:

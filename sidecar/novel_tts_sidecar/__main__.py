@@ -7,6 +7,7 @@ import json
 import multiprocessing as mp
 import os
 import re
+import secrets
 import sys
 import tempfile
 import threading
@@ -75,8 +76,9 @@ class Controller:
 
     def spawn(self):
         parent, child = self.context.Pipe()
+        self.cancel_event = self.context.Event()
         self.proc = self.context.Process(
-            target=worker, args=(child, self.folder, self.engine, self.settings)
+            target=worker, args=(child, self.folder, self.engine, self.settings, self.cancel_event)
         )
         self.proc.start()
         child.close()
@@ -119,10 +121,12 @@ class Controller:
                 self.spawn()
             elif not self.caps or data.get("model") != self.caps["model"]:
                 return 409, {"error": "model_not_ready"}
+            elif "stream_session" in data and data["stream_session"] != self.caps.get("stream_session"):
+                return 409, {"error": "stream_session_changed"}
             if len(self.jobs) >= 256:
                 oldest = next(iter(self.jobs))
                 self.jobs.pop(oldest)
-                (Path(self.folder) / (oldest + ".wav")).unlink(missing_ok=True)
+                self.discard_audio(oldest)
             self.jobs[job] = {
                 "id": job,
                 "kind": kind,
@@ -130,15 +134,26 @@ class Controller:
                 "hash": signature,
             }
             self.active = job
+            self.cancel_event.clear()
+            if "stream_session" in data:
+                self.jobs[job]["pcm_frames"] = 0
             self.deadline = time.monotonic() + self.timeout
             self.pipe.send((kind, job, data))
             return 202, {"id": job, "state": "running"}
 
+    def discard_audio(self, ident):
+        try:
+            (Path(self.folder) / (ident + ".wav")).unlink(missing_ok=True)
+        except PermissionError:
+            # TemporaryDirectory retries cleanup when the control service exits.
+            pass
+
     def abort(self, reason):
+        self.reap()
         if self.active:
             self.jobs[self.active].update(state="interrupted", error=reason)
+            self.discard_audio(self.active)
             self.active = None
-        self.reap()
 
     def poll(self):
         while not self.stop.wait(0.025):
@@ -153,12 +168,22 @@ class Controller:
                         ident, state, result = self.pipe.recv()
                         if ident != self.active:
                             raise ValueError("unmatched worker reply")
+                        if state == "pcm":
+                            if time.monotonic() > self.deadline:
+                                self.abort("worker_timeout")
+                            elif job["state"] == "running":
+                                job["pcm_frames"] = result
+                            continue
                         if job["state"] == "cancel_requested":
                             state, result = "cancelled", {}
-                        job.update(state=state, result=result)
                         if job["kind"] == "load" and state == "succeeded":
+                            if result.get("streaming"):
+                                result["stream_session"] = secrets.token_hex(16)
                             self.caps = result
+                        job.update(state=state, result=result)
                         self.active = None
+                        if state != "succeeded":
+                            self.discard_audio(ident)
                         if state == "failed":
                             self.reap()
                     elif not self.proc.is_alive():
@@ -190,11 +215,11 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
-    def reply(self, code, data):
+    def reply(self, code, data, content_type=None):
         raw = isinstance(data, bytes)
         body = data if raw else json.dumps(data, ensure_ascii=False).encode()
         self.send_response(code)
-        self.send_header("Content-Type", "audio/wav" if raw else "application/json")
+        self.send_header("Content-Type", content_type or ("audio/wav" if raw else "application/json"))
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -214,6 +239,23 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, c.health())
         if self.path == "/v1/capabilities":
             return self.reply(200, c.caps or {"model": None})
+        pcm = re.fullmatch(r"/v1/jobs/([0-9a-f]{32})/pcm/(\d{1,9})", self.path)
+        if pcm:
+            with c.lock:
+                job = c.jobs.get(pcm[1], {})
+                offset = int(pcm[2])
+                count = job.get("pcm_frames", 0) - offset
+                if job.get("state") not in ("running", "succeeded") or count <= 0:
+                    data = None
+                else:
+                    # The worker writes a canonical PCM16 mono WAV unbuffered.
+                    # Read only frames it has published, independent of the provisional header.
+                    with (Path(c.folder) / (pcm[1] + ".wav")).open("rb") as wav:
+                        wav.seek(44 + 2 * offset)
+                        data = wav.read(2 * min(count, 65536))
+            if data:
+                return self.reply(200, data, "application/octet-stream")
+            return self.reply(404, {"error": "pcm_unavailable"})
         match = re.fullmatch(r"/v1/(jobs|artifacts)/([0-9a-f]{32})", self.path)
         if match:
             with c.lock:
@@ -259,6 +301,7 @@ class Handler(BaseHTTPRequestHandler):
                     c.abort("hard_cancel")
                 else:
                     c.jobs[match[1]]["state"] = "cancel_requested"
+                    c.cancel_event.set()
             return self.reply(
                 200,
                 {"state": "interrupted" if data.get("hard") else "cancel_requested"},
@@ -271,7 +314,7 @@ class Handler(BaseHTTPRequestHandler):
             if kind == "load"
             else {"job_id", "model", "text", "voice"}
         )
-        extra = {"style", "scenario"} if kind == "synthesis" else {"quantization"}
+        extra = {"style", "scenario", "stream_session"} if kind == "synthesis" else {"quantization"}
         if (
             not required <= set(data)
             or set(data) - required - extra

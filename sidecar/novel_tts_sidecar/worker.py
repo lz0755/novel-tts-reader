@@ -13,7 +13,7 @@ def parent_watch():
     os._exit(2)
 
 
-def worker(pipe, folder, engine, settings):
+def worker(pipe, folder, engine, settings, cancel_event=None):
     threading.Thread(target=parent_watch, daemon=True).start()
     if engine == "qwen":
         from .qwen import Runner
@@ -33,7 +33,14 @@ def worker(pipe, folder, engine, settings):
                 runner = Runner(options)
                 result = runner.load(data)
             else:
-                result = runner.synthesize(data, Path(folder) / (job + ".wav"))
+                def publish(frames):
+                    pipe.send((job, "pcm", frames))
+
+                result = runner.synthesize(
+                    data, Path(folder) / (job + ".wav"),
+                    publish if "stream_session" in data else None,
+                    cancel_event.is_set if cancel_event is not None else None,
+                )
             pipe.send((job, "succeeded", result))
         except Exception as exc:
             # Only a short category leaves the inference process; prompts and credentials are private.

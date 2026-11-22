@@ -58,6 +58,7 @@ def main():
         if cfg.exists()
         else {
             "models": {},
+            "backend": "faster-qwen3-tts",
             "dtype": "bfloat16",
             "quantization": "int4",
             "attention": "sdpa",

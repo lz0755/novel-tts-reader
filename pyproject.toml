@@ -9,7 +9,7 @@ description = "中文小说多角色朗读桌面工具"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "PySide6==6.9.3", "regex==2025.11.3", "jsonschema==4.25.1",
-  "httpx==0.28.1", "keyring==25.6.0", "platformdirs==4.5.0",
+  "httpx==0.28.1", "keyring==25.6.0", "platformdirs==4.5.0", "libsonic==0.1.0",
 ]
 
 [project.scripts]

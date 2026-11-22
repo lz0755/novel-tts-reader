@@ -246,6 +246,18 @@ wheels = [
 ]
 
 [[package]]
+name = "libsonic"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/a1/aa8c7435758e3b349cf33cfd3d7171a210e4ec89e9d5fb947a6ff70c07a0/libsonic-0.1.0.tar.gz", hash = "sha256:6283fb27c9ab4ddeb98c179728a42ae07919a8f994c7e8cd7d652bd162481664", size = 49521, upload-time = "2026-10-14T10:41:02.762Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7b/8d/724abf9de916374443b0ff399b3e81279b6f0be90042280ae83e21389bb2/libsonic-0.1.0-cp311-abi3-macosx_11_0_arm64.whl", hash = "sha256:5e4545b80f669a9b93172ea81d7eec008ec0aa52210f4746fa6aed77a879ea98", size = 217538, upload-time = "2026-10-14T10:40:58.665Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/d7/b4a11855256569162cb52011a25aedd9b3c1791159d2b6aff50ec456cb4c/libsonic-0.1.0-cp311-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:eb1a853f3a3c8e552313b81c84cd49aa79aca287d68d5895f1873cdb3251fc5d", size = 235029, upload-time = "2026-10-14T10:40:59.63Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/fd/a3b256843fb3a5d60425c812429ceb5152d62238627d1c77e38bd19d389e/libsonic-0.1.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1dca410d72d6c9c194943d9d8ea31d901d3e0e111de0e3b8d49dcadad1d1b3b0", size = 236029, upload-time = "2026-10-14T10:41:00.704Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/0b/f02c968d5abf08942fbfa2aef71ae7269ab40b6fed9ce29c05428863125c/libsonic-0.1.0-cp311-abi3-win_amd64.whl", hash = "sha256:f52c9d6c99fcf292aa1aa3667923d4ea68fddef2e3a6b34b856190ae8f2294fb", size = 128966, upload-time = "2026-10-14T10:41:01.884Z" },
+]
+
+[[package]]
 name = "more-itertools"
 version = "11.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -262,6 +274,7 @@ dependencies = [
     { name = "httpx" },
     { name = "jsonschema" },
     { name = "keyring" },
+    { name = "libsonic" },
     { name = "platformdirs" },
     { name = "pyside6" },
     { name = "regex" },
@@ -283,6 +296,7 @@ requires-dist = [
     { name = "httpx", specifier = "==0.28.1" },
     { name = "jsonschema", specifier = "==4.25.1" },
     { name = "keyring", specifier = "==25.6.0" },
+    { name = "libsonic", specifier = "==0.1.0" },
     { name = "platformdirs", specifier = "==4.5.0" },
     { name = "pyside6", specifier = "==6.9.3" },
     { name = "regex", specifier = "==2025.11.3" },

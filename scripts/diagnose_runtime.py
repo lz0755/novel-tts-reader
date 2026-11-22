@@ -12,9 +12,9 @@ def main():
     p.add_argument("--mode", choices=["core", "local-tts"], default="core")
     args = p.parse_args()
     names = (
-        ["PySide6", "httpx", "keyring"]
+        ["PySide6", "httpx", "keyring", "libsonic"]
         if args.mode == "core"
-        else ["torch", "torchaudio", "qwen-tts", "transformers", "soundfile"]
+        else ["torch", "torchaudio", "qwen-tts", "faster-qwen3-tts", "transformers", "soundfile"]
     )
     versions = {}
     for name in names:

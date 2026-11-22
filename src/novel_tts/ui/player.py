@@ -1,6 +1,7 @@
 import bisect
 from novel_tts.application.batch import AudioBatch, playable
 from novel_tts.infrastructure.audio import RATE
+from novel_tts.ui.pcm import PcmPlayback, pcm_format
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QColor, QTextCursor
@@ -89,16 +90,22 @@ class Playback:
         if self.intent:
             self.intent = False
             for event in self.waiters:
-                event.set()
-            self.waiters.clear()
+                if event is not self.stream_event or not isinstance(self.media, PcmPlayback):
+                    event.set()
+            self.waiters = [e for e in self.waiters if not e.is_set()]
             self.prefetching.clear()
             if self.media:
                 self.media.pause()
+                if isinstance(self.media, PcmPlayback):
+                    self.note.setText("流式播放已暂停")
             else:
                 self.epoch += 1
             self.play_button.setText("继续")
         elif self.media:
             self.intent = True
+            self.play_button.setText("暂停")
+            if isinstance(self.media, PcmPlayback):
+                self.note.setText("正在流式播放 · 本地语音")
             self.media.play()
         else:
             self.start()
@@ -120,16 +127,85 @@ class Playback:
             self.note.setText(f"播放失败 · {exc}")
 
         index, combine = self.index, self.batch_action.isChecked()
+        ticket = self.stream_ticket = object()
+        on_pcm = None
+        if getattr(provider, "can_stream", False):
+            line = view.lines[index]
+            key = provider.prepare(line.spoken, line.voice, line.style).key
+            resume_in_file = self.resume and self.resume[2] == key and self.resume[3] > 0
+            if (
+                not resume_in_file
+                and QMediaDevices.defaultAudioOutput().isFormatSupported(pcm_format())
+            ):
+                on_pcm = lambda pcm: self.pcm_received.emit(ticket, pcm)
+
+        def ready(artifact):
+            self.stream_event = None
+            if isinstance(self.media, PcmPlayback):
+                self.durations[artifact.request.key] = artifact.seconds
+                self.media_pin = self.library.lease(artifact.request.key)
+                self.media_pin.__enter__()
+                self.prefetch()
+                self.media.finish()
+            else:
+                self.play_artifact(artifact)
+
         event = self.run(
             "准备音频",
-            lambda e: playable(self.library, view, index, provider, e, combine),
-            self.play_artifact,
-            guard=lambda: self.epoch == epoch and self.intent,
+            lambda e: playable(self.library, view, index, provider, e, combine, on_pcm),
+            ready,
+            guard=lambda: (
+                self.epoch == epoch and self.stream_ticket is ticket
+                and (self.intent or isinstance(self.media, PcmPlayback))
+            ),
             failed=failed,
             priority=2,
         )
         if event:
             self.waiters.append(event)
+            if on_pcm:
+                self.stream_event = event
+
+    def receive_pcm(self, ticket, pcm):
+        if self.closing or self.stream_ticket is not ticket or not self.stream_event:
+            return
+        if self.media is None:
+            if not self.intent:
+                return
+            self.media = self.audio = live = PcmPlayback(self)
+            line = self.view.lines[self.index]
+            req = self.provider.prepare(line.spoken, line.voice, line.style)
+            self.current_key = req.key
+            self.prefetching.discard(self.current_key)
+            self.member_start_ms = 0
+            self.resume = None
+            live.setVolume(self.volume.value() / 100)
+            live.setPlaybackRate(float(self.speed.currentText()))
+            live.finished.connect(lambda: self.media is live and self.end_line())
+
+            def failed(message):
+                if self.media is live:
+                    self.stop()
+                    self.note.setText(message)
+
+            live.failed.connect(failed)
+            live.positionChanged.connect(lambda ms: self.pos.setText(
+                f"{ms / 1000:.1f} / {live.duration() / 1000:.1f} 秒" if live.complete
+                else f"{ms / 1000:.1f} 秒 · 流式"
+            ))
+            self.note.setText("正在流式播放 · " + LABELS[req.origin])
+        self.media.append(pcm)
+
+    def end_line(self):
+        if not self.intent:
+            return
+        if self.batch:
+            self.index = self.batch.members[-1].index
+        if self.index + 1 < len(self.view.lines) or self.view.page + 1 < self.view.page_count:
+            self.advance()
+        else:
+            self.stop()
+            self.note.setText("本章播放完毕")
 
     def play_artifact(self, artifact):
         if not QMediaDevices.audioOutputs():
@@ -166,16 +242,7 @@ class Playback:
                     self.pending_ms = 0
                 media.play()
             elif state == QMediaPlayer.MediaStatus.EndOfMedia and self.intent:
-                if self.batch:
-                    self.index = self.batch.members[-1].index
-                if (
-                    self.index + 1 < len(self.view.lines)
-                    or self.view.page + 1 < self.view.page_count
-                ):
-                    self.advance()
-                else:
-                    self.stop()
-                    self.note.setText("本章播放完毕")
+                self.end_line()
 
         def error(_code, message):
             if self.media is media:
@@ -230,7 +297,7 @@ class Playback:
         self.start()
 
     def prefetch(self):
-        if not self.intent or not self.view:
+        if not self.intent or not self.view or self.stream_event is not None:
             return
         from novel_tts.application.buffering import prefetch_count
 
@@ -250,6 +317,8 @@ class Playback:
             for key, line in zip(keys, lines)
         ]
         count = prefetch_count(remaining, float(self.speed.currentText()), seconds)
+        if getattr(provider, "can_stream", False):
+            count = min(count, 1)  # A single local GPU generates one sentence at a time.
         self.waiters = [
             event for event in self.waiters if event in self.bg.events.values()
         ]
@@ -268,7 +337,7 @@ class Playback:
 
             event = self.run(
                 "预取",
-                lambda e, l=line: self.library.audio(view, l, provider, e),
+                lambda e, l=line: self.library.audio(view, l, provider, e, prefetch=True),
                 ready,
                 failed=failed,
                 guard=lambda: self.epoch == epoch,
@@ -332,11 +401,13 @@ class Playback:
         self.pos.setText("0.0 / 0.0 秒")
 
     def release_media(self):
+        self.stream_ticket = self.stream_event = None
         media, self.media = self.media, None
         self.audio = None
         if media:
             media.stop()
-            media.setSource(QUrl())
+            if isinstance(media, QMediaPlayer):
+                media.setSource(QUrl())
             media.deleteLater()
         if self.batch:
             self.batch.temporary.cleanup()

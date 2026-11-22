@@ -37,10 +37,20 @@ class AudioBatch:
         return self.members[max(0, i)]
 
 
-def playable(library, view, index, provider, event, combine):
+def playable(library, view, index, provider, event, combine, on_pcm=None):
     line = view.lines[index]
-    first = library.audio(view, line, provider, event)
-    if not combine or line.speaker in ("narrator", "unknown") or len(line.spoken) > 20:
+    streamed = False
+
+    def forward(pcm):
+        nonlocal streamed
+        streamed = True
+        on_pcm(pcm)
+
+    first = library.audio(view, line, provider, event, on_pcm=forward if on_pcm else None)
+    if (
+        streamed or not combine or line.speaker in ("narrator", "unknown")
+        or len(line.spoken) > 20
+    ):
         return first
     members = [Member(index, 0, first)]
     frames = first.frames

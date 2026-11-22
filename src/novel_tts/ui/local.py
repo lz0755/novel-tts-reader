@@ -178,12 +178,15 @@ class LocalVoices:
 
         def loaded(info):
             self.pending_local_load = None
-            self.prefs.setValue("local_caps", json.dumps(info))
+            saved = {k: v for k, v in info.items() if k != "stream_session"}
+            self.prefs.setValue("local_caps", json.dumps(saved))
             self.switch_voice(LocalTTS(info, client))
             precision = (
                 "INT4" if info.get("quantization") == "int4" else info.get("dtype")
             )
             message = "本地模型已加载并预热 · " + info["model"]
+            if info.get("backend") == "faster-qwen3-tts":
+                message += " · Faster 流式"
             self.note.setText(f"{message} · {precision}" if precision else message)
 
         def failed(error):

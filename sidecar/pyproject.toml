@@ -10,7 +10,7 @@ dependencies = []
 
 [project.optional-dependencies]
 qwen = [
-  "qwen-tts==0.1.1", "torch==2.8.0", "torchaudio==2.8.0",
+  "qwen-tts==0.1.1", "faster-qwen3-tts==0.2.6", "torch==2.8.0", "torchaudio==2.8.0",
   "soundfile==0.13.1", "huggingface-hub==0.36.0", "regex==2025.11.3",
 ]
 

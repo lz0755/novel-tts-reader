@@ -1,8 +1,9 @@
 import json
 import time
 import uuid
-from threading import Lock
+from functools import partial
 from pathlib import Path
+from threading import Lock
 
 import httpx
 import jsonschema
@@ -41,43 +42,69 @@ class ControlClient:
         self.base = f"http://127.0.0.1:{port}/v1/"
         self.headers = {"Authorization": "Bearer " + token}
 
-    def call(self, method, path, data=None):
+    def connection(self):
+        return httpx.Client(base_url=self.base, headers=self.headers, trust_env=False, timeout=4)
+
+    @staticmethod
+    def request(client, method, path, data=None):
         try:
-            with httpx.Client(
-                base_url=self.base, headers=self.headers, trust_env=False, timeout=4
-            ) as client:
-                response = client.request(method, path, json=data)
+            response = client.request(method, path, json=data)
             if not response.is_success:
-                if (
-                    response.status_code == 409
-                    and response.json().get("error") == "busy"
-                ):
-                    raise ProviderError("local_worker_busy", True)
+                if response.status_code == 409:
+                    reason = response.json().get("error")
+                    if reason == "busy":
+                        raise ProviderError("local_worker_busy", True)
+                    if reason == "stream_session_changed":
+                        raise ProviderError("本地模型已切换，请重新播放当前句")
                 raise ProviderError(f"本地控制服务 HTTP {response.status_code}")
             return response
         except httpx.HTTPError as exc:
             raise ProviderError(f"无法连接本地控制服务（{type(exc).__name__}）") from exc
 
-    def job(self, path, body, event, timeout=310):
+    def call(self, method, path, data=None):
+        with self.connection() as client:
+            return self.request(client, method, path, data)
+
+    def job(self, path, body, event, timeout=310, on_pcm=None):
+        with self.connection() as client:
+            return self._run_job(partial(self.request, client), path, body, event, timeout, on_pcm)
+
+    @staticmethod
+    def _run_job(call, path, body, event, timeout, on_pcm):
         ident = uuid.uuid4().hex
         if event.is_set():
             raise Cancelled()
         deadline = time.monotonic() + timeout
         while True:
             try:
-                self.call("POST", path, body | {"job_id": ident})
+                call("POST", path, body | {"job_id": ident})
                 break
             except ProviderError as exc:
                 if exc.code != "local_worker_busy" or time.monotonic() >= deadline:
                     raise
                 if event.wait(0.15):
                     raise Cancelled()
+        frames = 0
         while time.monotonic() < deadline:
-            if event.wait(0.12):
-                self.call("POST", f"jobs/{ident}/cancel", {"hard": False})
+            if event.wait(0.04 if on_pcm else 0.12):
+                try:
+                    call("POST", f"jobs/{ident}/cancel", {"hard": False})
+                except ProviderError:
+                    pass  # The job can finish between the last poll and cancellation.
                 raise Cancelled()
-            row = self.call("GET", f"jobs/{ident}").json()
+            row = call("GET", f"jobs/{ident}").json()
+            if on_pcm and row["state"] in ("running", "succeeded"):
+                while frames < row.get("pcm_frames", 0) and not event.is_set():
+                    packet = call("GET", f"jobs/{ident}/pcm/{frames}").content
+                    if not packet or len(packet) % 2:
+                        raise ProviderError("本地流式音频块无效")
+                    on_pcm(packet)
+                    frames += len(packet) // 2
             if row["state"] == "succeeded":
+                if event.is_set():
+                    raise Cancelled()
+                if on_pcm and frames != row["result"]["frames"]:
+                    raise ProviderError("本地流式音频不完整")
                 return ident, row["result"]
             if row["state"] not in ("running", "cancel_requested"):
                 raise ProviderError(
@@ -88,7 +115,7 @@ class ControlClient:
                         or row["state"]
                     )
                 )
-        self.call("POST", f"jobs/{ident}/cancel", {"hard": True})
+        call("POST", f"jobs/{ident}/cancel", {"hard": True})
         raise ProviderError("本地进程已超时并回收")
 
     def load(self, model, event, quantization=None):
@@ -145,24 +172,37 @@ class LocalTTS:
             parameters=(("runtime", fingerprint(params)),),
         )
 
-    def synthesize(self, req, destination, cancel):
+    @property
+    def can_stream(self):
+        return bool(self.client and self.info.get("stream_session"))
+
+    def synthesize(self, req, destination, cancel, on_pcm=None):
         if not self.client:
             raise ProviderError("缓存缺失，请先加载本地模型")
         body = dict(model=req.model, text=req.text, voice=req.voice)
         if req.style:
             body["style"] = req.style
         client = self.client
+        if on_pcm:
+            if not self.can_stream:
+                raise ProviderError("请重新加载支持流式朗读的本地模型")
+            body["stream_session"] = self.info["stream_session"]
         while not self.slot.acquire(timeout=0.08):
             if cancel.is_set():
                 raise Cancelled()
         try:
-            ident, result = client.job("synthesis/jobs", body, cancel)
+            if on_pcm:
+                ident, result = client.job("synthesis/jobs", body, cancel, on_pcm=on_pcm)
+            else:
+                ident, result = client.job("synthesis/jobs", body, cancel)
         finally:
             self.slot.release()
         if result.get("origin") != req.origin:
             raise ProviderError("音频来源不匹配")
         if result.get("quantization", "none") != self.info.get("quantization", "none"):
             raise ProviderError("本地权重量化已切换，请按当前模型重新生成")
+        if result.get("backend", "qwen-tts") != self.info.get("backend", "qwen-tts"):
+            raise ProviderError("本地推理引擎已切换，请按当前模型重新生成")
         if cancel.is_set():
             raise Cancelled()
         destination.write_bytes(client.call("GET", f"artifacts/{ident}").content)

@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-22",
+  "platform": "Windows 11 x64",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch": "2.8.0+cu128",
+  "desktop_audio": "Realtek(R) Audio, Windows Core Audio session meter",
+  "runtime": {
+    "backend": "faster-qwen3-tts",
+    "version": "0.2.6",
+    "quantization": "int4",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "chunk_codec_frames": 8,
+    "pcm": "24000 Hz, mono, signed 16-bit little-endian"
+  },
+  "saved_model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+  "desktop": {
+    "method": "One uncached playback of 清晨的渡船已经靠岸。 per prewarmed model in the source desktop reader. Time starts at the Play action. First signal is this process's Realtek audio session peak above 0.0002; volume 12%.",
+    "runs": [
+      {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+        "first_sink_write_s": 1.633,
+        "first_audio_session_signal_s": 1.915,
+        "signal_before_complete_wav": true,
+        "live_and_cached_frames": 67200,
+        "cache_sha256": "c58179a82f97e89d7a3086bcbec411b8c810742e6b23f61d6dbddd3ae271cc67",
+        "pause_position_delta_ms": 0,
+        "resumed_at_speed": 1.5,
+        "cached_replay": true
+      },
+      {
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "first_sink_write_s": 0.694,
+        "first_audio_session_signal_s": 0.868,
+        "signal_before_complete_wav": true,
+        "live_and_cached_frames": 53760,
+        "cache_sha256": "88d9d758bbcb35498cdb5a4d1e0dbe6e5e0fecd52c3c6629c20bd269bb0aa6c6",
+        "pause_position_delta_ms": 0,
+        "resumed_at_speed": 1.5,
+        "cached_replay": true
+      }
+    ],
+    "skip_cancel_discards_incomplete_audio": true,
+    "auto_advance_joins_prefetch": true,
+    "next_sentence_sink_write_before_complete_wav": true,
+    "skip_and_auto_advance_output": "Muted during these additional checks.",
+    "long_speaker_session": "Deferred at user's request."
+  },
+  "engine_benchmark": {
+    "method": "Separate from desktop playback. Three prewarmed, uncached Mandarin sentences per model with INT4 and eight codec frames per chunk. Wall time through last PCM divided by generated audio duration (RTF).",
+    "results": {
+      "0.6B": {
+        "rtf_median": 0.41075,
+        "first_pcm_s_median": 0.28132,
+        "asr_matches_of_3": 2,
+        "asr_differences": [
+          {
+            "input": "雾散了。船靠岸了。",
+            "transcript": "户散了，船靠岸了。"
+          }
+        ]
+      },
+      "1.7B": {
+        "rtf_median": 0.49006,
+        "first_pcm_s_median": 0.31199,
+        "asr_matches_of_3": 3,
+        "asr_differences": []
+      }
+    }
+  },
+  "windows_pytest": {
+    "passed": 71,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -54,6 +54,7 @@ class ReaderWindow(
     QMainWindow,
 ):
     counter = Signal(str, int, int)
+    pcm_received = Signal(object, bytes)
 
     def __init__(self, paths, scenario=None, force_mock=False):
         super().__init__()
@@ -72,6 +73,8 @@ class ReaderWindow(
         self.view, self.book, self.chapter = None, "", ""
         self.generation = self.epoch = self.index = 0
         self.media = self.audio = self.media_pin = self.batch = None
+        self.stream_ticket = self.stream_event = None
+        self.pcm_received.connect(self.receive_pcm, Qt.ConnectionType.QueuedConnection)
         self.member_start_ms = 0
         self.intent = False
         self.waiters = []

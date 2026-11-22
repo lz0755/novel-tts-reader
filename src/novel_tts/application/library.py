@@ -8,6 +8,7 @@ from dataclasses import replace
 from pathlib import Path
 from threading import Lock, RLock
 
+from novel_tts.application.stream import PendingAudio
 from novel_tts.domain.models import Cancelled, Ticket
 from novel_tts.infrastructure.audio import export_chapter, inspect_wav
 
@@ -19,6 +20,7 @@ class Library:
         self.locks = [Lock() for _ in range(61)]
         self.mutex = RLock()
         self.pins = Counter()
+        self.streams = {}
 
     @contextmanager
     def lease(self, key):
@@ -32,8 +34,42 @@ class Library:
                 if not self.pins[key]:
                     del self.pins[key]
 
-    def audio(self, view, line, provider, event, cache_only=False):
+    def audio(self, view, line, provider, event, cache_only=False, on_pcm=None, prefetch=False):
         req = provider.prepare(line.spoken, line.voice, line.style)
+        if not (on_pcm or (prefetch and getattr(provider, "can_stream", False))):
+            return self._audio(view, req, provider, event, cache_only)
+        # A prefetched sentence may already be generating when the previous
+        # sentence ends. Replay its prefix, then follow the same worker live.
+        identity = (view.book, view.revision, provider, req.key)
+        with self.mutex:
+            stream = self.streams.get(identity)
+            joined = stream is not None and stream.join(event)
+            if not joined:
+                stream = self.streams[identity] = PendingAudio(event)
+        if joined:
+            return stream.follow(event, on_pcm)
+
+        def publish(pcm):
+            stream.publish(pcm)
+            if on_pcm and not event.is_set():
+                on_pcm(pcm)
+
+        try:
+            artifact = self._audio(view, req, provider, stream, cache_only, publish)
+        except BaseException as exc:
+            stream.finish(error=exc)
+            raise
+        else:
+            stream.finish(artifact)
+            if event.is_set():
+                raise Cancelled()
+            return artifact
+        finally:
+            with self.mutex:
+                if self.streams.get(identity) is stream:
+                    del self.streams[identity]
+
+    def _audio(self, view, req, provider, event, cache_only, on_pcm=None):
         key = req.key
         final = self.paths.cache / (key + ".wav")
         with self.lease(key), self.locks[int(key[:8], 16) % len(self.locks)]:
@@ -61,7 +97,10 @@ class Library:
                 )
                 os.close(fd)
                 temp = Path(name)
-                artifact = provider.synthesize(req, temp, event)
+                if on_pcm is None:
+                    artifact = provider.synthesize(req, temp, event)
+                else:
+                    artifact = provider.synthesize(req, temp, event, on_pcm=on_pcm)
                 if artifact.request != req or artifact.path != temp:
                     raise ValueError("返回音频与请求不匹配")
                 artifact = inspect_wav(temp, req)

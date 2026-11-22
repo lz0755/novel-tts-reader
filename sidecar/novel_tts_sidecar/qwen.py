@@ -12,6 +12,7 @@ from .models import MODELS, InferenceError, safe_sections, token_budget
 class Runner:
     def __init__(self, settings):
         self.settings = settings
+        self.streamer = None
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
@@ -68,7 +69,12 @@ class Runner:
             raise InferenceError("int4_requires_ampere_and_bfloat16")
         start = time.monotonic()
         free, total = torch.cuda.mem_get_info()
-        effective_attention = select_attention(attention, dtype, folder)
+        backend = self.settings.get("backend", "qwen-tts")
+        if backend not in ("qwen-tts", "faster-qwen3-tts"):
+            raise InferenceError("unsupported_backend")
+        effective_attention = (
+            attention if backend == "faster-qwen3-tts" else select_attention(attention, dtype, folder)
+        )
         self.model = Qwen3TTSModel.from_pretrained(
             str(folder),
             dtype=getattr(torch, dtype),
@@ -88,6 +94,15 @@ class Runner:
             # Also fingerprint the effective weights in older desktop clients.
             runtime_settings.update(quantization="int4", int4_group_size=GROUP_SIZE)
         self.quantization = quantization
+        if backend == "faster-qwen3-tts":
+            from .streaming import CHUNK_STEPS, build_streamer
+
+            self.streamer = build_streamer(
+                self.model, getattr(torch, dtype), self.settings.get("token_ceiling", 1536)
+            )
+            runtime_settings.update(
+                backend=backend, backend_version=metadata.version(backend), chunk_steps=CHUNK_STEPS
+            )
         torch.cuda.synchronize()
         load_seconds = time.monotonic() - start
         self.voices = tuple(self.model.get_supported_speakers() or ())
@@ -98,7 +113,8 @@ class Runner:
             : min(3, max(2, self.settings.get("warmup", 2)))
         ]:
             begin = time.monotonic()
-            self.render(text, self.voices[0], "")
+            for _ in self.chunks(text, self.voices[0], "", token_budget(text, self.settings)):
+                pass
             torch.cuda.synchronize()
             warmup.append(time.monotonic() - begin)
         return dict(
@@ -107,6 +123,8 @@ class Runner:
             voices=self.voices,
             instruct=self.instruct,
             origin="local",
+            backend=backend,
+            streaming=bool(self.streamer),
             dtype=dtype,
             quantization=quantization,
             quantized_linear_layers=quantized_layers,
@@ -162,8 +180,17 @@ class Runner:
             raise InferenceError("invalid_waveform")
         return wavs[0], rate, budget
 
-    def synthesize(self, data, path):
-        import soundfile as sf
+    def chunks(self, text, voice, style, budget):
+        if self.streamer:
+            from .streaming import audio_chunks
+
+            yield from audio_chunks(self.streamer, text, voice, style if self.instruct else "", budget)
+        else:
+            yield self.render(text, voice, style)[0]
+
+    def synthesize(self, data, path, publish=None, cancelled=None):
+        import wave
+        import numpy as np
         import torch
 
         if data["voice"] not in self.voices or not data["text"].strip():
@@ -174,23 +201,24 @@ class Runner:
         frames = 0
         budgets = []
         synth_seconds = 0.0
-        with sf.SoundFile(
-            str(path),
-            mode="w",
-            samplerate=24000,
-            channels=1,
-            subtype="PCM_16",
-            format="WAV",
-        ) as out:
+        first_pcm_seconds = None
+        with Path(path).open("wb", buffering=0) as raw, wave.open(raw, "wb") as out:
+            out.setparams((1, 2, 24000, 0, "NONE", "not compressed"))
             for section in safe_sections(data["text"], self.settings):
                 before = time.monotonic()
-                wave, _, budget = self.render(
-                    section, data["voice"], data.get("style", "")
-                )
+                budget = token_budget(section, self.settings)
+                for samples in self.chunks(section, data["voice"], data.get("style", ""), budget):
+                    if cancelled and cancelled():
+                        raise InferenceError("cancelled")
+                    pcm = np.clip(np.floor(samples * 32768), -32768, 32767).astype("<i2")
+                    out.writeframesraw(pcm.tobytes())
+                    frames += len(pcm)
+                    if first_pcm_seconds is None:
+                        first_pcm_seconds = time.monotonic() - began
+                    if publish:
+                        publish(frames)
                 torch.cuda.synchronize()
                 synth_seconds += time.monotonic() - before
-                out.write(wave)
-                frames += len(wave)
                 budgets.append(budget)
         torch.cuda.synchronize()
         elapsed = time.monotonic() - began
@@ -199,6 +227,8 @@ class Runner:
             rate=24000,
             origin="local",
             quantization=self.quantization,
+            backend=self.settings.get("backend", "qwen-tts"),
+            first_pcm_seconds=first_pcm_seconds,
             pipeline_seconds=elapsed,
             tts_seconds=synth_seconds,
             rtf=synth_seconds / (frames / 24000),

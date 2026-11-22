@@ -17,9 +17,10 @@ class Runner:
             voices=["mock-voice"],
             instruct=False,
             origin="mock_tone",
+            streaming=True,
         )
 
-    def synthesize(self, data, path):
+    def synthesize(self, data, path, publish=None, cancelled=None):
         scenario = data.get("scenario")
         if scenario == "exit":
             os._exit(7)
@@ -27,12 +28,17 @@ class Runner:
             time.sleep(300)
         if scenario == "oom":
             raise MemoryError()
-        with wave.open(str(path), "wb") as wav:
+        with path.open("wb", buffering=0) as raw, wave.open(raw, "wb") as wav:
             wav.setparams((1, 2, 24000, 0, "NONE", "not compressed"))
-            wav.writeframes(
-                b"".join(
+            for start in range(0, 7200, 2400):
+                wav.writeframesraw(b"".join(
                     struct.pack("<h", int(2100 * math.sin(i * 0.08)))
-                    for i in range(7200)
-                )
-            )
+                    for i in range(start, start + 2400)
+                ))
+                if publish:
+                    publish(start + 2400)
+                if scenario == "stream_slow":
+                    time.sleep(0.2)
+                if cancelled and cancelled():
+                    return {}
         return {"frames": 7200, "rate": 24000, "origin": "mock_tone"}

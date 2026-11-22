@@ -8,11 +8,12 @@
 |---|---|---|
 | /v1/health | GET | 控制进程状态、推理进程 PID、模型就绪、忙碌和接单状态 |
 | /v1/capabilities | GET | 当前模型、版本、音色和实际能力 |
-| /v1/models/load | POST，job_id、model，Qwen 可选 quantization（int4 或 none） | 先回收前一模型进程，再按此次请求或 runtime.json 加载，返回实际量化方式 |
-| /v1/synthesis/jobs | POST，job_id、model、text、voice，可选 style | 受控单句作业；模拟 runner 可指定 scenario |
+| /v1/models/load | POST，job_id、model，Qwen 可选 quantization（int4 或 none） | 加载作业完成后返回实际 backend、quantization。支持流式输出时还返回 streaming 和本次加载的 stream_session。 |
+| /v1/synthesis/jobs | POST，job_id、model、text、voice，可选 style、stream_session | 流式播放传最近一次加载回报的 stream_session。重新加载后，旧标识返回 409。模拟 runner 可指定 scenario。 |
+| /v1/jobs/{id}/pcm/{offset} | GET，offset 为从句首起算的音频帧数 | 已发布的单声道 24 kHz 有符号 16 位小端 PCM，最多 65536 帧。查询作业的 pcm_frames 得到可读上界。作业取消、失败或无可读帧时返回 404。 |
 | /v1/jobs/{id} | GET | running、cancel_requested、cancelled、succeeded、failed 或 interrupted |
-| /v1/jobs/{id}/cancel | POST，hard 为布尔值 | 软取消丢弃结果；硬取消等待进程终止 |
+| /v1/jobs/{id}/cancel | POST，hard 为布尔值 | Faster 软取消在音频块之间生效，丢弃未完成的结果并保留模型。硬取消等待进程终止。 |
 | /v1/artifacts/{id} | GET | 只传输已成功合成作业的完整 WAV |
 | /v1/shutdown | POST | 停止接单并退出 |
 
-例如未知字段返回 HTTP 400 和 `{"error":"invalid_request"}`，无效令牌返回 401，忙碌返回 409 和 `{"error":"busy"}`。软取消没有远端 GPU 即时停止保证。桌面 ProviderError 记录重试性与请求结果确定性。异常音频不发布，超时与进程退出记录为 interrupted。
+未知字段返回 HTTP 400 和 `{"error":"invalid_request"}`，无效令牌返回 401，忙碌返回 409 和 `{"error":"busy"}`。桌面 ProviderError 记录重试性与请求结果确定性。超时与进程退出记录为 interrupted，失败或中断的作业不会发布完整 WAV。

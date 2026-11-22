@@ -63,7 +63,8 @@ class CloudSettings:
             QMessageBox.question(
                 self,
                 "固定样本能力测试",
-                f"向 {p.endpoint} 发送原创测试句「灯亮了。」并验证标注？此请求可能计费。",
+                f"向 {p.endpoint} 发送原创测试句「灯亮了。」并验证标注？"
+                f"最多 {min(2, p.budget)} 次请求（含重试），可能计费。",
             )
             != QMessageBox.StandardButton.Yes
         ):

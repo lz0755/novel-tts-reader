@@ -4,12 +4,22 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from threading import Event
 
 import httpx
 import pytest
 
-from novel_tts.domain.models import AnnotationRequest, Cancelled, Parent, ProviderError
+from conftest import InlineRepository
+from novel_tts.application.analysis import analyze_chapter
+from novel_tts.domain.models import (
+    AnnotationRequest,
+    Cancelled,
+    Parent,
+    ProviderError,
+    fingerprint,
+)
+from novel_tts.domain.text import boundaries, read_draft
 from novel_tts.infrastructure.profiles import DEFAULTS
 from novel_tts.providers.llm import RemoteLLM, chunks
 
@@ -37,6 +47,139 @@ def answer(user):
     }
 
 
+def responses_reply(text):
+    return httpx.Response(
+        200,
+        json={
+            "status": "completed",
+            "output": [
+                {"type": "message", "content": [{"type": "output_text", "text": text}]}
+            ],
+            "usage": {"input_tokens": 12, "output_tokens": 7},
+        },
+    )
+
+
+def test_multiline_coverage_corrected_before_commit(book):
+    store, _, tts, _ = book
+    caps = tts.capabilities()
+    sample = Path(__file__).parents[1] / "fixtures/dialogue_multiline.txt"
+    draft = read_draft(sample.read_bytes(), "原创样章")
+    book_id = store.add_book(draft, draft.boundaries, Event())
+    chapter = store.toc(book_id)[0][0]
+    view = store.view(chapter, 0, caps)
+    calls = []
+
+    def respond(request):
+        messages = json.loads(request.content)["input"]
+        user = json.loads(messages[-1]["content"])
+        calls.append(user)
+        result = answer(user)
+        problem = user["targets"][1]
+        assert problem["length"] == 44 and problem["text"].endswith("\n")
+        if len(calls) == 1:
+            # The actual cloud response stopped at 37 in this 44-code-point paragraph.
+            result["lines"][1]["parts"][0]["end"] = 37
+        else:
+            assert store.revision(book_id) == view.revision
+            assert problem["id"] in messages[0]["content"]
+            assert "终点应为 44，返回 37" in messages[0]["content"]
+        return responses_reply(json.dumps(result))
+
+    profile = replace(DEFAULTS["openai"], budget=2)
+    remote = RemoteLLM(
+        profile,
+        "",
+        transport=httpx.MockTransport(respond),
+        record=lambda r: store.record_attempt(book_id, r),
+    )
+    assert analyze_chapter(InlineRepository(store), view, caps, remote, Event()) == 1
+    assert len(calls) == 2 and calls[0] == calls[1]
+    assert store.revision(book_id) == view.revision + 1
+    for target in calls[0]["targets"]:
+        source = target["text"]
+        at = 0
+        safe = boundaries(source)
+        for start, end, fragment in target["anchors"]:
+            assert start == at and start < end and end in safe
+            assert fragment == source[start:end]
+            at = end
+        assert at == target["length"] == len(source)
+        if source.startswith("程砚说："):
+            assert target["speech_cues"] == [[0, 2, "程砚", 4], [9, 12, "许师傅", 14]]
+    rows = sorted(store.attempts(), key=lambda r: r["number"])
+    assert [r["validation"] for r in rows] == ["failed", "passed"]
+    assert all(
+        r["state"] == "received" and r["usage"]["output_tokens"] == 7 for r in rows
+    )
+    assert "终点应为 44，返回 37" in rows[0]["validation_error"]
+    # Existing billing records from before anchors were added used the original targets.
+    old_inputs = {k: v for k, v in calls[0].items() if k != "batch_id"}
+    old_inputs["targets"] = [
+        {k: t[k] for k in ("id", "text")} for t in old_inputs["targets"]
+    ]
+    logical_id = fingerprint(
+        [profile.endpoint, profile.model, profile.protocol, chapter, old_inputs]
+    )
+    assert rows[0]["logical_id"] == rows[1]["logical_id"] == logical_id
+
+
+@pytest.mark.parametrize("budget", [1, 2])
+def test_invalid_speaker_stops_at_budget_and_preserves_annotations(book, budget):
+    store, _, tts, view = book
+    before = store.view(view.chapter, 0, tts.capabilities())
+
+    def respond(request):
+        messages = json.loads(request.content)["input"]
+        result = answer(json.loads(messages[-1]["content"]))
+        result["lines"][0]["parts"][0]["speaker"] = "untrusted-model-output"
+        return responses_reply(json.dumps(result))
+
+    rows = []
+    remote = RemoteLLM(
+        replace(DEFAULTS["openai"], budget=budget),
+        "",
+        transport=httpx.MockTransport(respond),
+        record=rows.append,
+    )
+    with pytest.raises(ProviderError, match="p0.*speaker") as error:
+        analyze_chapter(InlineRepository(store), view, tts.capabilities(), remote, Event())
+    assert ("预算" in str(error.value)) == (budget == 1)
+    assert len([r for r in rows if r.get("validation") == "failed"]) == budget
+    assert "untrusted-model-output" not in json.dumps(rows) + str(error.value)
+    assert store.view(view.chapter, 0, tts.capabilities()) == before
+
+
+@pytest.mark.parametrize(
+    "response, reason, attempts",
+    [
+        (httpx.Response(200, content=b"bad envelope"), "响应结构", 1),
+        (responses_reply("{"), "标注 JSON 无效", 2),
+        (responses_reply('{"schema_version":1}'), "缺少字段.*import_revision", 2),
+        (
+            httpx.Response(200, json={
+                "status": "completed",
+                "output": [{"type": "message", "content": [{"type": "refusal"}]}],
+            }),
+            "模型拒绝",
+            1,
+        ),
+    ],
+)
+def test_validation_distinguishes_bad_replies(response, reason, attempts):
+    req = AnnotationRequest("b", "c", "rev", 0, "batch", (Parent("p0", 0, "雨。"),))
+    rows = []
+    api = RemoteLLM(
+        DEFAULTS["openai"],
+        "",
+        record=rows.append,
+        transport=httpx.MockTransport(lambda _: response),
+    )
+    with pytest.raises(ProviderError, match=reason):
+        api.analyze_chunk(req, Event())
+    assert len([r for r in rows if r.get("validation") == "failed"]) == attempts
+
+
 def test_dense_paragraphs_keep_all_targets_and_context():
     targets = tuple(Parent(f"p{i}", i * 2, "雨\n") for i in range(90))
     req = AnnotationRequest("b", "c", "v1", 0, "batch", targets, "前" * 256)
@@ -44,6 +187,8 @@ def test_dense_paragraphs_keep_all_targets_and_context():
     assert max(len(batch.targets) for batch in batches) <= 32
     assert tuple(p for batch in batches for p in batch.targets) == targets
     assert len({batch.batch_id for batch in batches}) == len(batches)
+    short = replace(req, targets=targets[:1], context="")
+    assert list(chunks(short, 4096))[0].targets == short.targets
     prefix = req.context
     for batch in batches:
         assert batch.context == prefix[-256:]

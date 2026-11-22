@@ -57,12 +57,12 @@
 
 | 编号 | 验收项 | 状态 | 结果与证据 |
 |---|---|---|---|
-| AC-030 | 供应商与协议能力 | 阻塞 | OpenAI、DeepSeek 的实际探测均在缺少凭据时退出。自定义端点已有回环契约，尚缺真实端点、协议和账号能力快照。 [Windows 实机记录](evidence/windows-recheck-20261122.json) |
-| AC-031 | OpenAI 与 DeepSeek 真调用 | 阻塞 | 重新执行 OpenAI 与 DeepSeek 固定样本探测，两者均在发请求前提示缺少该端点的 API 密钥，退出码为 2。 [Windows 实机记录](evidence/windows-recheck-20261122.json) |
+| AC-030 | 供应商与协议能力 | 阻塞 | OpenAI 官方 Responses 已实测 `gpt-6-luna` 的严格 JSON Schema 输出。DeepSeek 和自定义云端端点的账号验证待完成。 [供应商实测](evidence/M4.md) |
+| AC-031 | OpenAI 与 DeepSeek 真调用 | 阻塞 | OpenAI 固定短句及 16 段样章已通过，样章验证了原文覆盖、角色引用和重开书库后的标注。DeepSeek 仍缺真调用结果。 [样章与结果](evidence/M4.md) |
 | AC-032 | 上下文预算与局部回退 | 通过 | 分块只提交目标段；超限缩小当前批一次，拒答时保留最近有效版本。回环协议和故障用例通过。 [自动化测试](evidence/automated-tests.json) |
-| AC-033 | 固定集标注质量 | 阻塞 | 十章共 350 个锚点段，含 150 个明确对白、30 个歧义对白和 30 个多人父段。真实标注账号与参照答案的独立人工复核仍缺。 [标注回归集](../fixtures/regression.json) |
+| AC-033 | 固定集标注质量 | 阻塞 | OpenAI 独立样章的 4 句对白抽查通过。十章固定集共 350 个锚点段，仍待整集实测与参照答案的独立人工复核。 [样章实测](evidence/M4.md) · [标注回归集](../fixtures/regression.json) |
 | AC-034 | 重试、关联与潜在费用 | 通过 | 读超时记为结果未知且不自动重发。重开后手工重试同一逻辑内容，新的作业保留原尝试与潜在重复费用标记；429、5xx、鉴权和退避上限均有记录。 [自动化测试](evidence/automated-tests.json) |
-| AC-035 | 十章费用与预算 | 阻塞 | 费用归集和预算保护已有契约测试。两个真实标注端点均缺凭据，十章实付费用及整书外推缺少账单依据。 [Windows 实机记录](evidence/windows-recheck-20261122.json) |
+| AC-035 | 十章费用与预算 | 阻塞 | 费用归集和预算保护已有契约测试，OpenAI 样章已取得 token 用量。十章实付费用及整书外推仍缺账单依据。 [样章实测](evidence/M4.md) |
 
 ## M5 云端语音
 

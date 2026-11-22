@@ -15,46 +15,55 @@ KNOWN = ("林渊", "阿宁")
 
 
 def validate(request: AnnotationRequest, result: AnnotationResult):
-    if (
-        result.schema_version,
-        result.batch_id,
-        result.import_revision,
-        result.status,
-    ) != (1, request.batch_id, request.import_revision, "completed"):
-        raise ValueError("标注版本、请求或完成状态不匹配")
+    if result.schema_version != 1 or result.status != "completed":
+        raise ValueError("标注版本或完成状态不匹配")
+    if result.batch_id != request.batch_id:
+        raise ValueError("批次标识 batch_id 与请求不一致")
+    if result.import_revision != request.import_revision:
+        raise ValueError("原文修订 import_revision 与请求不一致")
     targets = {p.id: p for p in request.targets}
-    if [line[0] for line in result.lines] != list(targets) or len(targets) != len(
-        request.targets
-    ):
-        raise ValueError("目标父段重复、缺失或顺序错误")
+    if len(targets) != len(request.targets):
+        raise ValueError("请求的原文段 ID 重复")
+    if len(result.lines) != len(targets):
+        raise ValueError(f"原文段数不符，应有 {len(targets)} 段，返回 {len(result.lines)} 段")
+    for index, (target, line) in enumerate(zip(request.targets, result.lines), 1):
+        if target.id != line[0]:
+            raise ValueError(f"第 {index} 段的 span_id 应为 {target.id}")
     allowed = SPECIAL | {key for key, _ in request.characters}
-    for c in result.candidates:
+    for index, c in enumerate(result.candidates, 1):
         p = targets.get(c.span_id)
-        if not c.name.strip() or not c.ref or c.ref in allowed or not p:
-            raise ValueError("新角色引用无效")
+        if not c.name.strip() or not c.ref.strip() or c.ref in allowed:
+            raise ValueError(f"第 {index} 个候选角色的名字或引用为空，或引用已被占用")
+        if p is None:
+            raise ValueError(f"第 {index} 个候选角色的证据 span_id 不属于本批原文")
         safe = boundaries(p.text)
         if c.start not in safe or c.end not in safe or c.start >= c.end:
-            raise ValueError("新角色证据无效")
+            raise ValueError(
+                f"第 {index} 个候选角色在 {p.id} 的证据区间 [{c.start}, {c.end}) 无效，"
+                f"应在 0 到 {len(p.text)} 之间且位于完整字形边界"
+            )
         allowed.add(c.ref)
     for span_id, parts in result.lines:
         p = targets[span_id]
         safe = boundaries(p.text)
         offset = 0
-        for part in parts:
-            if (
-                part.start != offset
-                or part.end <= offset
-                or part.end not in safe
-                or part.speaker not in allowed
-            ):
-                raise ValueError("原文覆盖、字形边界或角色引用无效")
+        for index, part in enumerate(parts, 1):
+            where = f"原文段 {span_id} 第 {index} 个区间"
+            if part.start != offset:
+                raise ValueError(f"{where} 起点应为 {offset}，返回 {part.start}")
+            if not part.start < part.end <= len(p.text):
+                raise ValueError(f"{where} [{part.start}, {part.end}) 无效，段长为 {len(p.text)}")
+            if part.end not in safe:
+                raise ValueError(f"{where} 的终点 {part.end} 拆开了一个字形")
+            if part.speaker not in allowed:
+                raise ValueError(f"{where} 的 speaker 未引用已知角色或本批候选角色")
             if part.speaker == "skip" and re.search(
                 r"[\w\u3400-\u9fff]", p.text[part.start : part.end]
             ):
-                raise ValueError("正文不可标为装饰")
+                raise ValueError(f"{where} 含有正文，不可标为 skip")
             offset = part.end
         if offset != len(p.text):
-            raise ValueError("原文覆盖不完整")
+            raise ValueError(f"原文段 {span_id} 覆盖不完整，终点应为 {len(p.text)}，返回 {offset}")
     return result
 
 

@@ -13,6 +13,10 @@ from novel_tts.application.costs import pricing_key
 from novel_tts.domain.models import Cancelled, ProviderError, fingerprint
 
 
+class BudgetExceeded(ProviderError):
+    pass
+
+
 class RequestBudget:
     def __init__(self, limit):
         self.left = limit
@@ -21,7 +25,7 @@ class RequestBudget:
     def reserve(self):
         with self.lock:
             if not self.left:
-                raise ProviderError("已达到本次操作的请求预算")
+                raise BudgetExceeded("已达到本次操作的请求预算")
             self.left -= 1
 
 
@@ -112,7 +116,7 @@ class Remote:
             finally:
                 runner.run(client.aclose())
 
-    def post(self, url, body, cancel, group=None):
+    def post(self, url, body, cancel, group=None, *, parse_response=None):
         group = group or Attempts()
         job = group.job
         request_hash = fingerprint(body)
@@ -246,10 +250,20 @@ class Remote:
                             or payload.get("id")
                         )
                         row["cost"] = self.estimate(row["usage"])
-                    self.record(row)
-                    if cancel.is_set():
-                        raise Cancelled()
-                    return response
+                    try:
+                        if cancel.is_set():
+                            raise Cancelled()
+                        if parse_response is None:
+                            return response
+                        try:
+                            result = parse_response(response)
+                        except ProviderError as exc:
+                            row.update(validation="failed", validation_error=str(exc))
+                            raise
+                        row["validation"] = "passed"
+                        return result
+                    finally:
+                        self.record(row)
                 status = response.status_code
                 retryable = status == 429 or 500 <= status < 600
                 row["state"] = f"http_{status}"

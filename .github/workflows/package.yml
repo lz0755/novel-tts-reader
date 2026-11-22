@@ -7,8 +7,6 @@ permissions:
   contents: read
 jobs:
   package:
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +28,7 @@ jobs:
       - run: uv run --no-sync python scripts/build_desktop.py --platform ${{ matrix.target }}
       - uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: NovelTTSReader-${{ matrix.target }}-x86_64
           path: |
             dist/NovelTTSReader-*.zip*
@@ -51,21 +50,13 @@ jobs:
           UV_HTTP_TIMEOUT: "300"
           UV_HTTP_RETRIES: "5"
           UV_CONCURRENT_DOWNLOADS: "4"
-      - name: Attach checked Qwen volumes, speech sample and verification report to the draft
+      - name: Preserve checked Qwen volumes and speech evidence
         if: startsWith(github.ref, 'refs/tags/desktop-') && !contains(github.ref_name, 'preview')
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_REF_NAME" --jq .sha)" = "$GITHUB_SHA"
-          test "$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft)" = true
-          cd dist/qwen
-          sha256sum -c *.sha256
-          for asset in *; do
-            for attempt in 1 2 3; do
-              if gh release upload "$GITHUB_REF_NAME" "$asset" --clobber; then break; fi
-              if [[ "$attempt" == 3 ]]; then exit 1; fi
-              sleep 10
-            done
-          done
+        uses: actions/upload-artifact@v4
+        with:
+          name: OfflineQwen-${{ matrix.target }}-x86_64
+          path: dist/qwen/*
+          compression-level: 0
+          retention-days: 3
+          overwrite: true
+          if-no-files-found: error

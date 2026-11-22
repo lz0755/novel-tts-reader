@@ -140,7 +140,7 @@ def main():
     with archive.open("rb") as f:
         digest = hashlib.file_digest(f, "sha256").hexdigest()
     archive.with_suffix(archive.suffix + ".sha256").write_text(
-        f"{digest}  {archive.name}\n"
+        f"{digest}  {archive.name}\n", encoding="ascii", newline="\n"
     )
     print(archive, digest, flush=True)
 

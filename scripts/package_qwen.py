@@ -231,6 +231,7 @@ def main():
         (output / (prefix + ".sha256")).write_text(
             "".join(f"{digest(part)}  {part.name}\n" for part in parts),
             encoding="ascii",
+            newline="\n",
         )
 
 

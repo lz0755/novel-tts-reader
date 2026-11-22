@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import time
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,18 @@ RUNTIMES = {
 def digest(path):
     with path.open("rb") as source:
         return hashlib.file_digest(source, "sha256").hexdigest()
+
+
+def remove_build_tree(path):
+    # Virus scanners can briefly hold a DLL after a Windows process exits.
+    for attempt in range(6):
+        try:
+            shutil.rmtree(path)
+            return
+        except PermissionError:
+            if os.name != "nt" or attempt == 5:
+                raise
+            time.sleep(2)
 
 
 def prepare_runtime(local, temp, target):
@@ -78,7 +91,7 @@ def prepare_runtime(local, temp, target):
     subprocess.run(
         ["uv", "pip", "install", *options, "--no-deps", PROJECT / "sidecar"], check=True
     )
-    shutil.rmtree(cache)
+    remove_build_tree(cache)
     subprocess.run(
         [
             python,
@@ -120,7 +133,9 @@ def main():
     prefix = f"NovelTTSReader-Qwen-0.6B-{target}-x86_64"
     if any(output.glob(prefix + ".*")):
         parser.error("use an empty output directory for this target")
-    with tempfile.TemporaryDirectory(prefix="qwen-build-", dir=args.work) as temp_name:
+    with tempfile.TemporaryDirectory(
+        prefix="qwen-build-", dir=args.work, ignore_cleanup_errors=True
+    ) as temp_name:
         temp = Path(temp_name)
         desktop = temp / "NovelTTSReader-Qwen"
         shutil.copytree(args.desktop, desktop, symlinks=True)
@@ -158,7 +173,7 @@ def main():
             cwd=temp,
             check=True,
         )
-        shutil.rmtree(desktop)
+        remove_build_tree(desktop)
         parts = sorted(output.glob(archive.name + ".[0-9][0-9][0-9]"))
         if not parts or any(p.stat().st_size >= 2**31 for p in parts):
             raise ValueError("Invalid split archive")
@@ -178,13 +193,25 @@ def main():
             QT_QPA_PLATFORM="offscreen",
             OMP_NUM_THREADS="2",
         )
-        subprocess.run(
+        desktop_test = subprocess.run(
             [desktop / binary, "--self-test"],
             cwd=moved,
             env=offline,
             timeout=150,
             check=True,
+            stdout=subprocess.PIPE,
+            encoding="utf-8",
         )
+        print(desktop_test.stdout, flush=True)
+        checks = {
+            json.loads(line).get("check")
+            for line in desktop_test.stdout.splitlines()
+            if line.startswith("{")
+        }
+        if not {"mock_desktop", "bundled_qwen_handshake"}.issubset(checks):
+            raise ValueError(
+                "The installed desktop did not discover and start its bundled sidecar"
+            )
         subprocess.run(
             [
                 python,

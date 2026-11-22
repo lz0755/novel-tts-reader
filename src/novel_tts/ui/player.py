@@ -1,4 +1,5 @@
 from novel_tts.application.batch import AudioBatch, playable
+from novel_tts.domain.voices import voice_label
 from novel_tts.infrastructure.audio import RATE
 from novel_tts.ui.pcm import PcmPlayback, pcm_format
 
@@ -37,8 +38,10 @@ class Playback:
         self.text.ensureCursorVisible()
         self.speaker.setText(dict(self.view.characters).get(line.speaker, "待确认"))
         self.voice.clear()
-        self.voice.addItems(self.provider.capabilities().voices)
-        self.voice.setCurrentText(line.voice)
+        caps = self.provider.capabilities()
+        for voice in caps.voices:
+            self.voice.addItem(voice_label(caps.provider, voice), voice)
+        self.voice.setCurrentIndex(self.voice.findData(line.voice))
         req = self.provider.prepare(line.spoken, line.voice, line.style)
         self.origin.setText(
             LABELS[req.origin] + (" · 临时替代音色" if line.substitute else "")

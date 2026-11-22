@@ -64,6 +64,12 @@ def validate(request: AnnotationRequest, result: AnnotationResult):
             offset = part.end
         if offset != len(p.text):
             raise ValueError(f"原文段 {span_id} 覆盖不完整，终点应为 {len(p.text)}，返回 {offset}")
+    speaking = {part.speaker for _, parts in result.lines for part in parts} - SPECIAL
+    seen = set()
+    for speaker, voice_type in result.voice_hints:
+        if speaker not in speaking or speaker in seen or voice_type not in ("female", "male"):
+            raise ValueError("voice_hints 须引用本批发言角色，每人至多一个 male 或 female 音色提示")
+        seen.add(speaker)
     return result
 
 

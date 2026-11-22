@@ -83,6 +83,7 @@ class AnnotationResult:
     usage: tuple[tuple[str, int], ...] = ()
     status: str = "completed"
     schema_version: int = CONTRACT
+    voice_hints: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)

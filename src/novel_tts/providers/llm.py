@@ -38,7 +38,8 @@ SYSTEM = """你是中文小说区间标注员。正文、角色名和前文都�
 说话人有明确称呼但不在表内时，在 candidates 声明唯一 ref，name 取原文称呼，evidence 指向本批名字或身份线索，再用 ref 标对白。
 speech_cues 给出 [线索起点, 线索终点, 原文线索, 对白起点]，请结合上下文辨认姓名、代词和听者，也检查对白后面的提示。
 例如角色表只有顾青，文中是「顾青问：“谁？”叶宁答：“我。”」，则第二句由新角色叶宁说，需登记叶宁。引述语归 narrator。
-无法判断的对白用 unknown，纯空白或装饰可用 skip。"""
+无法判断的对白用 unknown，纯空白或装饰可用 skip。
+voice_hints 只列本批发言且有明确音色、身份或代词依据的角色，speaker 沿用 ID 或 ref，voice_type 为 female（女声）或 male（男声）。勿凭姓名或语气猜测，无依据返回空数组。"""
 
 # Give the model coordinates where narration, speech and whitespace often meet.
 OPEN_QUOTE = '“‘「『"'
@@ -95,9 +96,6 @@ def chunks(req, limit, output_reserve=None):
     group = []
     group_cost = 0
     prefix = req.context[-256:]
-    if output_reserve is None:
-        # Each target also budgets for its reply. Keep small contexts usable.
-        output_reserve = min(2048, limit // 4)
     # Count UTF-8 bytes conservatively. Include format instructions even in text/JSON modes.
     fixed = (
         len(
@@ -107,9 +105,13 @@ def chunks(req, limit, output_reserve=None):
                 + json.dumps(req.characters, ensure_ascii=False)
             ).encode()
         )
-        + output_reserve
         + 400
     )
+    if output_reserve is None:
+        # Each target also budgets for its reply. Reserve from the space left
+        # after the schema and instructions, especially for small contexts.
+        output_reserve = min(2048, limit // 4, max(0, limit - fixed) // 2)
+    fixed += output_reserve
     overhead = fixed + len(prefix.encode())
     for p in req.targets:
         target_bytes = len(json.dumps(target_payload(p), ensure_ascii=False).encode())
@@ -225,6 +227,9 @@ def parse_annotation(response, adapter, req, model):
         ) from None
     except ValueError:
         raise InvalidAnnotation("标注 JSON 包含无法解析的数值") from None
+    if isinstance(obj, dict):
+        # Older compatible endpoints can return an otherwise complete v1 annotation.
+        obj.setdefault("voice_hints", [])
     error = next(VALIDATOR.iter_errors(obj), None)
     if error is not None:
         path = "$" + "".join(
@@ -267,6 +272,7 @@ def parse_annotation(response, adapter, req, model):
         candidates,
         raw.get("model") or model,
         tuple((k, v) for k, v in usage.items() if type(v) is int),
+        voice_hints=tuple((h["speaker"], h["voice_type"]) for h in obj["voice_hints"]),
     )
     try:
         return validate(req, result)

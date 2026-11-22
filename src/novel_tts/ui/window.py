@@ -432,7 +432,7 @@ class ReaderWindow(
             return
         view, voice, caps = (
             self.view,
-            self.voice.currentText(),
+            self.voice.currentData(),
             self.provider.capabilities(),
         )
         line = view.lines[self.index]

@@ -18,6 +18,8 @@ from novel_tts.domain.models import (
     fingerprint,
 )
 from novel_tts.domain.text import chapters, parents
+from novel_tts.domain.voices import QWEN_PRESETS, matching_voices
+from novel_tts.infrastructure.casting import infer_voice_type
 
 SCHEMA = """
 CREATE TABLE books(id TEXT PRIMARY KEY,title TEXT NOT NULL,digest TEXT,encoding TEXT,raw BLOB,revision INTEGER DEFAULT 0,opened REAL);
@@ -94,6 +96,7 @@ from novel_tts.infrastructure.cache import CacheIndex
 class Store(Edits, CacheIndex):
     def __init__(self, paths):
         self.paths = paths
+        self._voice_types = {}
         self.path = paths.data / "library.sqlite3"
         self.db = sqlite3.connect(self.path)
         self.db.row_factory = sqlite3.Row
@@ -109,7 +112,7 @@ class Store(Edits, CacheIndex):
 
     def migrate(self):
         version = self.db.execute("PRAGMA user_version").fetchone()[0]
-        if version > 6:
+        if version > 7:
             raise RuntimeError("数据库来自更新版本")
         if version == 0:
             if self.db.execute(
@@ -171,6 +174,15 @@ class Store(Edits, CacheIndex):
                     book, json_extract(record, '$.logical_id'), stamp DESC
                 );
                 PRAGMA user_version=6; COMMIT;""")
+        if version < 7:
+            if version:
+                self.backup(self.path.with_suffix(".before-v7.sqlite3"))
+            self.db.executescript("""BEGIN;
+                CREATE TABLE voice_hints(book TEXT,id TEXT,voice_type TEXT NOT NULL
+                    CHECK(voice_type IN ('female','male')),PRIMARY KEY(book,id),
+                    FOREIGN KEY(book,id) REFERENCES characters ON DELETE CASCADE);
+                CREATE INDEX parts_by_speaker ON parts(speaker,chapter,start);
+                PRAGMA user_version=7; COMMIT;""")
 
     def record_attempt(self, book, row):
         with self.db:
@@ -285,6 +297,7 @@ class Store(Edits, CacheIndex):
                 (book, book + "/%"),
             )
             self.db.execute("DELETE FROM books WHERE id=?", (book,))
+        self._voice_types.pop(book, None)
 
     def progress(self, book):
         row = self.db.execute(
@@ -380,13 +393,21 @@ class Store(Edits, CacheIndex):
                     (req.book, cid, candidate.name, evidence),
                 )
                 refs[candidate.ref] = cid
-                self.binding(req.book, cid, caps)
+            annotated = set()
             for p, (_, parts) in zip(req.targets, result.lines):
+                speakers = {refs.get(part.speaker, part.speaker) for part in parts}
                 if self.db.execute(
                     "SELECT 1 FROM parts WHERE chapter=? AND parent=? AND manual=1",
                     (req.chapter, p.id),
                 ).fetchone():
+                    if result.voice_hints:
+                        retained = self.db.execute(
+                            "SELECT DISTINCT speaker FROM parts WHERE chapter=? AND parent=?",
+                            (req.chapter, p.id),
+                        )
+                        annotated.update(speakers.intersection(row[0] for row in retained))
                     continue
+                annotated.update(speakers)
                 self.db.execute(
                     "DELETE FROM parts WHERE chapter=? AND parent=?",
                     (req.chapter, p.id),
@@ -405,8 +426,61 @@ class Store(Edits, CacheIndex):
                         for part in parts
                     ],
                 )
+            self.db.executemany(
+                """INSERT INTO voice_hints VALUES(?,?,?)
+                   ON CONFLICT(book,id) DO UPDATE SET voice_type=excluded.voice_type""",
+                [
+                    (req.book, refs.get(ref, ref), kind)
+                    for ref, kind in result.voice_hints if refs.get(ref, ref) in annotated
+                ],
+            )
+            self._voice_types.pop(req.book, None)
             if not initial:
                 self.bump(req.book)
+            for cid in refs.values():
+                self.binding(req.book, cid, caps)
+
+    def _voice_type(self, book, cid):
+        if self.db.in_transaction:
+            return infer_voice_type(self.db, book, cid)
+        revision = self.revision(book)
+        cached = self._voice_types.get(book)
+        if not cached or cached[0] != revision:
+            cached = self._voice_types[book] = (revision, {})
+        if cid not in cached[1]:
+            cached[1][cid] = infer_voice_type(self.db, book, cid)
+        return cached[1][cid]
+
+    def _qwen_binding(self, book, cid, profile, voices, row):
+        saved, manual = row if row else ("", False)
+        active = next((v for v in voices if v.lower() == saved.lower()), None)
+        if manual and active:
+            return active, False
+        preset = QWEN_PRESETS.get(saved.lower()) if manual else None
+        kind = preset[0] if preset else self._voice_type(book, cid)
+        if not kind:
+            return (active, False) if active else None
+        matches = matching_voices(kind, voices)
+        if active in matches:
+            return active, False
+        if not matches:
+            return active or voices[0], True
+        if saved and not active:
+            return matches[0], True
+        native = [
+            v for v in matches if QWEN_PRESETS[v.lower()][2] in ("中文", "北京话", "四川话")
+        ]
+        usage = dict(self.db.execute(
+            """SELECT lower(voice),count(*) FROM bindings WHERE book=? AND profile=?
+               AND id NOT IN ('narrator','unknown') GROUP BY lower(voice)""", (book, profile)
+        ))
+        voice = min(native or matches, key=lambda v: usage.get(v.lower(), 0))
+        self.db.execute(
+            """INSERT INTO bindings VALUES(?,?,?,?,0)
+               ON CONFLICT(book,id,profile) DO UPDATE SET voice=excluded.voice
+               WHERE bindings.manual=0""", (book, cid, profile, voice)
+        )
+        return voice, False
 
     def binding(self, book, cid, caps):
         profile = caps.provider + "/" + caps.model
@@ -414,9 +488,13 @@ class Store(Edits, CacheIndex):
         if not voices:
             raise ValueError("所选语音配置没有可用音色")
         row = self.db.execute(
-            "SELECT voice FROM bindings WHERE book=? AND id=? AND profile=?",
+            "SELECT voice,manual FROM bindings WHERE book=? AND id=? AND profile=?",
             (book, cid, profile),
         ).fetchone()
+        if caps.provider == "local_qwen" and cid not in ("narrator", "unknown"):
+            binding = self._qwen_binding(book, cid, profile, voices, row)
+            if binding:
+                return binding
         if row:
             return (row[0], False) if row[0] in voices else (voices[0], True)
         voice = voices[0]

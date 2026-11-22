@@ -53,6 +53,18 @@
         "additionalProperties": false
       }
     },
+    "voice_hints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "speaker": {"type": "string"},
+          "voice_type": {"type": "string", "enum": ["female", "male"]}
+        },
+        "required": ["speaker", "voice_type"],
+        "additionalProperties": false
+      }
+    },
     "lines": {
       "type": "array",
       "items": {
@@ -102,7 +114,8 @@
     "import_revision",
     "batch_id",
     "candidates",
-    "lines"
+    "lines",
+    "voice_hints"
   ],
   "additionalProperties": false
 }

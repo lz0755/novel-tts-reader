@@ -1,3 +1,4 @@
+import json
 import multiprocessing as mp
 import os
 import threading
@@ -18,11 +19,18 @@ def worker(pipe, folder, engine, settings):
         from .qwen import Runner
     else:
         from .mock import Runner
-    runner = Runner(settings)
     while True:
         kind, job, data = pipe.recv()
         try:
             if kind == "load":
+                # Each new worker reads the selected file, including on a reload
+                # of the same model. Older control processes pass a snapshot.
+                options = (
+                    json.loads(settings.read_text(encoding="utf-8-sig"))
+                    if isinstance(settings, Path)
+                    else settings or {}
+                )
+                runner = Runner(options)
                 result = runner.load(data)
             else:
                 result = runner.synthesize(data, Path(folder) / (job + ".wav"))

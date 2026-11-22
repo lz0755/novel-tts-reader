@@ -1,0 +1,286 @@
+{
+  "date": "2026-11-22",
+  "environment": {
+    "os": "Windows 11 x64",
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "torch": "2.8.0+cu128",
+    "python": "3.12.16",
+    "cuda": "12.8",
+    "qwen_tts": "0.1.1",
+    "compute_capability": "8.9",
+    "driver": "616.92",
+    "device_bytes": 8585216000
+  },
+  "method": {
+    "precision": "INT4 packed affine weights, BF16 activations, group size 32, 8 inner K tiles",
+    "quantized_modules": "The linear projections in the talker and its code predictor's transformer blocks. Embeddings, output heads and the audio codec retain their floating-point weights.",
+    "kernel": "https://github.com/pytorch/pytorch/blob/v2.8.0/aten/src/ATen/native/cuda/int4mm.cu",
+    "int4_source_sha256": "fd47a95ff2b33aab6b5e4222691f8992923e5d678d84791290289299a8677497",
+    "comparison": "Fresh process per model and precision, matching text, speaker and seed. Two warmup utterances with seed 391, then three uncached syntheses. The sample WAVs were written under build/ on the measured machine.",
+    "voice": "vivian",
+    "settings": {
+      "dtype": "bfloat16",
+      "requested_attention": "sdpa",
+      "attention": "sdpa_expanded_kv",
+      "tf32": true,
+      "benchmark": true,
+      "inference_mode": true
+    },
+    "resident_allocated_bytes": "torch.cuda.memory_allocated() after both warmups",
+    "peak_allocated_bytes": "Maximum torch.cuda.max_memory_allocated() across the three individual syntheses",
+    "rtf": "Synchronized synthesis time in seconds divided by WAV duration in seconds. Lower values indicate faster synthesis.",
+    "transcription": "Local Qwen3-ASR-0.6B, Chinese, on completed 24 kHz mono PCM16 WAVs. Comparison strips punctuation and whitespace."
+  },
+  "models": {
+    "0.6B": {
+      "model_id": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+      "voice_count": 9,
+      "resident_allocated_reduction_pct": 32.84,
+      "bf16": {
+        "quantized_linear_layers": 0,
+        "resident_allocated_bytes": 2164438016,
+        "peak_allocated_bytes": 2608048128,
+        "packed_weights_bytes": 0,
+        "quantization_metadata_bytes": 0,
+        "rtf_median": 2.23312,
+        "samples": [
+          {
+            "seed": 137,
+            "text": "清晨的渡船已经靠岸。",
+            "transcript": "清晨的渡船已经靠岸。",
+            "wav": "build/qwen-trial/int4/0.6B-none-137.wav",
+            "sha256": "de723488a871b39f16bf19694d21fd6c0bc1b4e17487bd654a0251af3fe695df",
+            "frames": 88320,
+            "audio_seconds": 3.68,
+            "synthesis_seconds": 8.641,
+            "rtf": 2.3481,
+            "peak_allocated_bytes": 2465384960
+          },
+          {
+            "seed": 138,
+            "text": "雾散了。船靠岸了。",
+            "transcript": "雾散了，船靠岸了。",
+            "wav": "build/qwen-trial/int4/0.6B-none-138.wav",
+            "sha256": "21cd7da6e238a76463f3f9721ca652a9fafb3682a2ab1d42d483ab76b5279255",
+            "frames": 92160,
+            "audio_seconds": 3.84,
+            "synthesis_seconds": 8.468,
+            "rtf": 2.20521,
+            "peak_allocated_bytes": 2478147584
+          },
+          {
+            "seed": 139,
+            "text": "涨潮以前，河边的渔船都回到了码头。",
+            "transcript": "涨潮以前，河边的渔船都回到了码头。",
+            "wav": "build/qwen-trial/int4/0.6B-none-139.wav",
+            "sha256": "49d857229c6aa7f3f14243bd5cfbf30757c25151a391327c877c326f800d98c7",
+            "frames": 115200,
+            "audio_seconds": 4.8,
+            "synthesis_seconds": 10.719,
+            "rtf": 2.23312,
+            "peak_allocated_bytes": 2608048128
+          }
+        ]
+      },
+      "int4": {
+        "quantized_linear_layers": 231,
+        "resident_allocated_bytes": 1453569024,
+        "peak_allocated_bytes": 1889387520,
+        "packed_weights_bytes": 259522560,
+        "quantization_metadata_bytes": 64880640,
+        "rtf_median": 2.2695,
+        "samples": [
+          {
+            "seed": 137,
+            "text": "清晨的渡船已经靠岸。",
+            "transcript": "清晨的渡船已经靠岸。",
+            "wav": "build/qwen-trial/int4/g32/0.6B-int4-137.wav",
+            "sha256": "3d9bee72e00b5eb406d1a2ad71a29f0b17b360b31086456abd8b7f072fc2672b",
+            "frames": 76800,
+            "audio_seconds": 3.2,
+            "synthesis_seconds": 7.25,
+            "rtf": 2.26562,
+            "peak_allocated_bytes": 1715087360
+          },
+          {
+            "seed": 138,
+            "text": "雾散了。船靠岸了。",
+            "transcript": "雾散了，船靠岸了。",
+            "wav": "build/qwen-trial/int4/g32/0.6B-int4-138.wav",
+            "sha256": "e0b7e221e3939c6475644f659843bb64e091d98d82f9648c3bb99e05542b0893",
+            "frames": 96000,
+            "audio_seconds": 4.0,
+            "synthesis_seconds": 9.078,
+            "rtf": 2.2695,
+            "peak_allocated_bytes": 1781490176
+          },
+          {
+            "seed": 139,
+            "text": "涨潮以前，河边的渔船都回到了码头。",
+            "transcript": "涨潮以前，河边的渔船都回到了码头。",
+            "wav": "build/qwen-trial/int4/g32/0.6B-int4-139.wav",
+            "sha256": "17f38f6c9f747dca8af030f908f75f72c297c70c36e81a13b6aee1bce7319d90",
+            "frames": 113280,
+            "audio_seconds": 4.72,
+            "synthesis_seconds": 11.469,
+            "rtf": 2.42987,
+            "peak_allocated_bytes": 1889387520
+          }
+        ]
+      }
+    },
+    "1.7B": {
+      "model_id": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+      "voice_count": 9,
+      "resident_allocated_reduction_pct": 48.02,
+      "bf16": {
+        "quantized_linear_layers": 0,
+        "resident_allocated_bytes": 4187851776,
+        "peak_allocated_bytes": 4609610752,
+        "packed_weights_bytes": 0,
+        "quantization_metadata_bytes": 0,
+        "rtf_median": 2.2621,
+        "samples": [
+          {
+            "seed": 137,
+            "text": "清晨的渡船已经靠岸。",
+            "transcript": "清晨的渡船已经靠岸。",
+            "wav": "build/qwen-trial/int4/1.7B-none-137.wav",
+            "sha256": "f6e72b5de40ecab13299e84be4a0a13828524d953977bca71b45ace54d365768",
+            "frames": 59520,
+            "audio_seconds": 2.48,
+            "synthesis_seconds": 5.61,
+            "rtf": 2.2621,
+            "peak_allocated_bytes": 4390724608
+          },
+          {
+            "seed": 138,
+            "text": "雾散了。船靠岸了。",
+            "transcript": "雾散了，船靠岸了。",
+            "wav": "build/qwen-trial/int4/1.7B-none-138.wav",
+            "sha256": "50caa745f45201b89ac39b0cf9ae2c69ba6c8e76c25ea8a01548496d1b905a43",
+            "frames": 71040,
+            "audio_seconds": 2.96,
+            "synthesis_seconds": 6.547,
+            "rtf": 2.21182,
+            "peak_allocated_bytes": 4430593536
+          },
+          {
+            "seed": 139,
+            "text": "涨潮以前，河边的渔船都回到了码头。",
+            "transcript": "涨潮以前，河边的渔船都回到了码头。",
+            "wav": "build/qwen-trial/int4/1.7B-none-139.wav",
+            "sha256": "d9b5b950e461ee8510e7a662903e8edf0558dd13c2c8f7db1ca817fb30136d85",
+            "frames": 109440,
+            "audio_seconds": 4.56,
+            "synthesis_seconds": 11.938,
+            "rtf": 2.61798,
+            "peak_allocated_bytes": 4609610752
+          }
+        ]
+      },
+      "int4": {
+        "quantized_linear_layers": 231,
+        "resident_allocated_bytes": 2176945152,
+        "peak_allocated_bytes": 2622579712,
+        "packed_weights_bytes": 743964672,
+        "quantization_metadata_bytes": 185991168,
+        "rtf_median": 2.31173,
+        "samples": [
+          {
+            "seed": 137,
+            "text": "清晨的渡船已经靠岸。",
+            "transcript": "清晨的渡船已经靠岸。",
+            "wav": "build/qwen-trial/int4/g32/1.7B-int4-137.wav",
+            "sha256": "ffbfb08209b40b19c12a55b636325e01155947d609142b41cd62a09da233e236",
+            "frames": 63360,
+            "audio_seconds": 2.64,
+            "synthesis_seconds": 6.141,
+            "rtf": 2.32614,
+            "peak_allocated_bytes": 2393153536
+          },
+          {
+            "seed": 138,
+            "text": "雾散了。船靠岸了。",
+            "transcript": "雾散了，船靠岸了。",
+            "wav": "build/qwen-trial/int4/g32/1.7B-int4-138.wav",
+            "sha256": "fd85b32635568e39a84abe2faaed9af26179d91b8fdfd7483c129350955a600f",
+            "frames": 94080,
+            "audio_seconds": 3.92,
+            "synthesis_seconds": 9.062,
+            "rtf": 2.31173,
+            "peak_allocated_bytes": 2499866624
+          },
+          {
+            "seed": 139,
+            "text": "涨潮以前，河边的渔船都回到了码头。",
+            "transcript": "涨潮以前，河边的渔船都回到了码头。",
+            "wav": "build/qwen-trial/int4/g32/1.7B-int4-139.wav",
+            "sha256": "7177ecf84c2d0146850f69282be8582a2447d8c718828b61d9dccff8c96e50dd",
+            "frames": 115200,
+            "audio_seconds": 4.8,
+            "synthesis_seconds": 10.75,
+            "rtf": 2.23958,
+            "peak_allocated_bytes": 2622579712
+          }
+        ]
+      }
+    }
+  },
+  "reader": {
+    "flow": "Offscreen ReaderWindow, actual menu actions and sidecar, chapter generation and cache reads. The third load reused the first WAV. The 1.7B load applied the saved performance instruction.",
+    "requests": [
+      {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+        "mode": "int4",
+        "quantized_linears": 231,
+        "key": "ad16c45d05a67cfa686781275533fe8ca9cf9e6c034a70ce2d56c27ca9f84210",
+        "sha256": "26f625d4f0b51f826abbef300e3d2a846c9c2c23292604ee0078a2e03bd5217d",
+        "frames": 76800,
+        "effective_style": ""
+      },
+      {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+        "mode": "none",
+        "quantized_linears": 0,
+        "key": "fb87ee2f990d7adc2bdc05110b27878969db389465675f90aa959d591b3681ab",
+        "sha256": "ab10ec9c37f081a77200fe842edda0b33e7520dcbd013cda40de07a6c4b0bbd3",
+        "frames": 76800,
+        "effective_style": ""
+      },
+      {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+        "mode": "int4",
+        "quantized_linears": 231,
+        "key": "ad16c45d05a67cfa686781275533fe8ca9cf9e6c034a70ce2d56c27ca9f84210",
+        "sha256": "26f625d4f0b51f826abbef300e3d2a846c9c2c23292604ee0078a2e03bd5217d",
+        "frames": 76800,
+        "effective_style": ""
+      },
+      {
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "mode": "int4",
+        "quantized_linears": 231,
+        "key": "ce49630e11e431a8dfd1607f5f71b350f2ddb6a7cd8867500f9ab868fd983876",
+        "sha256": "1f3a64a2e63dfdab157aac2c45f97894c279b0de48a6a1ada59ea2b206b72920",
+        "frames": 55680,
+        "effective_style": "低声而坚定"
+      }
+    ]
+  },
+  "active_library_after_reload": {
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "quantization": "int4",
+    "quantized_layers": 231,
+    "voice_count": 9,
+    "library_preference": "int4"
+  },
+  "pytest": {
+    "tests": 62,
+    "skipped": 0,
+    "errors": 0,
+    "failures": 0
+  }
+}

@@ -5,6 +5,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from PySide6.QtCore import QCoreApplication, QEvent
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QApplication
 
@@ -70,6 +71,9 @@ def main():
             assert changed.current_key != old_key and reset == 0
         finally:
             changed.close()
+            # This probe drives Qt with processEvents() instead of app.exec().
+            # Dispose the retired players before removing their WAVs on Windows.
+            QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
     print(
         json.dumps(
             dict(

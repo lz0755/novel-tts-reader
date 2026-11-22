@@ -8,7 +8,7 @@
 |---|---|---|
 | /v1/health | GET | 控制进程状态、推理进程 PID、模型就绪、忙碌和接单状态 |
 | /v1/capabilities | GET | 当前模型、版本、音色和实际能力 |
-| /v1/models/load | POST，job_id、model | 异步加载 ID；先回收前一模型进程 |
+| /v1/models/load | POST，job_id、model，Qwen 可选 quantization（int4 或 none） | 先回收前一模型进程，再按此次请求或 runtime.json 加载，返回实际量化方式 |
 | /v1/synthesis/jobs | POST，job_id、model、text、voice，可选 style | 受控单句作业；模拟 runner 可指定 scenario |
 | /v1/jobs/{id} | GET | running、cancel_requested、cancelled、succeeded、failed 或 interrupted |
 | /v1/jobs/{id}/cancel | POST，hard 为布尔值 | 软取消丢弃结果；硬取消等待进程终止 |

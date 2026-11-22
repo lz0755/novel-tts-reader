@@ -59,6 +59,7 @@ def main():
         else {
             "models": {},
             "dtype": "bfloat16",
+            "quantization": "int4",
             "attention": "sdpa",
             "tf32": True,
             "benchmark": True,

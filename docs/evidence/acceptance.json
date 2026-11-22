@@ -1,19 +1,20 @@
 {
-  "date": "2026-11-21",
+  "date": "2026-11-22",
   "implementation": "408a4bec0afab3472c52157ff1243d402a464ce9",
   "counts": {
-    "阻塞": 23,
-    "通过": 26,
-    "待测": 3
+    "通过": 35,
+    "未通过": 1,
+    "待测": 4,
+    "阻塞": 12
   },
   "items": [
     {
       "id": "AC-001",
       "stage": "M0",
       "title": "双平台离线启动",
-      "status": "阻塞",
-      "result": "Ubuntu 离线包、Windows Server 与 Ubuntu 源码入口和原生包自检通过；Windows 11 原生断网启动仍待实机验证。",
-      "evidence": "evidence/packaged.json"
+      "status": "通过",
+      "result": "Windows 11 原生包在零网络能力、无 Key、隐藏 GPU 的 AppContainer 内启动并初始化书库。Windows 源码另通过禁网自检。Ubuntu 已有断网发行包记录。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-002",
@@ -67,9 +68,9 @@
       "id": "AC-008",
       "stage": "M1",
       "title": "固定语音、测试音与导出",
-      "status": "阻塞",
-      "result": "固定语音、音调、真实播放器及导出清单已验证；实体音频设备试听待补。",
-      "evidence": "evidence/qt-loopback.json"
+      "status": "通过",
+      "result": "Windows 发布包样书导出 11 段、371,937 帧。Realtek 测得固定语音和测试音的非零输出，现场试听者确认两者及 Qwen 朗读均可听见。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-009",
@@ -147,17 +148,17 @@
       "id": "AC-018",
       "stage": "M2",
       "title": "三层纠音与局部再生成",
-      "status": "阻塞",
-      "result": "单句、单书、全局优先级及无关缓存复用通过。50 项真实音色听测缺少设备和音色。",
-      "evidence": "../fixtures/pronunciation.tsv"
+      "status": "待测",
+      "result": "已验证三层优先级和局部缓存失效。两档 Qwen 各将 50 条词典纠音实际合成为 5 组 WAV，原文、朗读文本和预期读法均可对照。逐词人工回听待做。",
+      "evidence": "evidence/M7.md"
     },
     {
       "id": "AC-019",
       "stage": "M2",
       "title": "连续短句与句级定位",
-      "status": "阻塞",
-      "result": "可选连读从独立 PCM 确定帧边界，角色、音色、风格变化或下一句未缓存时回到单句；30 个短句的真实听感仍待验证。",
-      "evidence": "evidence/automated-tests.json"
+      "status": "待测",
+      "result": "0.6B 按两名角色实际生成 30 句，10 组逐帧核对拼接内容和句起点，分组止于角色切换。离线转写有 8/10 组与原文逐字一致。漏句、重复、串角与引导泄漏仍待人工听审。",
+      "evidence": "evidence/M7.md"
     },
     {
       "id": "AC-020",
@@ -203,17 +204,17 @@
       "id": "AC-025",
       "stage": "M3",
       "title": "缓存容量、占用与磁盘写满",
-      "status": "待测",
-      "result": "播放及导出持有文件租约，ENOSPC 和清理均有测试。Wine 中 Win32 句柄拒绝共享删除时保留文件和索引，关闭句柄后回收 69,516 字节。Windows 11 原生仍待测。",
-      "evidence": "evidence/packaged.json"
+      "status": "通过",
+      "result": "Windows 11 原生拒绝共享删除的句柄占用时，清理保留索引与 69,516 字节。释放句柄后回收 1 个文件。播放和导出租约、磁盘写满由回归测试覆盖。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-026",
       "stage": "M3",
       "title": "倍速与预取",
-      "status": "阻塞",
-      "result": "1、1.5、2 倍速缓冲换算与实际播放器切速通过；实体设备的保调听感待测。",
-      "evidence": "evidence/qt-loopback.json"
+      "status": "通过",
+      "result": "预取换算和 Qt 播放控制通过。Realtek 对同一 Qwen WAV 以 1、1.5、2 倍速播放，现场听感为「速度变快，音高基本保持」。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-027",
@@ -244,16 +245,16 @@
       "stage": "M4",
       "title": "供应商与协议能力",
       "status": "阻塞",
-      "result": "三类配置、两种协议、三种输出能力及固定样本探测入口已实现。实际账号能力快照待取得。",
-      "evidence": "evidence/M4.md"
+      "result": "OpenAI、DeepSeek 的实际探测均在缺少凭据时退出。自定义端点已有回环契约，尚缺真实端点、协议和账号能力快照。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-031",
       "stage": "M4",
       "title": "OpenAI 与 DeepSeek 真调用",
       "status": "阻塞",
-      "result": "两条真实探测命令分别执行，均在缺少凭据时退出；自定义回环 HTTP 服务通过验证。",
-      "evidence": "evidence/M4.md"
+      "result": "重新执行 OpenAI 与 DeepSeek 固定样本探测，两者均在发请求前提示缺少该端点的 API 密钥，退出码为 2。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-032",
@@ -268,7 +269,7 @@
       "stage": "M4",
       "title": "固定集标注质量",
       "status": "阻塞",
-      "result": "10 章、350 个带锚点句段含 150 个明确对白、30 个歧义对白和 30 个多人父段，附评分脚本。独立人工复核和真实模型评分待执行。",
+      "result": "十章共 350 个锚点段，含 150 个明确对白、30 个歧义对白和 30 个多人父段。真实标注账号与参照答案的独立人工复核仍缺。",
       "evidence": "../fixtures/regression.json"
     },
     {
@@ -284,72 +285,72 @@
       "stage": "M4",
       "title": "十章费用与预算",
       "status": "阻塞",
-      "result": "十章费用报告可按实际端点、模型、定价和整书长度预估费用区间；未知成本及不同配置拒绝外推。请求预算和停用保护已验证。缺少真实十章账单。",
-      "evidence": "evidence/M4.md"
+      "result": "费用归集和预算保护已有契约测试。两个真实标注端点均缺凭据，十章实付费用及整书外推缺少账单依据。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-036",
       "stage": "M5",
       "title": "主供应商真实声音",
       "status": "阻塞",
-      "result": "独立 Qwen HTTP 适配器与正式入口已接入；缺少地域匹配的工作区和凭据。第二供应商 Realtime 为可选项。",
-      "evidence": "evidence/M5.md"
+      "result": "Qwen 云端固定样本探测在发送前提示缺少密钥，退出码 2。真实声音仍需匹配地域的工作区及凭据。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-037",
       "stage": "M5",
       "title": "音色与表演指令",
       "status": "阻塞",
-      "result": "按实际配置发送 voice ID 和已验证的指令能力；测试覆盖不支持指令时的省略。真实音色对比待测。",
-      "evidence": "evidence/M5.md"
+      "result": "已有省略不支持指令的测试。云端 Qwen 的真实音色与表演效果仍需工作区凭据。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-038",
       "stage": "M5",
       "title": "归一化与音频下载",
       "status": "阻塞",
-      "result": "二进制、Base64、限时 URL 与 12 kHz 双声道归一化已验证。真实供应商音频和服务端链接过期仍待测。",
-      "evidence": "evidence/M5.md"
+      "result": "已验证二进制、Base64、限时 URL 和 12 kHz 双声道归一化。缺少云端凭据，实际响应及签名链接过期仍待验证。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-039",
       "stage": "M5",
       "title": "共用缓存、队列及取消",
       "status": "阻塞",
-      "result": "契约测试复用现有队列、语音指纹与缓存；停止云上传后可重听命中段。真实费用和跨来源流程待测。",
-      "evidence": "evidence/M5.md"
+      "result": "已有缓存、队列、取消和停止授权后的重听测试。真实云端合成、费用与跨来源切换仍需账号。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-040",
       "stage": "M5",
       "title": "云端整章导出",
       "status": "阻塞",
-      "result": "公共导出链路已校验源顺序、缺段、帧数和已有目标保护。缺真实云端章节与听测。",
-      "evidence": "evidence/demo-chapter/manifest.json"
+      "result": "公共导出流程已验证顺序、帧数、缺段和目标目录保护。仍缺来自真实云端服务的整章 WAV 和试听。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-041",
       "stage": "M6",
       "title": "双平台核心发行",
       "status": "阻塞",
-      "result": "GitHub 已从同一预览标签在 Ubuntu 24.04 和 Windows Server 2022 分别构建原生包并完成样书自检。Ubuntu 普通账户断网复测通过；Windows 11 干净机和云端真实使用仍待测。",
-      "evidence": "evidence/packaged.json"
+      "result": "两平台已有原生构建。Windows 11 开发机的发布包断网启动及常规样书自检通过。额外受限的 AppContainer 完整自检达到 90 秒时限。尚缺干净目标桌面及真实云端验证。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-042",
       "stage": "M6",
       "title": "路径、权限与显示",
       "status": "待测",
-      "result": "Ubuntu 普通账户已在中文只读目录检验数据路径、150% 缩放及中文字体。Windows Server 原生包也从中文安装目录自检成功。两平台实际桌面的文件选择及显示仍待复核。",
-      "evidence": "evidence/packaged.json"
+      "result": "Windows 11 在中文及空格路径运行发布包，通过原生存盘对话框导出章节，截图核对了系统 150% 缩放和中文字体。Ubuntu 已有容器只读路径测试，原生桌面仍待复核。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-043",
       "stage": "M6",
       "title": "目标音频设备",
       "status": "阻塞",
-      "result": "取得 Qt 虚拟音频设备及回环记录；两平台实体输出、设备切换和现场试听待测。",
-      "evidence": "evidence/qt-loopback.json"
+      "result": "Windows Realtek 的播放、暂停、跳句、倍速和现场试听已验证。仍缺 Ubuntu 原生桌面实体输出与目标设备切换或失效的现场记录。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-044",
@@ -363,65 +364,72 @@
       "id": "AC-045",
       "stage": "M6",
       "title": "升级和卸载",
-      "status": "待测",
-      "result": "Ubuntu 核心包以原书库重复启动，v5→v6 迁移保留原文字节、手工区间、历史与断点，并生成可回读的 v5 备份。提供升级和卸载说明，原生 Windows 11 升级重装仍待测。",
-      "evidence": "evidence/packaged.json"
+      "status": "通过",
+      "result": "Windows 11 普通用户以正式预览包升级 v5 书库至 v6，移除临时安装并重装后，原文摘要、人工区间、历史和断点一致，v5 备份可回读。Ubuntu 已有同类记录。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-046",
       "stage": "M7",
       "title": "独立运行时与模型资源",
-      "status": "阻塞",
-      "result": "独立依赖锁、固定模型提交、可恢复下载与逐文件核验入口已交付；目标机未下载或加载权重。",
-      "evidence": "local-runtime.md"
+      "status": "通过",
+      "result": "两档本地模型各核对 13 个固定版本文件。回环 HTTP 206 从现有半文件续传并校验摘要，损坏副本被拒。已记录实际运行时及后端版本，配置错误时桌面仍可用。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-047",
       "stage": "M7",
       "title": "两档切换与指令",
-      "status": "阻塞",
-      "result": "0.6B 省略指令，1.7B 接受有效风格，模型指纹分开。真实 0.6B→1.7B→0.6B、单卡驻留及试听待测。",
-      "evidence": "local-runtime.md"
+      "status": "通过",
+      "result": "源码窗口和发布包均完成 0.6B → 1.7B → 0.6B。各有 9 种音色，旧推理进程已退出，并发第二任务被拒。同文试听、风格生效及模型缓存指纹均已核对。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-048",
       "stage": "M7",
       "title": "预热与 GPU 设置",
-      "status": "阻塞",
-      "result": "已实现 Ampere 能力判断、TF32/Benchmark 开关及 2–3 次预热。缺目标 GPU 的 A/B。",
-      "evidence": "local-runtime.md"
+      "status": "通过",
+      "result": "RTX 4060 Laptop 上对每档模型分别测试 TF32 与 cuDNN Benchmark 的四种开关组合，每次预热两次，再用三个固定种子朗读同文。记录了速度、显存及设置。",
+      "evidence": "evidence/M7.md"
     },
     {
       "id": "AC-049",
       "stage": "M7",
       "title": "动态预算与截断拒绝",
-      "status": "阻塞",
-      "result": "安全切分、token 估算及异常进程回收已测试。真实 EOS、长句尾音与生成预算校准待测。",
-      "evidence": "local-runtime.md"
+      "status": "通过",
+      "result": "两档各通过短、中、长三类 EOS 检查，长文按自然边界切分。六段转写含句尾均与原文一致。另将真实任务压到 48 token，触顶后无 WAV、无成功索引，重载后下一任务成功。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     },
     {
       "id": "AC-050",
       "stage": "M7",
       "title": "性能与连续播放",
-      "status": "阻塞",
-      "result": "已交付冷启动及未缓存测量入口，无目标 GPU、显存曲线、物理首音或 30 分钟真实预取记录。",
-      "evidence": "local-runtime.md"
+      "status": "未通过",
+      "result": "两档各 5 次冷启动、50 次未缓存合成。0.6B / 1.7B 的 RTF 中位数为 3.02 / 2.57（目标 ≤0.8），短句取得完整 WAV 的 P95 为 18.95 / 14.64 秒。设备首音 P95 仍待测，30 分钟外放另约。",
+      "evidence": "evidence/windows-qwen-performance-20261122.json"
     },
     {
       "id": "AC-051",
       "stage": "M7",
       "title": "忠实朗读与纠音听测",
-      "status": "阻塞",
-      "result": "已交付 50 项纠音和短对白样本。两档模型的漏/重复/串角、句尾与风格 A/B 听测待执行。",
-      "evidence": "../fixtures/pronunciation.tsv"
+      "status": "待测",
+      "result": "两档共 10 段短中长句及切换样音的自动转写均与原文一致。已有两档各 50 条纠音和 1.7B 同文有无指令的音频，至少 45/50 的人工成绩及风格 A/B 听评待完成。",
+      "evidence": "evidence/M7.md"
     },
     {
       "id": "AC-052",
       "stage": "M7",
       "title": "最终包的目标机回归",
       "status": "阻塞",
-      "result": "发布包中的本地入口及模拟协议通过；原生目标机、新句离线合成、8 GB 硬件和长播回归缺少实测设备。",
-      "evidence": "local-runtime.md"
+      "result": "Windows 正式预览包已完成双模型章节预生成、重开缓存回放与原生对话框导出。实测超时、硬取消及限额 OOM 恢复，新句在推理进程禁外联时合成成功。仍缺原生 Ubuntu 和 30 分钟边生成边播、预生成缓存回放。",
+      "evidence": "evidence/windows-recheck-20261122.json"
     }
-  ]
+  ],
+  "recheck": {
+    "date": "2026-11-22",
+    "prior_date": "2026-11-21",
+    "base_commit": "28eab58c711949741a236dee87973df2a7888446",
+    "evidence": "evidence/windows-recheck-20261122.json",
+    "performance": "evidence/windows-qwen-performance-20261122.json"
+  }
 }

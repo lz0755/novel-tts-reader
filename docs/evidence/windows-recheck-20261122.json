@@ -1,0 +1,2836 @@
+{
+  "date": "2026-11-22",
+  "stand": "Windows 11 x64 10.0.26300; RTX 4060 Laptop GPU 8188 MiB; driver 616.92; CUDA 12.8; Qt 6.9.3",
+  "source": {
+    "base_commit": "28eab58c711949741a236dee87973df2a7888446",
+    "files_sha256": {
+      "sidecar/novel_tts_sidecar/attention.py": "5f1aa13bc7d08a3e4e3885d2a0c35cffd5e1c648c2f504221759fa6eb0b3a2ca",
+      "sidecar/novel_tts_sidecar/qwen.py": "98de8d31180f2f33c55f1cbf160414899838666c5f27f7cf0905fa425a99e0e6",
+      "sidecar/uv.lock": "1120cac9ca90e8d7315055bfb641a297fc5d984bdf230b1ae531dc4ef6e32ec6",
+      "scripts/check_resume.py": "2fe42c14d6e01e6a4b131c212468fac20f6bb2fb00ba73f0b7267c8100f37fff",
+      "fixtures/pronunciation.tsv": "b4ea798c271cadd35c59f9c894493814a7d8c342bd48cfc8479554412fb6f4cd",
+      "fixtures/regression.json": "bd04e52e73b428616b065639385e538c20ca390cf4f78cd12fb923aa53b89e97"
+    },
+    "unpublished_worktree": true
+  },
+  "coverage": {
+    "windows": "ENV-05 / ENV-06",
+    "linux_native": "unavailable",
+    "wsl": "WSL2 Ubuntu listed, optional, not a native Ubuntu desktop",
+    "all_local_synthesis": "loopback, locally verified weights, no vendor key",
+    "continuous_playback": "user deferred all 30-minute speaker runs",
+    "independent_rating": "50-word human score, 30-dialogue subjective review and style A/B not collected"
+  },
+  "regression": {
+    "tests": "59",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "28.517",
+    "junit_xml_sha256": "9924607578b178da7f71f88bd09cf533c66343e59d34c0d361f35fb832ff33c7",
+    "cases": [
+      "tests.test_acceptance_edges::test_corpus_and_pronunciation",
+      "tests.test_acceptance_edges::test_normalization_and_graphemes",
+      "tests.test_acceptance_edges::test_corrupt_cache_self_heals",
+      "tests.test_acceptance_edges::test_disk_full_during_staging",
+      "tests.test_acceptance_edges::test_concurrent_audio_deduplication",
+      "tests.test_acceptance_edges::test_migration_backup_and_preexisting_data",
+      "tests.test_annotation_regression::test_twenty_bindings_survive_retry_new_chapter_and_restart",
+      "tests.test_annotation_regression::test_chunk_split_and_rejection_preserve_source",
+      "tests.test_batches::test_exact_sample_frames_for_optional_short_batch",
+      "tests.test_batches::test_first_failure_can_retry_without_placeholder",
+      "tests.test_billing_and_network::test_lost_response_and_manual_resend_survive_restart",
+      "tests.test_billing_and_network::test_ten_chapter_cost_preview_matches_active_pricing",
+      "tests.test_billing_and_network::test_real_transport_diagnostics[proxy]",
+      "tests.test_billing_and_network::test_real_transport_diagnostics[certificate]",
+      "tests.test_cloud_tts::test_audio_protocol[url]",
+      "tests.test_cloud_tts::test_audio_protocol[base64]",
+      "tests.test_cloud_tts::test_audio_protocol[binary]",
+      "tests.test_cloud_tts::test_incomplete_or_corrupt_has_no_success",
+      "tests.test_contracts::test_pure_core_import",
+      "tests.test_contracts::test_fingerprint_and_error",
+      "tests.test_contracts::test_handshake",
+      "tests.test_llm::test_loopback_protocol[responses-json_schema]",
+      "tests.test_llm::test_loopback_protocol[chat_completions-json_object]",
+      "tests.test_llm::test_loopback_protocol[chat_completions-text]",
+      "tests.test_llm::test_error_budget_and_unknown",
+      "tests.test_local_adapter::test_qprocess_local_adapter",
+      "tests.test_local_adapter::test_two_model_effective_style_and_budgets",
+      "tests.test_local_adapter::test_local_cache_uses_effective_attention",
+      "tests.test_mock_flow::test_chapter_cache_export",
+      "tests.test_mock_flow::test_window_import_generate_and_resume",
+      "tests.test_qwen_attention::test_render_enables_inference_mode_for_voice_generation",
+      "tests.test_qwen_attention::test_expanded_sdpa_matches_grouped_attention[4-False]",
+      "tests.test_qwen_attention::test_expanded_sdpa_matches_grouped_attention[1-False]",
+      "tests.test_qwen_attention::test_expanded_sdpa_matches_grouped_attention[4-True]",
+      "tests.test_qwen_attention::test_select_sdpa_checks_prefill_and_decode[backends0-sdpa_expanded_kv]",
+      "tests.test_qwen_attention::test_select_sdpa_checks_prefill_and_decode[backends1-sdpa]",
+      "tests.test_qwen_attention::test_select_sdpa_checks_prefill_and_decode[backends2-sdpa]",
+      "tests.test_qwen_attention::test_select_sdpa_checks_prefill_and_decode[backends3-sdpa]",
+      "tests.test_qwen_attention::test_other_attention_options_bypass_probe[eager-bfloat16]",
+      "tests.test_qwen_attention::test_other_attention_options_bypass_probe[flash_attention_2-float16]",
+      "tests.test_qwen_attention::test_other_attention_options_bypass_probe[sdpa-float32]",
+      "tests.test_reliability::test_reconcile_and_quota",
+      "tests.test_reliability::test_old_attempt_and_deletion",
+      "tests.test_reliability::test_twenty_jumps",
+      "tests.test_reliability::test_different_rates",
+      "tests.test_remaining_contracts::test_actual_crash_at_publication[partial-71-partial]",
+      "tests.test_remaining_contracts::test_actual_crash_at_publication[after_rename-72-orphan]",
+      "tests.test_remaining_contracts::test_cancelled_import_rolls_back",
+      "tests.test_remaining_contracts::test_keyring_session_fallback_and_redaction",
+      "tests.test_remaining_contracts::test_explicit_capability_downgrade_with_two_attempt_limit",
+      "tests.test_remaining_contracts::test_temporary_voice_mapping_does_not_overwrite_manual",
+      "tests.test_remaining_contracts::test_failed_migration_rolls_back_and_releases_db",
+      "tests.test_sidecar::test_worker_supervision_and_recovery",
+      "tests.test_sidecar::test_parent_closing_input_shuts_down_control_service",
+      "tests.test_text_and_edits::test_encodings_mapping",
+      "tests.test_text_and_edits::test_million_char_window_and_20_random_anchors",
+      "tests.test_text_and_edits::test_manual_priority_stale_and_undo",
+      "tests.test_text_and_edits::test_rules_locality",
+      "tests.test_text_and_edits::test_invalid_annotation_and_independent_people"
+    ]
+  },
+  "package": {
+    "archive_sha256": "98a77cf339e4f3e79aa8197f343375f42f6ba540957f14c887da0ca779f5897f",
+    "exe_sha256": "aeaee86d3d9c0b03c390bb86b7390a50956e6e68cde023c0dbf1be63ea724fdb",
+    "sample": {
+      "check": "mock_desktop",
+      "chapters": 2,
+      "segments": 11,
+      "frames": 371937,
+      "origin": [
+        "mock_fixture"
+      ]
+    },
+    "platform": "windows",
+    "qt_scale": 1.5,
+    "screenshot_pixels": [
+      2430,
+      1411
+    ],
+    "upgrade_source": "147faab29c876dbfc8d9f9affdaf2aa39c471efa",
+    "prior": {
+      "version": 5,
+      "raw": "09af6b39824c9acc124b09be10379d4fcf38755d47064655279b38da11b77ebd",
+      "edits": [
+        [
+          7,
+          14,
+          "narrator",
+          "轻声"
+        ]
+      ],
+      "history": 1,
+      "progress": [
+        7,
+        "",
+        0,
+        1.0
+      ],
+      "integrity": "ok"
+    },
+    "backup": {
+      "version": 5,
+      "raw": "09af6b39824c9acc124b09be10379d4fcf38755d47064655279b38da11b77ebd",
+      "edits": [
+        [
+          7,
+          14,
+          "narrator",
+          "轻声"
+        ]
+      ],
+      "history": 1,
+      "progress": [
+        7,
+        "",
+        0,
+        1.0
+      ],
+      "integrity": "ok"
+    },
+    "upgraded": {
+      "version": 6,
+      "raw": "09af6b39824c9acc124b09be10379d4fcf38755d47064655279b38da11b77ebd",
+      "edits": [
+        [
+          7,
+          14,
+          "narrator",
+          "轻声"
+        ]
+      ],
+      "history": 1,
+      "progress": [
+        7,
+        "",
+        0,
+        1.0
+      ],
+      "integrity": "ok"
+    },
+    "reinstalled": {
+      "version": 6,
+      "raw": "09af6b39824c9acc124b09be10379d4fcf38755d47064655279b38da11b77ebd",
+      "edits": [
+        [
+          7,
+          14,
+          "narrator",
+          "轻声"
+        ]
+      ],
+      "history": 1,
+      "progress": [
+        7,
+        "",
+        0,
+        1.0
+      ],
+      "integrity": "ok"
+    },
+    "first_install_removed": true,
+    "core_cuda_hidden": true,
+    "no_provider_env_keys": true,
+    "dpi_matrix": {
+      "os_device_pixel_ratio": 1.5,
+      "qt_scale_override": null,
+      "qt_platform": "windows",
+      "logical_available": [
+        1707,
+        912
+      ],
+      "screenshot_pixels": [
+        1620,
+        1080
+      ],
+      "selftest": {
+        "check": "mock_desktop",
+        "chapters": 2,
+        "segments": 11,
+        "frames": 371937,
+        "origin": [
+          "mock_fixture"
+        ]
+      }
+    },
+    "first_screenshot_scale_note": "qt_scale was an additional override on the native 150% display; dpi_matrix uses the OS scale alone",
+    "sequence": [
+      "0.6B 本地语音 预生成本章完成",
+      "1.7B 本地语音 预生成本章完成",
+      "0.6B 本地语音 预生成本章完成"
+    ],
+    "reopen_playback": "重新打开已复用本地音频，观察到正在播放 · 本地语音。",
+    "native_file_dialog_export": {
+      "frames": 230400,
+      "segments": 2,
+      "origin": "local",
+      "wav_sha256": "47d7247bb4cfe96bb75dc51b0f94d87d62b23204ecd05619350a2603b4ea9217",
+      "rate": 24000,
+      "manifest": {
+        "version": 1,
+        "chapter": "6b9f744d22a24387afeb7a5334713599",
+        "source": {
+          "book": "141a939cf39f430dbdacf614db960b86",
+          "chapter_title": "晚风轻轻拂过河岸。",
+          "content_revision": 0,
+          "import_revision": "05ffef6723c196169b4045ee018a82ce808fa3295c77bc8c0d2f2afd3b734089"
+        },
+        "canonical_offset_unit": "chapter_codepoints",
+        "rate": 24000,
+        "channels": 1,
+        "width": 2,
+        "frames": 230400,
+        "complete": true,
+        "segments": [
+          {
+            "start_cp": 0,
+            "end_cp": 9,
+            "frame": 0,
+            "frames": 49920,
+            "sha256": "26ebb7a53892ca3ef449d0b5d7234789e5d862c605e9f7fc62611bc7206e878b",
+            "fingerprint": "cadef2cb35db0efb7f61d665179bd122e02f40dfee252e5ca490912edc1ac648",
+            "speaker": "narrator",
+            "provider": "local_qwen",
+            "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+            "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+            "voice": "aiden",
+            "origin": "local"
+          },
+          {
+            "start_cp": 10,
+            "end_cp": 42,
+            "frame": 49920,
+            "frames": 180480,
+            "sha256": "2ab4470b7e61f2221e32bf5eb6a1b31d7c7f8a29f57032074f7e0d15e88ce62e",
+            "fingerprint": "81b7d5d08ebddbe2c90e519205fd0ef9767af9f4a76d308c0a460f7c781c3c2f",
+            "speaker": "narrator",
+            "provider": "local_qwen",
+            "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+            "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+            "voice": "aiden",
+            "origin": "local"
+          }
+        ]
+      }
+    },
+    "offline_start": {
+      "native_windows_appcontainer": true,
+      "network_capabilities": 0,
+      "control_unrestricted_http": 200,
+      "isolated_curl_exit": 28,
+      "no_provider_keys": true,
+      "cuda_visible_devices": "-1",
+      "unrestricted_smoke_exit": 0,
+      "packaged_offline_smoke_exit": 0,
+      "library_initialized": true
+    },
+    "offline_full_selftest": {
+      "result": "timeout",
+      "attempts": 3,
+      "latest": {
+        "appcontainer_capabilities": 0,
+        "mode": "self-test",
+        "exit": 98,
+        "output": null,
+        "staging_directories_granted_to_test_sid": 0,
+        "retained_scratch_directories": 0,
+        "timeout_s": 90
+      },
+      "ordinary_windows_package_selftest": "passed"
+    }
+  },
+  "cloud": {
+    "openai": {
+      "exit": 2,
+      "verified": false,
+      "profile": "openai",
+      "reason": "未配置此端点的 API 密钥"
+    },
+    "deepseek": {
+      "exit": 2,
+      "verified": false,
+      "profile": "deepseek",
+      "reason": "未配置此端点的 API 密钥"
+    },
+    "qwen_cloud": {
+      "exit": 2,
+      "verified": false,
+      "reason": "未配置此端点的 API 密钥"
+    }
+  },
+  "saved_desktop_settings": {
+    "existing_desktop_preferences": true,
+    "saved_voice_source": "local_qwen",
+    "uses_project_sidecar": true,
+    "uses_prepared_config": true,
+    "selected_model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "cached_voice_count": 9
+  },
+  "filesystem": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "held": {
+      "removed": 0,
+      "remaining_bytes": 69516
+    },
+    "released": {
+      "removed": 1,
+      "remaining_bytes": 0
+    }
+  },
+  "source_offline": {
+    "scope": "native Windows source, Python networking denied; native DLL sockets outside this guard",
+    "socket_controls": [
+      "socket.getaddrinfo",
+      "socket.connect"
+    ],
+    "app_network_attempts": [],
+    "torch_installed": false,
+    "torch_imported": false,
+    "exit": 0
+  },
+  "audio": {
+    "endpoint": "Realtek(R) Audio",
+    "type": "WASAPI session peak scoped to the test process (no microphone)",
+    "short": [
+      {
+        "sample": "mock_fixture",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1,
+        "peak_session_amplitude": 0.13712668418884277,
+        "first_nonzero_seconds": 0.2617520999920089,
+        "last_media_ms": 1446,
+        "completed": true
+      },
+      {
+        "sample": "mock_tone",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1,
+        "peak_session_amplitude": 0.03571711853146553,
+        "first_nonzero_seconds": 0.20341639999242034,
+        "last_media_ms": 482,
+        "completed": true
+      },
+      {
+        "sample": "local_0.6B",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1,
+        "peak_session_amplitude": 0.15805892646312714,
+        "first_nonzero_seconds": 0.5230138000042643,
+        "last_media_ms": 3200,
+        "completed": true
+      },
+      {
+        "sample": "local_1.7B_style",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1,
+        "peak_session_amplitude": 0.13655449450016022,
+        "first_nonzero_seconds": 0.2737680999998702,
+        "last_media_ms": 2400,
+        "completed": true
+      },
+      {
+        "sample": "local_1.7B_neutral",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1.5,
+        "peak_session_amplitude": 0.256155401468277,
+        "first_nonzero_seconds": 0.477160599999479,
+        "last_media_ms": 3200,
+        "completed": true
+      },
+      {
+        "sample": "local_0.6B_2x",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 2,
+        "peak_session_amplitude": 0.1805621087551117,
+        "first_nonzero_seconds": 0.2784064000006765,
+        "last_media_ms": 3200,
+        "completed": true
+      }
+    ],
+    "speed_ab": [
+      {
+        "sample": "same_voice_1",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1,
+        "peak_session_amplitude": 0.15805892646312714,
+        "first_nonzero_seconds": 0.5400239000009606,
+        "last_media_ms": 3200,
+        "completed": true
+      },
+      {
+        "sample": "same_voice_1.5",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 1.5,
+        "peak_session_amplitude": 0.15739956498146057,
+        "first_nonzero_seconds": 0.41731970000546426,
+        "last_media_ms": 3200,
+        "completed": true
+      },
+      {
+        "sample": "same_voice_2",
+        "device": "扬声器 (Realtek(R) Audio)",
+        "speed": 2,
+        "peak_session_amplitude": 0.1570197492837906,
+        "first_nonzero_seconds": 0.4204518000042299,
+        "last_media_ms": 3200,
+        "completed": true
+      }
+    ],
+    "user_confirmation": [
+      "听到了样书语音、测试音和 Qwen 朗读",
+      "速度变快，音高基本保持"
+    ],
+    "playback_controls": {
+      "result": "passed",
+      "devices": [
+        "扬声器 (Realtek(R) Audio)"
+      ],
+      "trace": [
+        [
+          "playing",
+          0,
+          170
+        ],
+        [
+          "paused",
+          0,
+          170
+        ],
+        [
+          "jumped",
+          2,
+          170,
+          1.5
+        ]
+      ]
+    },
+    "resume": {
+      "original_cp": 7,
+      "saved_ms": 426,
+      "same_audio_ms": 426,
+      "new_audio_initial_ms": 0,
+      "different_fingerprint": true
+    }
+  },
+  "resources": {
+    "versions": {
+      "torch": "2.8.0+cu128",
+      "torchaudio": "2.8.0+cu128",
+      "qwen-tts": "0.1.1",
+      "transformers": "4.57.3",
+      "huggingface-hub": "0.36.0",
+      "soundfile": "0.13.1"
+    },
+    "models": {
+      "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice": {
+        "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+        "verified_files": 13,
+        "tokenizer_files": [
+          "speech_tokenizer/config.json",
+          "speech_tokenizer/configuration.json",
+          "speech_tokenizer/model.safetensors",
+          "speech_tokenizer/preprocessor_config.json"
+        ],
+        "manifest_sha256": "2df043bc7b5cf47594ccc1645ade315ea39ac6dbc7e23afa8a10356719174787",
+        "model_weights_bytes": 1811626576,
+        "tokenizer_weights_bytes": 682293092
+      },
+      "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice": {
+        "revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "verified_files": 13,
+        "tokenizer_files": [
+          "speech_tokenizer/config.json",
+          "speech_tokenizer/configuration.json",
+          "speech_tokenizer/model.safetensors",
+          "speech_tokenizer/preprocessor_config.json"
+        ],
+        "manifest_sha256": "47a436a98d089e3564e066ad5aaa1bfc3b185d7dedf66aaf7cc3c3acef5f4397",
+        "model_weights_bytes": 3833402552,
+        "tokenizer_weights_bytes": 682293092
+      }
+    },
+    "resumed_incomplete": {
+      "source": "loopback copy of pinned config.json",
+      "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "total_bytes": 4908,
+      "range": "bytes=2454-",
+      "http": 206,
+      "received_bytes": 2454,
+      "digest": "95d74b20b7485f5dfa09d05988d6c606ec226811"
+    },
+    "altered_copy_result": "model_digest_mismatch"
+  },
+  "switch_ui": [
+    {
+      "kind": "desktop_python_rejected",
+      "notice": "本地运行时已退出，已缓存的段仍可播放",
+      "window_alive": true
+    },
+    {
+      "kind": "menu_model_loaded",
+      "size": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "index": 0,
+      "health": {
+        "version": 1,
+        "control": "alive",
+        "pid": 23544,
+        "model_ready": true,
+        "busy": false,
+        "accepting": true
+      },
+      "capabilities": {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+        "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+        "voices": [
+          "aiden",
+          "dylan",
+          "eric",
+          "ono_anna",
+          "ryan",
+          "serena",
+          "sohee",
+          "uncle_fu",
+          "vivian"
+        ],
+        "instruct": false,
+        "origin": "local",
+        "dtype": "bfloat16",
+        "requested_attention": "sdpa",
+        "attention": "sdpa_expanded_kv",
+        "inference_mode": true,
+        "tf32": true,
+        "benchmark": true,
+        "settings": {
+          "token_ceiling": 1536,
+          "characters_per_second": 3.0,
+          "length_margin": 1.55
+        },
+        "python": "3.12.16",
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "qwen_tts": "0.1.1",
+        "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "vram_total": 8585216000,
+        "vram_free_before": 7451181056,
+        "load_seconds": 3.2810000000026776,
+        "warmup_seconds": [
+          6.875,
+          5.9060000000026776
+        ]
+      },
+      "ready_wall_seconds": 29.437000000005355,
+      "previous_worker_exited": false,
+      "gpu_compute_processes": "23544, [N/A]",
+      "voices_in_menu": [
+        "aiden",
+        "dylan",
+        "eric",
+        "ono_anna",
+        "ryan",
+        "serena",
+        "sohee",
+        "uncle_fu",
+        "vivian"
+      ]
+    },
+    {
+      "kind": "same_text",
+      "size": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "index": 0,
+      "sample": "paired",
+      "text": "清晨的渡船已经靠岸。",
+      "style": "",
+      "key": "1472c9b41cd323081b765db562eb8454ec4f0875d15063f11b3332acd042560f",
+      "metrics": {
+        "frames": 76800,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 9.061999999990803,
+        "tts_seconds": 9.061999999990803,
+        "rtf": 2.831874999997126,
+        "budgets": [
+          92
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2425956352,
+        "peak_reserved": 2510290944
+      },
+      "wav": "switch-0-paired.wav",
+      "sha256": "9e43d6c67844cc29ecd26cdc1da55172477f87f9eea835caac8fc5d979199396"
+    },
+    {
+      "kind": "menu_model_loaded",
+      "size": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "index": 1,
+      "health": {
+        "version": 1,
+        "control": "alive",
+        "pid": 10500,
+        "model_ready": true,
+        "busy": false,
+        "accepting": true
+      },
+      "capabilities": {
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "voices": [
+          "aiden",
+          "dylan",
+          "eric",
+          "ono_anna",
+          "ryan",
+          "serena",
+          "sohee",
+          "uncle_fu",
+          "vivian"
+        ],
+        "instruct": true,
+        "origin": "local",
+        "dtype": "bfloat16",
+        "requested_attention": "sdpa",
+        "attention": "sdpa_expanded_kv",
+        "inference_mode": true,
+        "tf32": true,
+        "benchmark": true,
+        "settings": {
+          "token_ceiling": 1536,
+          "characters_per_second": 3.0,
+          "length_margin": 1.55
+        },
+        "python": "3.12.16",
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "qwen_tts": "0.1.1",
+        "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "vram_total": 8585216000,
+        "vram_free_before": 7451181056,
+        "load_seconds": 4.25,
+        "warmup_seconds": [
+          3.047000000005937,
+          4.2189999999973224
+        ]
+      },
+      "ready_wall_seconds": 24.156999999991967,
+      "previous_worker_exited": true,
+      "gpu_compute_processes": "10500, [N/A]",
+      "voices_in_menu": [
+        "aiden",
+        "dylan",
+        "eric",
+        "ono_anna",
+        "ryan",
+        "serena",
+        "sohee",
+        "uncle_fu",
+        "vivian"
+      ]
+    },
+    {
+      "kind": "same_text",
+      "size": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "index": 1,
+      "sample": "paired",
+      "text": "清晨的渡船已经靠岸。",
+      "style": "低声而坚定",
+      "key": "d5a67322184e0102f3feacb56525b828f8b8f107c7bda03568ec14066c5c0141",
+      "metrics": {
+        "frames": 57600,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 6.2039999999979045,
+        "tts_seconds": 6.187999999994645,
+        "rtf": 2.578333333331102,
+        "budgets": [
+          92
+        ],
+        "applied_instruct": true,
+        "peak_allocated": 4385018880,
+        "peak_reserved": 4477419520
+      },
+      "wav": "switch-1-paired.wav",
+      "sha256": "6f47286a639e78fcb8822430ab05d67385edb97d1a71a44b10c3069127430d4a"
+    },
+    {
+      "kind": "same_text",
+      "size": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "index": 1,
+      "sample": "neutral",
+      "text": "清晨的渡船已经靠岸。",
+      "style": "",
+      "key": "8b67fd73129e3ca4facdb80ca5e06934b1f627498f8879108902400b1e13c015",
+      "metrics": {
+        "frames": 76800,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 9.39100000000326,
+        "tts_seconds": 9.375,
+        "rtf": 2.9296875,
+        "budgets": [
+          92
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 4449454080,
+        "peak_reserved": 4534042624
+      },
+      "wav": "switch-1-neutral.wav",
+      "sha256": "792339dca31a45107adef18738d013818082142bf596e1a16320edc4a09ea315"
+    },
+    {
+      "kind": "menu_model_loaded",
+      "size": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "index": 2,
+      "health": {
+        "version": 1,
+        "control": "alive",
+        "pid": 27800,
+        "model_ready": true,
+        "busy": false,
+        "accepting": true
+      },
+      "capabilities": {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+        "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+        "voices": [
+          "aiden",
+          "dylan",
+          "eric",
+          "ono_anna",
+          "ryan",
+          "serena",
+          "sohee",
+          "uncle_fu",
+          "vivian"
+        ],
+        "instruct": false,
+        "origin": "local",
+        "dtype": "bfloat16",
+        "requested_attention": "sdpa",
+        "attention": "sdpa_expanded_kv",
+        "inference_mode": true,
+        "tf32": true,
+        "benchmark": true,
+        "settings": {
+          "token_ceiling": 1536,
+          "characters_per_second": 3.0,
+          "length_margin": 1.55
+        },
+        "python": "3.12.16",
+        "torch": "2.8.0+cu128",
+        "cuda": "12.8",
+        "qwen_tts": "0.1.1",
+        "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "vram_total": 8585216000,
+        "vram_free_before": 7451181056,
+        "load_seconds": 3.2339999999967404,
+        "warmup_seconds": [
+          5.25,
+          6.360000000000582
+        ]
+      },
+      "ready_wall_seconds": 26.73399999999674,
+      "previous_worker_exited": true,
+      "gpu_compute_processes": "27800, [N/A]",
+      "voices_in_menu": [
+        "aiden",
+        "dylan",
+        "eric",
+        "ono_anna",
+        "ryan",
+        "serena",
+        "sohee",
+        "uncle_fu",
+        "vivian"
+      ]
+    },
+    {
+      "kind": "same_text",
+      "size": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "index": 2,
+      "sample": "paired",
+      "text": "清晨的渡船已经靠岸。",
+      "style": "",
+      "key": "1472c9b41cd323081b765db562eb8454ec4f0875d15063f11b3332acd042560f",
+      "metrics": {
+        "frames": 76800,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 7.4689999999973224,
+        "tts_seconds": 7.4689999999973224,
+        "rtf": 2.3340624999991633,
+        "budgets": [
+          92
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2425956352,
+        "peak_reserved": 2510290944
+      },
+      "wav": "switch-2-paired.wav",
+      "sha256": "1baab83d194dd35b325a6830bb689c08ca692c4327d71aeb0bd473decf9ab81b"
+    },
+    {
+      "kind": "recovery",
+      "busy_rejected": true,
+      "hard_cancel": "interrupted",
+      "cancelled_artifact_http": 404,
+      "recovery_from": "model_not_prepared",
+      "desktop_alive": true,
+      "cache_keys": [
+        "1472c9b41cd323081b765db562eb8454ec4f0875d15063f11b3332acd042560f",
+        "d5a67322184e0102f3feacb56525b828f8b8f107c7bda03568ec14066c5c0141",
+        "1472c9b41cd323081b765db562eb8454ec4f0875d15063f11b3332acd042560f"
+      ],
+      "metrics": {
+        "frames": 49920,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 6.188000000009197,
+        "tts_seconds": 6.188000000009197,
+        "rtf": 2.9750000000044214,
+        "budgets": [
+          86
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2334622208,
+        "peak_reserved": 2432696320
+      }
+    }
+  ],
+  "tf32_benchmark": [
+    {
+      "model": "0.6B",
+      "tf32": true,
+      "benchmark": true,
+      "warmup_seconds": [
+        8.046999999991385,
+        12.85899999999674
+      ],
+      "load_wall_seconds": 36.01044060000277,
+      "rtf_median": 4.0874999999990305,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 13.75,
+            "tts_seconds": 13.73399999999674,
+            "rtf": 4.0874999999990305,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2439947264,
+            "peak_reserved": 2520776704
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 92160,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 16.718999999997322,
+            "tts_seconds": 16.703000000008615,
+            "rtf": 4.349739583335577,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2478147584,
+            "peak_reserved": 2554331136
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 13.187000000005355,
+            "tts_seconds": 13.187000000005355,
+            "rtf": 3.924702380953975,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2268282368,
+            "peak_reserved": 2340421632
+          }
+        }
+      ]
+    },
+    {
+      "model": "0.6B",
+      "tf32": false,
+      "benchmark": true,
+      "warmup_seconds": [
+        7.9689999999973224,
+        10.937000000005355
+      ],
+      "load_wall_seconds": 33.66543880000245,
+      "rtf_median": 2.5017857142821804,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 8.405999999988126,
+            "tts_seconds": 8.405999999988126,
+            "rtf": 2.5017857142821804,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2439947264,
+            "peak_reserved": 2520776704
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 92160,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 9.703000000008615,
+            "tts_seconds": 9.687000000005355,
+            "rtf": 2.5226562500013947,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2478147584,
+            "peak_reserved": 2554331136
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.577999999994063,
+            "tts_seconds": 7.562999999994645,
+            "rtf": 2.2508928571412636,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2268282368,
+            "peak_reserved": 2340421632
+          }
+        }
+      ]
+    },
+    {
+      "model": "0.6B",
+      "tf32": true,
+      "benchmark": false,
+      "warmup_seconds": [
+        3.6410000000032596,
+        7.6710000000020955
+      ],
+      "load_wall_seconds": 23.655440199989243,
+      "rtf_median": 2.2413690476198447,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.765999999988708,
+            "tts_seconds": 7.75,
+            "rtf": 2.306547619047619,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2237156864,
+            "peak_reserved": 2304770048
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 92160,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 8.375,
+            "tts_seconds": 8.375,
+            "rtf": 2.1809895833333335,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2247541760,
+            "peak_reserved": 2304770048
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.547000000005937,
+            "tts_seconds": 7.5310000000026776,
+            "rtf": 2.2413690476198447,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2237156864,
+            "peak_reserved": 2304770048
+          }
+        }
+      ]
+    },
+    {
+      "model": "0.6B",
+      "tf32": false,
+      "benchmark": false,
+      "warmup_seconds": [
+        3.625,
+        6.5789999999979045
+      ],
+      "load_wall_seconds": 22.295339499993133,
+      "rtf_median": 2.290885416668213,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.437000000005355,
+            "tts_seconds": 7.437000000005355,
+            "rtf": 2.213392857144451,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2237156864,
+            "peak_reserved": 2304770048
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 92160,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 8.812000000005355,
+            "tts_seconds": 8.797000000005937,
+            "rtf": 2.290885416668213,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2247541760,
+            "peak_reserved": 2304770048
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 80640,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.827999999994063,
+            "tts_seconds": 7.812999999994645,
+            "rtf": 2.3252976190460255,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 2237156864,
+            "peak_reserved": 2304770048
+          }
+        }
+      ]
+    },
+    {
+      "model": "1.7B",
+      "tf32": true,
+      "benchmark": true,
+      "warmup_seconds": [
+        3.735000000000582,
+        3.4839999999967404
+      ],
+      "load_wall_seconds": 21.440714100011974,
+      "rtf_median": 2.4652027027047083,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 59520,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 6.202999999994063,
+            "tts_seconds": 6.202999999994063,
+            "rtf": 2.501209677416961,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4390724608,
+            "peak_reserved": 4483710976
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 71040,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.297000000005937,
+            "tts_seconds": 7.297000000005937,
+            "rtf": 2.4652027027047083,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4430593536,
+            "peak_reserved": 4515168256
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 84480,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 8.327999999994063,
+            "tts_seconds": 8.312999999994645,
+            "rtf": 2.361647727271206,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4476171264,
+            "peak_reserved": 4555014144
+          }
+        }
+      ]
+    },
+    {
+      "model": "1.7B",
+      "tf32": false,
+      "benchmark": true,
+      "warmup_seconds": [
+        4.078000000008615,
+        3.5319999999919673
+      ],
+      "load_wall_seconds": 22.717831200003275,
+      "rtf_median": 2.55766129032582,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 59520,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 6.359000000011292,
+            "tts_seconds": 6.343000000008033,
+            "rtf": 2.55766129032582,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4390724608,
+            "peak_reserved": 4483710976
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 71040,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.530999999988126,
+            "tts_seconds": 7.515999999988708,
+            "rtf": 2.5391891891853744,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4430593536,
+            "peak_reserved": 4515168256
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 84480,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 9.03200000000652,
+            "tts_seconds": 9.01600000000326,
+            "rtf": 2.5613636363645624,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4476171264,
+            "peak_reserved": 4555014144
+          }
+        }
+      ]
+    },
+    {
+      "model": "1.7B",
+      "tf32": true,
+      "benchmark": false,
+      "warmup_seconds": [
+        3.5160000000032596,
+        2.8910000000032596
+      ],
+      "load_wall_seconds": 20.767639800003963,
+      "rtf_median": 2.216891891893701,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 59520,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 5.577999999994063,
+            "tts_seconds": 5.562000000005355,
+            "rtf": 2.2427419354860305,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4241599488,
+            "peak_reserved": 4328521728
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 71040,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 6.578000000008615,
+            "tts_seconds": 6.562000000005355,
+            "rtf": 2.216891891893701,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4251994112,
+            "peak_reserved": 4328521728
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 84480,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 7.75,
+            "tts_seconds": 7.73399999999674,
+            "rtf": 2.197159090908165,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4264123904,
+            "peak_reserved": 4330618880
+          }
+        }
+      ]
+    },
+    {
+      "model": "1.7B",
+      "tf32": false,
+      "benchmark": false,
+      "warmup_seconds": [
+        3.75,
+        2.764999999999418
+      ],
+      "load_wall_seconds": 21.197422500001267,
+      "rtf_median": 2.262096774193783,
+      "runs": [
+        {
+          "seed": 137,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 59520,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 5.610000000000582,
+            "tts_seconds": 5.610000000000582,
+            "rtf": 2.262096774193783,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4241599488,
+            "peak_reserved": 4328521728
+          }
+        },
+        {
+          "seed": 138,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 71040,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 6.547000000005937,
+            "tts_seconds": 6.5310000000026776,
+            "rtf": 2.2064189189198236,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4251994112,
+            "peak_reserved": 4328521728
+          }
+        },
+        {
+          "seed": 139,
+          "text": "雾散了。船靠岸了。",
+          "metrics": {
+            "frames": 84480,
+            "rate": 24000,
+            "origin": "local",
+            "pipeline_seconds": 8.280999999988126,
+            "tts_seconds": 8.280999999988126,
+            "rtf": 2.352556818178445,
+            "budgets": [
+              86
+            ],
+            "applied_instruct": false,
+            "peak_allocated": 4264123904,
+            "peak_reserved": 4330618880
+          }
+        }
+      ]
+    }
+  ],
+  "optional_flash_attn_module_present": false,
+  "ab_note": "Same seeds/voice/text in fresh processes. Conditions were run in blocks; CPU load and laptop power/clock were not locked.",
+  "budget_success": [
+    {
+      "kind": "budget",
+      "size": "0.6B",
+      "tf32": true,
+      "benchmark": true,
+      "label": "short",
+      "text": "雾散了。",
+      "sections": [
+        "雾散了。"
+      ],
+      "wav": "budget-0.6B-short.wav",
+      "metrics": {
+        "frames": 40320,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 7.39100000000326,
+        "tts_seconds": 7.375,
+        "rtf": 4.3898809523809526,
+        "budgets": [
+          55
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2302044160,
+        "peak_reserved": 2407530496
+      },
+      "eos_checked_by_renderer": true
+    },
+    {
+      "kind": "budget",
+      "size": "0.6B",
+      "tf32": true,
+      "benchmark": true,
+      "label": "medium",
+      "text": "涨潮以前，河边的渔船都回到了码头。",
+      "sections": [
+        "涨潮以前，河边的渔船都回到了码",
+        "头。"
+      ],
+      "wav": "budget-0.6B-medium.wav",
+      "metrics": {
+        "frames": 159360,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 27.906000000002678,
+        "tts_seconds": 27.889999999999418,
+        "rtf": 4.20030120481919,
+        "budgets": [
+          123,
+          48
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2674077696,
+        "peak_reserved": 2772434944
+      },
+      "eos_checked_by_renderer": true
+    },
+    {
+      "kind": "budget",
+      "size": "0.6B",
+      "tf32": true,
+      "benchmark": true,
+      "label": "long",
+      "text": "桥上的旅客纷纷停下脚步，望着远处缓缓驶来的渡船。船长挥了挥手，示意他们排好队。最后一位旅客登船以后，码头上的铃声响了。",
+      "sections": [
+        "桥上的旅客纷纷停下脚步，",
+        "望着远处缓缓驶来的渡船。",
+        "船长挥了挥手，示意他们排好队。",
+        "最后一位旅客登船以后，",
+        "码头上的铃声响了。"
+      ],
+      "wav": "budget-0.6B-long.wav",
+      "metrics": {
+        "frames": 374400,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 63.296999999991385,
+        "tts_seconds": 63.26599999998871,
+        "rtf": 4.055512820512097,
+        "budgets": [
+          105,
+          105,
+          123,
+          99,
+          86
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2471624192,
+        "peak_reserved": 2548039680
+      },
+      "eos_checked_by_renderer": true
+    },
+    {
+      "kind": "budget",
+      "size": "1.7B",
+      "tf32": true,
+      "benchmark": true,
+      "label": "short",
+      "text": "雾散了。",
+      "sections": [
+        "雾散了。"
+      ],
+      "wav": "budget-1.7B-short.wav",
+      "metrics": {
+        "frames": 23040,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 2.7820000000065193,
+        "tts_seconds": 2.7660000000032596,
+        "rtf": 2.8812500000033956,
+        "budgets": [
+          55
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 4267128832,
+        "peak_reserved": 4353687552
+      },
+      "eos_checked_by_renderer": true
+    },
+    {
+      "kind": "budget",
+      "size": "1.7B",
+      "tf32": true,
+      "benchmark": true,
+      "label": "medium",
+      "text": "涨潮以前，河边的渔船都回到了码头。",
+      "sections": [
+        "涨潮以前，河边的渔船都回到了码",
+        "头。"
+      ],
+      "wav": "budget-1.7B-medium.wav",
+      "metrics": {
+        "frames": 119040,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 12.59299999999348,
+        "tts_seconds": 12.576999999990221,
+        "rtf": 2.5356854838689964,
+        "budgets": [
+          123,
+          48
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 4587634176,
+        "peak_reserved": 4661968896
+      },
+      "eos_checked_by_renderer": true
+    },
+    {
+      "kind": "budget",
+      "size": "1.7B",
+      "tf32": true,
+      "benchmark": true,
+      "label": "long",
+      "text": "桥上的旅客纷纷停下脚步，望着远处缓缓驶来的渡船。船长挥了挥手，示意他们排好队。最后一位旅客登船以后，码头上的铃声响了。",
+      "sections": [
+        "桥上的旅客纷纷停下脚步，",
+        "望着远处缓缓驶来的渡船。",
+        "船长挥了挥手，示意他们排好队。",
+        "最后一位旅客登船以后，",
+        "码头上的铃声响了。"
+      ],
+      "wav": "budget-1.7B-long.wav",
+      "metrics": {
+        "frames": 328320,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 35.219000000011874,
+        "tts_seconds": 35.203000000008615,
+        "rtf": 2.5733187134509223,
+        "budgets": [
+          105,
+          105,
+          123,
+          99,
+          86
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 4456039424,
+        "peak_reserved": 4536139776
+      },
+      "eos_checked_by_renderer": true
+    }
+  ],
+  "budget_failure": [
+    {
+      "kind": "budget_negative",
+      "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "text": "清晨的渡船已经靠岸码头上的旅客沿着石阶慢慢走上船头河边卖花的人收起篮子等候最后的铃声响起",
+      "max_new_tokens": 48,
+      "error": "missing_eos_or_token_cap",
+      "artifact_status": 404,
+      "success_index_rows": 0,
+      "recovery": {
+        "frames": 67200,
+        "rate": 24000,
+        "origin": "local",
+        "pipeline_seconds": 7.5,
+        "tts_seconds": 7.4689999999973224,
+        "rtf": 2.667499999999044,
+        "budgets": [
+          48
+        ],
+        "applied_instruct": false,
+        "peak_allocated": 2394382336,
+        "peak_reserved": 2485125120
+      }
+    }
+  ],
+  "asr_model": "Qwen3-ASR-0.6B offline, punctuation omitted in comparison",
+  "asr": [
+    {
+      "wav": "budget-0.6B-short.wav",
+      "expected": "雾散了。",
+      "asr": "雾散了。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "budget-0.6B-medium.wav",
+      "expected": "涨潮以前，河边的渔船都回到了码头。",
+      "asr": "涨潮以前，河边的渔船都回到了码头。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "budget-0.6B-long.wav",
+      "expected": "桥上的旅客纷纷停下脚步，望着远处缓缓驶来的渡船。船长挥了挥手，示意他们排好队。最后一位旅客登船以后，码头上的铃声响了。",
+      "asr": "桥上的旅客纷纷停下脚步，望着远处缓缓驶来的渡船。船长挥了挥手，示意他们排好队。最后一位旅客登船以后，码头上的铃声响了。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "budget-1.7B-short.wav",
+      "expected": "雾散了。",
+      "asr": "雾散了。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "budget-1.7B-medium.wav",
+      "expected": "涨潮以前，河边的渔船都回到了码头。",
+      "asr": "涨潮以前，河边的渔船都回到了码头。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "budget-1.7B-long.wav",
+      "expected": "桥上的旅客纷纷停下脚步，望着远处缓缓驶来的渡船。船长挥了挥手，示意他们排好队。最后一位旅客登船以后，码头上的铃声响了。",
+      "asr": "桥上的旅客纷纷停下脚步，望着远处缓缓驶来的渡船。船长挥了挥手，示意他们排好队。最后一位旅客登船以后，码头上的铃声响了。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "switch-0-paired.wav",
+      "expected": "清晨的渡船已经靠岸。",
+      "asr": "清晨的渡船已经靠岸。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "switch-1-paired.wav",
+      "expected": "清晨的渡船已经靠岸。",
+      "asr": "清晨的渡船已经靠岸。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "switch-1-neutral.wav",
+      "expected": "清晨的渡船已经靠岸。",
+      "asr": "清晨的渡船已经靠岸。",
+      "same": true,
+      "last_four_match": true
+    },
+    {
+      "wav": "switch-2-paired.wav",
+      "expected": "清晨的渡船已经靠岸。",
+      "asr": "清晨的渡船已经靠岸。",
+      "same": true,
+      "last_four_match": true
+    }
+  ],
+  "warmed_cache": [
+    {
+      "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "cache_only": true,
+      "filesystem_lookup_sha_wav_seconds": [
+        0.0028765000024577603,
+        0.0016811000095913187,
+        0.0013248000032035634,
+        0.0015053999959491193,
+        0.0013464999938150868,
+        0.0013802000030409545,
+        0.0012428000045474619,
+        0.0014926000003470108,
+        0.0014383000088855624,
+        0.0015446000033989549,
+        0.0011663000041153282,
+        0.000687599997036159,
+        0.0005941999988863245,
+        0.0015457999979844317,
+        0.001393600003211759,
+        0.0014555999950971454,
+        0.0006169000116642565,
+        0.000635299991699867,
+        0.0005046000005677342,
+        0.0015761999966343865,
+        0.0012527999933809042,
+        0.0013524999958463013,
+        0.0005142000009072945,
+        0.0006413000082829967,
+        0.0005324999947333708,
+        0.0016054000006988645,
+        0.0012896999978693202,
+        0.001278899988392368,
+        0.0005434000049717724,
+        0.0008096000092336908,
+        0.0013991000014357269,
+        0.0014260000025387853,
+        0.0011375000030966476,
+        0.0013940000062575564,
+        0.001258200005395338,
+        0.0009140000038314611,
+        0.0013037000026088208,
+        0.0012236000038683414,
+        0.0011081000120611861,
+        0.0007526999979745597,
+        0.001361900009214878,
+        0.0017629999929340556,
+        0.0013497999898390844,
+        0.0007877000025473535,
+        0.0005541999998968095,
+        0.0008861999958753586,
+        0.0015703000099165365,
+        0.0013805000053253025,
+        0.001128400006564334,
+        0.0017771999991964549
+      ],
+      "entries": {
+        "cadef2cb35db0efb7f61d665179bd122e02f40dfee252e5ca490912edc1ac648": {
+          "frames": 49920,
+          "sha256": "26ebb7a53892ca3ef449d0b5d7234789e5d862c605e9f7fc62611bc7206e878b"
+        },
+        "81b7d5d08ebddbe2c90e519205fd0ef9767af9f4a76d308c0a460f7c781c3c2f": {
+          "frames": 180480,
+          "sha256": "2ab4470b7e61f2221e32bf5eb6a1b31d7c7f8a29f57032074f7e0d15e88ce62e"
+        }
+      },
+      "exported_frames": 230400,
+      "exported_origins": [
+        "local"
+      ]
+    },
+    {
+      "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "cache_only": true,
+      "filesystem_lookup_sha_wav_seconds": [
+        0.0013763000024482608,
+        0.001651400001719594,
+        0.0012802999990526587,
+        0.0014057000080356374,
+        0.0012006000033579767,
+        0.0017650000081630424,
+        0.001309600003878586,
+        0.0011991000064881518,
+        0.0005613000103039667,
+        0.0006386000022757798,
+        0.0012888999917777255,
+        0.0013682999997399747,
+        0.0011580999998841435,
+        0.001189399990835227,
+        0.0011636999988695607,
+        0.0015790999896125868,
+        0.0013670999906025827,
+        0.0014049000019440427,
+        0.0010532000014791265,
+        0.0013623999984702095,
+        0.001460000014049001,
+        0.0014912999904481694,
+        0.0006007999909343198,
+        0.0006717999931424856,
+        0.0005233999982010573,
+        0.0007264000014401972,
+        0.0011941999982809648,
+        0.0011740000045392662,
+        0.0010198999952990562,
+        0.0012634999875444919,
+        0.0013602999970316887,
+        0.0015265999973053113,
+        0.0014882999967085198,
+        0.001433600002201274,
+        0.0013848999951733276,
+        0.001699700005701743,
+        0.0013100000069243833,
+        0.0012343999987933785,
+        0.000989300009678118,
+        0.001158899991423823,
+        0.001117099993280135,
+        0.0012849000049754977,
+        0.0011210999946342781,
+        0.0012830999912694097,
+        0.0014258000010158867,
+        0.0014927000011084601,
+        0.0013035000010859221,
+        0.001268399995751679,
+        0.0012489000073401257,
+        0.001575400005094707
+      ],
+      "entries": {
+        "181f830d4f6eb1c5db97d1e9f199a6dd275cf041e0182fac377fc9e881db2acc": {
+          "frames": 61440,
+          "sha256": "5d9c7843a73ee88dc5d26e9c546c9985c80500dd2c80753628bd7127b691f888"
+        },
+        "045f9e925dec698e9d23ea8d0856af4e61dc3a2acb94e024c7e40f1b1ee6de87": {
+          "frames": 147840,
+          "sha256": "b5d8dab3d726d7b82de6bf5b70324577921a781fe6dcd0f1a9e97c6d76014869"
+        }
+      },
+      "exported_frames": 209280,
+      "exported_origins": [
+        "local"
+      ]
+    }
+  ],
+  "local_listening_folder": "build/acceptance-recheck-20261122/试听样本",
+  "pronunciation_audio": {
+    "0.6B": [
+      {
+        "group": 1,
+        "wav": "0.6B-读音-1.wav",
+        "original": "单于，重庆，银行，行长，长安，成长，重来，重量，重新，便宜。",
+        "spoken": "蝉于，虫庆，银航，航掌，常安，成掌，虫来，众量，虫新，便移。",
+        "items": [
+          [
+            "单于",
+            "蝉于"
+          ],
+          [
+            "重庆",
+            "虫庆"
+          ],
+          [
+            "银行",
+            "银航"
+          ],
+          [
+            "行长",
+            "航掌"
+          ],
+          [
+            "长安",
+            "常安"
+          ],
+          [
+            "成长",
+            "成掌"
+          ],
+          [
+            "重来",
+            "虫来"
+          ],
+          [
+            "重量",
+            "众量"
+          ],
+          [
+            "重新",
+            "虫新"
+          ],
+          [
+            "便宜",
+            "便移"
+          ]
+        ],
+        "sha256": "0135f5041cb3c13b97f68bdb1c10802c2db609e8261e7880edf100e197875d85",
+        "frames": 330240
+      },
+      {
+        "group": 2,
+        "wav": "0.6B-读音-2.wav",
+        "original": "便道，朝阳东升，朝代，音乐，欢乐，角色，角落，调度，调和，薄雾。",
+        "spoken": "遍道，招阳东升，潮代，音悦，欢乐，觉色，脚落，掉度，条和，博雾。",
+        "items": [
+          [
+            "便道",
+            "遍道"
+          ],
+          [
+            "朝阳东升",
+            "招阳东升"
+          ],
+          [
+            "朝代",
+            "潮代"
+          ],
+          [
+            "音乐",
+            "音悦"
+          ],
+          [
+            "欢乐",
+            "欢乐"
+          ],
+          [
+            "角色",
+            "觉色"
+          ],
+          [
+            "角落",
+            "脚落"
+          ],
+          [
+            "调度",
+            "掉度"
+          ],
+          [
+            "调和",
+            "条和"
+          ],
+          [
+            "薄雾",
+            "博雾"
+          ]
+        ],
+        "sha256": "05bac7ff8eb8620e0bea1fd6a4773bf510e064186edbda83ca939e7f6992cd51",
+        "frames": 270720
+      },
+      {
+        "group": 3,
+        "wav": "0.6B-读音-3.wav",
+        "original": "薄饼，弹琴，弹壳，数目，数一数，还书，还有，背包，背面，兴奋。",
+        "spoken": "雹饼，谈琴，旦壳，树目，鼠一鼠，环书，孩有，杯包，贝面，星奋。",
+        "items": [
+          [
+            "薄饼",
+            "雹饼"
+          ],
+          [
+            "弹琴",
+            "谈琴"
+          ],
+          [
+            "弹壳",
+            "旦壳"
+          ],
+          [
+            "数目",
+            "树目"
+          ],
+          [
+            "数一数",
+            "鼠一鼠"
+          ],
+          [
+            "还书",
+            "环书"
+          ],
+          [
+            "还有",
+            "孩有"
+          ],
+          [
+            "背包",
+            "杯包"
+          ],
+          [
+            "背面",
+            "贝面"
+          ],
+          [
+            "兴奋",
+            "星奋"
+          ]
+        ],
+        "sha256": "8a0777ce988de1f4a1e2a5b2ce012b30934ebc530a7a269bdd743c3c8abfc1bc",
+        "frames": 293760
+      },
+      {
+        "group": 4,
+        "wav": "0.6B-读音-4.wav",
+        "original": "兴趣，给予，给他，了解，走了，咽喉，吞咽，呜咽，出差，差距。",
+        "spoken": "幸趣，几予，给他，了姐，走了，烟喉，吞验，呜叶，出钗，叉距。",
+        "items": [
+          [
+            "兴趣",
+            "幸趣"
+          ],
+          [
+            "给予",
+            "几予"
+          ],
+          [
+            "给他",
+            "给他"
+          ],
+          [
+            "了解",
+            "了姐"
+          ],
+          [
+            "走了",
+            "走了"
+          ],
+          [
+            "咽喉",
+            "烟喉"
+          ],
+          [
+            "吞咽",
+            "吞验"
+          ],
+          [
+            "呜咽",
+            "呜叶"
+          ],
+          [
+            "出差",
+            "出钗"
+          ],
+          [
+            "差距",
+            "叉距"
+          ]
+        ],
+        "sha256": "ec011d143ab71dc1cb23dd725b379146c7cbdd607e817cbf57c0938cac8d4274",
+        "frames": 320640
+      },
+      {
+        "group": 5,
+        "wav": "0.6B-读音-5.wav",
+        "original": "参差，柏林，厦门，六安，曾姓，解姓，区姓，仇姓，12下，3.5米。",
+        "spoken": "参雌，伯林，下门，陆安，增姓，谢姓，欧姓，求姓，十二下，三点五米。",
+        "items": [
+          [
+            "参差",
+            "参雌"
+          ],
+          [
+            "柏林",
+            "伯林"
+          ],
+          [
+            "厦门",
+            "下门"
+          ],
+          [
+            "六安",
+            "陆安"
+          ],
+          [
+            "曾姓",
+            "增姓"
+          ],
+          [
+            "解姓",
+            "谢姓"
+          ],
+          [
+            "区姓",
+            "欧姓"
+          ],
+          [
+            "仇姓",
+            "求姓"
+          ],
+          [
+            "12下",
+            "十二下"
+          ],
+          [
+            "3.5米",
+            "三点五米"
+          ]
+        ],
+        "sha256": "c606073ddac42dfd9dc09aad39f968845e932734490810be961fbdc7247ff3d4",
+        "frames": 280320
+      }
+    ],
+    "1.7B": [
+      {
+        "group": 1,
+        "wav": "1.7B-读音-1.wav",
+        "original": "单于，重庆，银行，行长，长安，成长，重来，重量，重新，便宜。",
+        "spoken": "蝉于，虫庆，银航，航掌，常安，成掌，虫来，众量，虫新，便移。",
+        "items": [
+          [
+            "单于",
+            "蝉于"
+          ],
+          [
+            "重庆",
+            "虫庆"
+          ],
+          [
+            "银行",
+            "银航"
+          ],
+          [
+            "行长",
+            "航掌"
+          ],
+          [
+            "长安",
+            "常安"
+          ],
+          [
+            "成长",
+            "成掌"
+          ],
+          [
+            "重来",
+            "虫来"
+          ],
+          [
+            "重量",
+            "众量"
+          ],
+          [
+            "重新",
+            "虫新"
+          ],
+          [
+            "便宜",
+            "便移"
+          ]
+        ],
+        "sha256": "f50bfb8c775c581d603a1561dece044c047dd95ad0c2182e63767fad6ab0e03f",
+        "frames": 286080
+      },
+      {
+        "group": 2,
+        "wav": "1.7B-读音-2.wav",
+        "original": "便道，朝阳东升，朝代，音乐，欢乐，角色，角落，调度，调和，薄雾。",
+        "spoken": "遍道，招阳东升，潮代，音悦，欢乐，觉色，脚落，掉度，条和，博雾。",
+        "items": [
+          [
+            "便道",
+            "遍道"
+          ],
+          [
+            "朝阳东升",
+            "招阳东升"
+          ],
+          [
+            "朝代",
+            "潮代"
+          ],
+          [
+            "音乐",
+            "音悦"
+          ],
+          [
+            "欢乐",
+            "欢乐"
+          ],
+          [
+            "角色",
+            "觉色"
+          ],
+          [
+            "角落",
+            "脚落"
+          ],
+          [
+            "调度",
+            "掉度"
+          ],
+          [
+            "调和",
+            "条和"
+          ],
+          [
+            "薄雾",
+            "博雾"
+          ]
+        ],
+        "sha256": "98a2d3a2ec7438b3df3bec861f8d83e82fbb766377ea54d6ac8e80966ddc3dc8",
+        "frames": 232320
+      },
+      {
+        "group": 3,
+        "wav": "1.7B-读音-3.wav",
+        "original": "薄饼，弹琴，弹壳，数目，数一数，还书，还有，背包，背面，兴奋。",
+        "spoken": "雹饼，谈琴，旦壳，树目，鼠一鼠，环书，孩有，杯包，贝面，星奋。",
+        "items": [
+          [
+            "薄饼",
+            "雹饼"
+          ],
+          [
+            "弹琴",
+            "谈琴"
+          ],
+          [
+            "弹壳",
+            "旦壳"
+          ],
+          [
+            "数目",
+            "树目"
+          ],
+          [
+            "数一数",
+            "鼠一鼠"
+          ],
+          [
+            "还书",
+            "环书"
+          ],
+          [
+            "还有",
+            "孩有"
+          ],
+          [
+            "背包",
+            "杯包"
+          ],
+          [
+            "背面",
+            "贝面"
+          ],
+          [
+            "兴奋",
+            "星奋"
+          ]
+        ],
+        "sha256": "3eed57398b3f0b65aa5c0e4624a07d491a4ef61c591a0523c581b61cea0c5596",
+        "frames": 259200
+      },
+      {
+        "group": 4,
+        "wav": "1.7B-读音-4.wav",
+        "original": "兴趣，给予，给他，了解，走了，咽喉，吞咽，呜咽，出差，差距。",
+        "spoken": "幸趣，几予，给他，了姐，走了，烟喉，吞验，呜叶，出钗，叉距。",
+        "items": [
+          [
+            "兴趣",
+            "幸趣"
+          ],
+          [
+            "给予",
+            "几予"
+          ],
+          [
+            "给他",
+            "给他"
+          ],
+          [
+            "了解",
+            "了姐"
+          ],
+          [
+            "走了",
+            "走了"
+          ],
+          [
+            "咽喉",
+            "烟喉"
+          ],
+          [
+            "吞咽",
+            "吞验"
+          ],
+          [
+            "呜咽",
+            "呜叶"
+          ],
+          [
+            "出差",
+            "出钗"
+          ],
+          [
+            "差距",
+            "叉距"
+          ]
+        ],
+        "sha256": "a5977fc18c9981987ba2da8a344995f1a91be8068dea35c08c348c6892a81616",
+        "frames": 311040
+      },
+      {
+        "group": 5,
+        "wav": "1.7B-读音-5.wav",
+        "original": "参差，柏林，厦门，六安，曾姓，解姓，区姓，仇姓，12下，3.5米。",
+        "spoken": "参雌，伯林，下门，陆安，增姓，谢姓，欧姓，求姓，十二下，三点五米。",
+        "items": [
+          [
+            "参差",
+            "参雌"
+          ],
+          [
+            "柏林",
+            "伯林"
+          ],
+          [
+            "厦门",
+            "下门"
+          ],
+          [
+            "六安",
+            "陆安"
+          ],
+          [
+            "曾姓",
+            "增姓"
+          ],
+          [
+            "解姓",
+            "谢姓"
+          ],
+          [
+            "区姓",
+            "欧姓"
+          ],
+          [
+            "仇姓",
+            "求姓"
+          ],
+          [
+            "12下",
+            "十二下"
+          ],
+          [
+            "3.5米",
+            "三点五米"
+          ]
+        ],
+        "sha256": "0b07041d9bd96f7b382ea323ac96240adc4805809b3b4bea778f3590d78d7b55",
+        "frames": 253440
+      }
+    ]
+  },
+  "dialogue_groups": [
+    {
+      "group": 1,
+      "voice": "vivian",
+      "wav": "短对白-01.wav",
+      "lines": [
+        {
+          "line": "别着急",
+          "offset_frames": 0,
+          "frames": 40320
+        },
+        {
+          "line": "看这里",
+          "offset_frames": 40320,
+          "frames": 36480
+        },
+        {
+          "line": "等我一下",
+          "offset_frames": 76800,
+          "frames": 42240
+        }
+      ],
+      "frames": 119040,
+      "sha256": "950118dea5f366aa7d86e38a4c79c9e9ccd1ed9f72c92ca8d51e8abec6e2edb6"
+    },
+    {
+      "group": 2,
+      "voice": "ryan",
+      "wav": "短对白-02.wav",
+      "lines": [
+        {
+          "line": "你听见了吗",
+          "offset_frames": 0,
+          "frames": 71040
+        },
+        {
+          "line": "灯亮了",
+          "offset_frames": 71040,
+          "frames": 63360
+        },
+        {
+          "line": "走这边",
+          "offset_frames": 134400,
+          "frames": 57600
+        }
+      ],
+      "frames": 192000,
+      "sha256": "3f22f1293c51f61cb31a8f0f81665d17dc2236c9097620f938a1ec5db39ecb02"
+    },
+    {
+      "group": 3,
+      "voice": "vivian",
+      "wav": "短对白-03.wav",
+      "lines": [
+        {
+          "line": "小心台阶",
+          "offset_frames": 0,
+          "frames": 40320
+        },
+        {
+          "line": "就在前面",
+          "offset_frames": 40320,
+          "frames": 46080
+        },
+        {
+          "line": "我们到了",
+          "offset_frames": 86400,
+          "frames": 40320
+        }
+      ],
+      "frames": 126720,
+      "sha256": "53c19b08b9afab85440af646e064a31909585b17afd1bed396bd29e28027e01e"
+    },
+    {
+      "group": 4,
+      "voice": "ryan",
+      "wav": "短对白-04.wav",
+      "lines": [
+        {
+          "line": "你先请",
+          "offset_frames": 0,
+          "frames": 51840
+        },
+        {
+          "line": "风停了",
+          "offset_frames": 51840,
+          "frames": 59520
+        },
+        {
+          "line": "慢慢来",
+          "offset_frames": 111360,
+          "frames": 71040
+        }
+      ],
+      "frames": 182400,
+      "sha256": "34e53a9d2c5d383a767e9bddeeafddc57f93d95370408abf9745683380e203b1"
+    },
+    {
+      "group": 5,
+      "voice": "vivian",
+      "wav": "短对白-05.wav",
+      "lines": [
+        {
+          "line": "船来了",
+          "offset_frames": 0,
+          "frames": 51840
+        },
+        {
+          "line": "放轻脚步",
+          "offset_frames": 51840,
+          "frames": 51840
+        },
+        {
+          "line": "看见桥了吗",
+          "offset_frames": 103680,
+          "frames": 49920
+        }
+      ],
+      "frames": 153600,
+      "sha256": "8e3a34138b50e2d5affe071efde11f3193e0e6020b1e398285b168b043176a09"
+    },
+    {
+      "group": 6,
+      "voice": "ryan",
+      "wav": "短对白-06.wav",
+      "lines": [
+        {
+          "line": "拿好雨伞",
+          "offset_frames": 0,
+          "frames": 67200
+        },
+        {
+          "line": "再等等",
+          "offset_frames": 67200,
+          "frames": 49920
+        },
+        {
+          "line": "我来帮你",
+          "offset_frames": 117120,
+          "frames": 59520
+        }
+      ],
+      "frames": 176640,
+      "sha256": "1236836d1a590ee73d5b40c6b1bf906b8471ad8da29840c69095c53925a2e299"
+    },
+    {
+      "group": 7,
+      "voice": "vivian",
+      "wav": "短对白-07.wav",
+      "lines": [
+        {
+          "line": "还有多远",
+          "offset_frames": 0,
+          "frames": 44160
+        },
+        {
+          "line": "不远了",
+          "offset_frames": 44160,
+          "frames": 46080
+        },
+        {
+          "line": "我数三下",
+          "offset_frames": 90240,
+          "frames": 48000
+        }
+      ],
+      "frames": 138240,
+      "sha256": "0e1df4232bb083b4f20fef58be334006b6674dcda379f23e69f2e67d8aefd7ab"
+    },
+    {
+      "group": 8,
+      "voice": "ryan",
+      "wav": "短对白-08.wav",
+      "lines": [
+        {
+          "line": "门开了",
+          "offset_frames": 0,
+          "frames": 55680
+        },
+        {
+          "line": "回头看看",
+          "offset_frames": 55680,
+          "frames": 49920
+        },
+        {
+          "line": "带上行李",
+          "offset_frames": 105600,
+          "frames": 57600
+        }
+      ],
+      "frames": 163200,
+      "sha256": "38101ececbe9e04c7713e31e5a4cf43e4d55d354e94e6fa38be0ebd98d8c2196"
+    },
+    {
+      "group": 9,
+      "voice": "vivian",
+      "wav": "短对白-09.wav",
+      "lines": [
+        {
+          "line": "我记住了",
+          "offset_frames": 0,
+          "frames": 36480
+        },
+        {
+          "line": "一起走吧",
+          "offset_frames": 36480,
+          "frames": 46080
+        },
+        {
+          "line": "天亮了",
+          "offset_frames": 82560,
+          "frames": 44160
+        }
+      ],
+      "frames": 126720,
+      "sha256": "ca1b19a912864c844e5954e7c4b574318ec021088514c4f0665f2f02421ffcb7"
+    },
+    {
+      "group": 10,
+      "voice": "ryan",
+      "wav": "短对白-10.wav",
+      "lines": [
+        {
+          "line": "谢谢你",
+          "offset_frames": 0,
+          "frames": 46080
+        },
+        {
+          "line": "明天再来",
+          "offset_frames": 46080,
+          "frames": 40320
+        },
+        {
+          "line": "到家了",
+          "offset_frames": 86400,
+          "frames": 44160
+        }
+      ],
+      "frames": 130560,
+      "sha256": "8c7ae5f71551e86ced10f0cbd0972167ffa4fb94eb51b031419090115b56fad2"
+    }
+  ],
+  "timed_benchmark": "windows-qwen-performance-20261122.json",
+  "benchmark_summary": {
+    "0.6B": {
+      "cold_s": {
+        "n": 5,
+        "min": 32.4921,
+        "p50": 35.3416,
+        "p95": 38.045,
+        "max": 38.045
+      },
+      "rtf": {
+        "n": 50,
+        "min": 2.2366,
+        "p50": 3.0201,
+        "p95": 4.2791,
+        "max": 4.4355
+      },
+      "aggregate_rtf": 3.2228717127444906,
+      "short_request_to_complete_wav_s": {
+        "n": 40,
+        "min": 7.2673,
+        "p50": 12.1078,
+        "p95": 18.9485,
+        "max": 20.8261
+      },
+      "audio_seconds": 237.28,
+      "short_gt_5s": 40,
+      "rtf_gt_08": 50,
+      "torch_peak_allocated_bytes": 3834392576,
+      "torch_peak_reserved_bytes": 4108320768,
+      "card_sampled_peak_mib": 3905
+    },
+    "1.7B": {
+      "cold_s": {
+        "n": 5,
+        "min": 27.9214,
+        "p50": 31.0231,
+        "p95": 46.4643,
+        "max": 46.4643
+      },
+      "rtf": {
+        "n": 50,
+        "min": 2.0603,
+        "p50": 2.5743,
+        "p95": 3.1,
+        "max": 3.3539
+      },
+      "aggregate_rtf": 2.6108576642336563,
+      "short_request_to_complete_wav_s": {
+        "n": 40,
+        "min": 5.1915,
+        "p50": 8.7805,
+        "p95": 14.6361,
+        "max": 17.4593
+      },
+      "audio_seconds": 219.20000000000002,
+      "short_gt_5s": 40,
+      "rtf_gt_08": 50,
+      "torch_peak_allocated_bytes": 5926026240,
+      "torch_peak_reserved_bytes": 6199181312,
+      "card_sampled_peak_mib": 4421
+    }
+  },
+  "short_dialogue_asr": [
+    {
+      "wav": "短对白-01.wav",
+      "expected": "别着急看这里等我一下",
+      "asr": "别着急，看这里。等我一下。",
+      "same": true
+    },
+    {
+      "wav": "短对白-02.wav",
+      "expected": "你听见了吗灯亮了走这边",
+      "asr": "你听见了吗？灯亮啦，走这边。",
+      "same": false,
+      "individual_lines": [
+        {
+          "expected": "你听见了吗",
+          "asr": "你听见了吗？",
+          "same": true
+        },
+        {
+          "expected": "灯亮了",
+          "asr": "灯亮啦！",
+          "same": false
+        },
+        {
+          "expected": "走这边",
+          "asr": "走这边。",
+          "same": true
+        }
+      ]
+    },
+    {
+      "wav": "短对白-03.wav",
+      "expected": "小心台阶就在前面我们到了",
+      "asr": "小心台阶，就在前面。我们到了。",
+      "same": true
+    },
+    {
+      "wav": "短对白-04.wav",
+      "expected": "你先请风停了慢慢来",
+      "asr": "你先请。风停了，慢慢来。",
+      "same": true
+    },
+    {
+      "wav": "短对白-05.wav",
+      "expected": "船来了放轻脚步看见桥了吗",
+      "asr": "船来了，放轻脚步。看见桥了吗？",
+      "same": true
+    },
+    {
+      "wav": "短对白-06.wav",
+      "expected": "拿好雨伞再等等我来帮你",
+      "asr": "拿好雨伞，再等等，我来帮你。",
+      "same": true
+    },
+    {
+      "wav": "短对白-07.wav",
+      "expected": "还有多远不远了我数三下",
+      "asr": "还有多远？不远啦！火数三下。",
+      "same": false,
+      "individual_lines": [
+        {
+          "expected": "还有多远",
+          "asr": "还有多远？",
+          "same": true
+        },
+        {
+          "expected": "不远了",
+          "asr": "不远啦。",
+          "same": false
+        },
+        {
+          "expected": "我数三下",
+          "asr": "火鼠三下。",
+          "same": false
+        }
+      ]
+    },
+    {
+      "wav": "短对白-08.wav",
+      "expected": "门开了回头看看带上行李",
+      "asr": "门开了，回头看看，带上行李。",
+      "same": true
+    },
+    {
+      "wav": "短对白-09.wav",
+      "expected": "我记住了一起走吧天亮了",
+      "asr": "我记住了，一起走吧。天亮了。",
+      "same": true
+    },
+    {
+      "wav": "短对白-10.wav",
+      "expected": "谢谢你明天再来到家了",
+      "asr": "谢谢你。明天再来。到家了。",
+      "same": true
+    }
+  ],
+  "packaged_faults": {
+    "faults-dry": {
+      "timeout": {
+        "desktop_open": true,
+        "worker_exited": true,
+        "elapsed_s": 301.3205157,
+        "message": "正在加载并预热 Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice · 本地任务中断 · worker_timeout",
+        "pid": 25868
+      },
+      "cancel": {
+        "desktop_open": true,
+        "worker_exited": true,
+        "elapsed_s": 1.2435001,
+        "message": "已停止本地控制服务并回收模型进程",
+        "pid": 28192
+      },
+      "events": [
+        {
+          "event": "outbound_control_denied",
+          "pid": 25868,
+          "monotonic": 72109.718
+        },
+        {
+          "event": "timeout_start",
+          "pid": 25868,
+          "monotonic": 72110.0
+        },
+        {
+          "event": "outbound_control_denied",
+          "pid": 28192,
+          "monotonic": 72410.187
+        },
+        {
+          "event": "cancel_start",
+          "pid": 28192,
+          "monotonic": 72410.906
+        }
+      ]
+    },
+    "faults-gpu": {
+      "quota": {
+        "desktop_open": true,
+        "worker_exited": true,
+        "new_wavs": 0,
+        "message": "预生成本章 · 本地任务中断 · OutOfMemoryError",
+        "pid": 3568,
+        "success_index": 0
+      },
+      "recovery": {
+        "pid": 20496,
+        "segments": 2,
+        "outbound_control": true,
+        "frames": [
+          124800,
+          197760
+        ],
+        "origin": "local"
+      },
+      "events": [
+        {
+          "event": "outbound_control_denied",
+          "pid": 3568,
+          "monotonic": 72792.531
+        },
+        {
+          "event": "model_ready_quota",
+          "pid": 3568,
+          "monotonic": 72814.187,
+          "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
+        },
+        {
+          "event": "cuda_allocator_oom",
+          "pid": 3568,
+          "monotonic": 72816.921,
+          "fraction": 0.01,
+          "request_mib": 128
+        },
+        {
+          "event": "outbound_control_denied",
+          "pid": 20496,
+          "monotonic": 72817.859
+        },
+        {
+          "event": "model_ready_recovery",
+          "pid": 20496,
+          "monotonic": 72839.343,
+          "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
+        },
+        {
+          "event": "offline_synthesized",
+          "pid": 20496,
+          "monotonic": 72850.171,
+          "frames": 124800,
+          "origin": "local"
+        },
+        {
+          "event": "offline_synthesized",
+          "pid": 20496,
+          "monotonic": 72866.593,
+          "frames": 197760,
+          "origin": "local"
+        }
+      ]
+    }
+  }
+}

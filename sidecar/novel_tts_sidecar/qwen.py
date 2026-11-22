@@ -18,6 +18,7 @@ class Runner:
     def load(self, data):
         import torch
         from qwen_tts import Qwen3TTSModel
+        from .attention import select_attention
         from .prepare import verify
 
         self.model_id = data["model"]
@@ -50,6 +51,9 @@ class Runner:
         torch.backends.cudnn.benchmark = bool(
             ampere and self.settings.get("benchmark", True)
         )
+        quantization = data.get("quantization", self.settings.get("quantization", "none"))
+        if quantization not in ("none", "int4"):
+            raise InferenceError("unsupported_quantization")
         dtype = self.settings.get("dtype", "bfloat16")
         attention = self.settings.get("attention", "sdpa")
         if dtype not in ("bfloat16", "float16", "float32") or attention not in (
@@ -60,15 +64,30 @@ class Runner:
             raise InferenceError("unsupported_runtime_options")
         if dtype == "bfloat16" and not torch.cuda.is_bf16_supported():
             raise InferenceError("bf16_unsupported")
+        if quantization == "int4" and (dtype != "bfloat16" or not ampere):
+            raise InferenceError("int4_requires_ampere_and_bfloat16")
         start = time.monotonic()
         free, total = torch.cuda.mem_get_info()
+        effective_attention = select_attention(attention, dtype, folder)
         self.model = Qwen3TTSModel.from_pretrained(
             str(folder),
             dtype=getattr(torch, dtype),
-            device_map="cuda:0",
+            device_map=None if quantization == "int4" else "cuda:0",
             local_files_only=True,
-            attn_implementation=attention,
+            attn_implementation=effective_attention,
         )
+        runtime_settings = {
+            k: self.settings.get(k)
+            for k in ("token_ceiling", "characters_per_second", "length_margin")
+        }
+        quantized_layers = 0
+        if quantization == "int4":
+            from .int4 import GROUP_SIZE, quantize_talker
+
+            quantized_layers = quantize_talker(self.model, torch.device("cuda:0"))
+            # Also fingerprint the effective weights in older desktop clients.
+            runtime_settings.update(quantization="int4", int4_group_size=GROUP_SIZE)
+        self.quantization = quantization
         torch.cuda.synchronize()
         load_seconds = time.monotonic() - start
         self.voices = tuple(self.model.get_supported_speakers() or ())
@@ -89,13 +108,14 @@ class Runner:
             instruct=self.instruct,
             origin="local",
             dtype=dtype,
-            attention=attention,
+            quantization=quantization,
+            quantized_linear_layers=quantized_layers,
+            requested_attention=attention,
+            attention=effective_attention,
+            inference_mode=True,
             tf32=torch.backends.cuda.matmul.allow_tf32,
             benchmark=torch.backends.cudnn.benchmark,
-            settings={
-                k: self.settings.get(k)
-                for k in ("token_ceiling", "characters_per_second", "length_margin")
-            },
+            settings=runtime_settings,
             python=platform.python_version(),
             torch=torch.__version__,
             cuda=torch.version.cuda,
@@ -109,6 +129,7 @@ class Runner:
 
     def render(self, text, voice, style):
         import numpy as np
+        import torch
 
         budget = token_budget(text, self.settings)
         kwargs = dict(
@@ -128,7 +149,7 @@ class Runner:
             ending.append(int(out.sequences[0, -1].item()) == int(eos))
             return out
 
-        with patch.object(talker, "generate", observed):
+        with torch.inference_mode(), patch.object(talker, "generate", observed):
             wavs, rate = self.model.generate_custom_voice(**kwargs)
         if ending != [True]:
             raise InferenceError("missing_eos_or_token_cap")
@@ -177,6 +198,7 @@ class Runner:
             frames=frames,
             rate=24000,
             origin="local",
+            quantization=self.quantization,
             pipeline_seconds=elapsed,
             tts_seconds=synth_seconds,
             rtf=synth_seconds / (frames / 24000),

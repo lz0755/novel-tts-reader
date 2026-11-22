@@ -271,7 +271,7 @@ class Handler(BaseHTTPRequestHandler):
             if kind == "load"
             else {"job_id", "model", "text", "voice"}
         )
-        extra = {"style", "scenario"} if kind == "synthesis" else set()
+        extra = {"style", "scenario"} if kind == "synthesis" else {"quantization"}
         if (
             not required <= set(data)
             or set(data) - required - extra
@@ -279,6 +279,9 @@ class Handler(BaseHTTPRequestHandler):
             or not re.fullmatch(r"[0-9a-f]{32}", data["job_id"])
             or not data["model"]
             or len(data.get("text", "")) > 4000
+            or ("quantization" in data and (
+                c.engine != "qwen" or data["quantization"] not in ("none", "int4")
+            ))
         ):
             return self.reply(400, {"error": "invalid_request"})
         code, body = c.submit(kind, data)
@@ -294,15 +297,12 @@ def main():
     token = sys.stdin.readline().strip()
     if len(token) < 32:
         raise SystemExit("missing session token")
-    settings = (
-        json.loads(args.settings.read_text(encoding="utf-8")) if args.settings else {}
-    )
     with (
         tempfile.TemporaryDirectory(prefix="novel-worker-") as folder,
         ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server,
     ):
         server.token = token
-        server.control = Controller(folder, args.engine, settings, args.timeout)
+        server.control = Controller(folder, args.engine, args.settings, args.timeout)
         print(
             json.dumps(
                 dict(

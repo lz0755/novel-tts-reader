@@ -91,10 +91,15 @@ class ControlClient:
         self.call("POST", f"jobs/{ident}/cancel", {"hard": True})
         raise ProviderError("本地进程已超时并回收")
 
-    def load(self, model, event):
-        _, cap = self.job("models/load", {"model": model}, event)
+    def load(self, model, event, quantization=None):
+        body = {"model": model}
+        if quantization is not None:
+            body["quantization"] = quantization
+        _, cap = self.job("models/load", body, event)
         if cap["model"] != model or not cap["voices"] or not cap.get("revision"):
             raise ProviderError("本地模型能力与选择不匹配")
+        if quantization is not None and cap.get("quantization") != quantization:
+            raise ProviderError("本地运行时加载的权重量化与选择不匹配")
         return cap
 
 
@@ -127,6 +132,8 @@ class LocalTTS:
             for k in ("dtype", "attention", "tf32", "benchmark", "settings")
             if k in self.info
         }
+        if self.info.get("quantization") == "int4":
+            params["settings"] = {**(params.get("settings") or {}), "quantization": "int4"}
         return SynthesisRequest(
             text,
             caps.provider,
@@ -154,6 +161,8 @@ class LocalTTS:
             self.slot.release()
         if result.get("origin") != req.origin:
             raise ProviderError("音频来源不匹配")
+        if result.get("quantization", "none") != self.info.get("quantization", "none"):
+            raise ProviderError("本地权重量化已切换，请按当前模型重新生成")
         if cancel.is_set():
             raise Cancelled()
         destination.write_bytes(client.call("GET", f"artifacts/{ident}").content)

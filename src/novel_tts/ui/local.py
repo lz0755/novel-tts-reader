@@ -3,6 +3,7 @@ import secrets
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, QTimer, Signal
+from PySide6.QtGui import QActionGroup
 from PySide6.QtWidgets import QFileDialog
 
 from novel_tts.providers.local import MODELS, LocalTTS, client_from_hello
@@ -93,11 +94,26 @@ class LocalVoices:
     def init_local(self):
         self.host = ProcessHost(self)
         self.local_client = None
-        self.local_target = None
+        self.pending_local_load = None
         self.host.ready.connect(self.local_ready)
         self.host.failed.connect(self.local_failed)
         self.voices_menu.addSeparator()
         self.voices_menu.addAction("选择本地推理环境…", self.choose_runtime)
+        modes = {"config": "使用 runtime.json", "int4": "INT4", "none": "关闭量化"}
+        self.local_quantization = self.prefs.value("local_quantization", "config")
+        if self.local_quantization not in modes:
+            self.local_quantization = "config"
+        menu = self.voices_menu.addMenu("本地权重量化")
+        # PySide 6.9 can dispose a submenu when a temporary QAction.menu()
+        # wrapper is collected. Keep the owning action alive with the window.
+        self._quantization_menu_action = menu.menuAction()
+        group = QActionGroup(menu)
+        for mode, label in modes.items():
+            action = menu.addAction(label)
+            group.addAction(action)
+            action.setCheckable(True)
+            action.setChecked(mode == self.local_quantization)
+            action.triggered.connect(lambda _, m=mode: self.set_local_quantization(m))
         for model in MODELS:
             self.voices_menu.addAction(
                 "加载 " + model.split("12Hz-")[1],
@@ -105,6 +121,16 @@ class LocalVoices:
             )
         self.voices_menu.addAction("使用上次本地模型的缓存", self.local_cache)
         self.voices_menu.addAction("硬取消并卸载本地模型", self.unload_local)
+
+    def set_local_quantization(self, mode):
+        self.local_quantization = mode
+        self.prefs.setValue("local_quantization", mode)
+        if self.host.process and self.pending_local_load is not None:
+            self.load_local(self.pending_local_load[0])
+        elif isinstance(self.provider, LocalTTS):
+            self.load_local(self.provider.info["model"])
+        else:
+            self.note.setText("已选择本地权重量化，加载本地模型后生效")
 
     def choose_runtime(self):
         python, _ = QFileDialog.getOpenFileName(
@@ -115,11 +141,15 @@ class LocalVoices:
                 self, "选取模型准备步骤生成的 runtime.json", filter="JSON (*.json)"
             )
             if cfg:
+                saved = self.prefs.value("sidecar_python"), self.prefs.value("sidecar_settings")
+                if self.host.process and (python, cfg) != saved:
+                    self.unload_local()
                 self.prefs.setValue("sidecar_python", python)
                 self.prefs.setValue("sidecar_settings", cfg)
                 self.note.setText("本地运行时配置已保存")
 
     def local_failed(self, message):
+        self.pending_local_load = None
         self.local_client = None
         if isinstance(self.provider, LocalTTS):
             self.provider.client = None
@@ -132,7 +162,7 @@ class LocalVoices:
             self.note.setText("本地运行时或模型未准备。请从「朗读来源」选择推理环境。")
             return
         self.cancel_task()
-        self.local_target = model
+        self.pending_local_load = (model, self.local_quantization)
         if self.host.process and self.local_client:
             self.local_ready(self.local_client)
         elif not self.host.process:
@@ -141,18 +171,33 @@ class LocalVoices:
 
     def local_ready(self, client):
         self.local_client = client
-        target = self.local_target
+        pending = self.pending_local_load
+        if pending is None:
+            return
+        target, mode = pending
 
         def loaded(info):
+            self.pending_local_load = None
             self.prefs.setValue("local_caps", json.dumps(info))
             self.switch_voice(LocalTTS(info, client))
-            self.note.setText("本地模型已加载并预热 · " + info["model"])
+            precision = (
+                "INT4" if info.get("quantization") == "int4" else info.get("dtype")
+            )
+            message = "本地模型已加载并预热 · " + info["model"]
+            self.note.setText(f"{message} · {precision}" if precision else message)
+
+        def failed(error):
+            self.pending_local_load = None
+            if isinstance(self.provider, LocalTTS):
+                self.provider.client = None
+            self.note.setText(f"本地模型加载失败 · {error}")
 
         self.run(
             "正在加载并预热 " + target,
-            lambda e: client.load(target, e),
+            lambda e: client.load(target, e, None if mode == "config" else mode),
             loaded,
-            guard=lambda: self.local_client is client and self.local_target == target,
+            guard=lambda: self.local_client is client and self.pending_local_load is pending,
+            failed=failed,
             task=True,
         )
 

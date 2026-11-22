@@ -138,6 +138,7 @@ class Profiles:
                         return "配置已保存，密钥保存在系统凭据服务"
                     except keyring.errors.KeyringError:
                         return "系统凭据服务不可用，密钥仅本次会话有效"
+                return "配置已保存，密钥仅本次会话有效"
             return "配置已保存"
 
     def credential(self, profile):

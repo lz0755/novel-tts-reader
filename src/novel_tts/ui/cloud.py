@@ -153,7 +153,8 @@ class CloudSettings:
         fields.append(
             ("", checked) if name == "qwen_cloud" else ("每百万输出 token", outgoing)
         )
-        if not self.edit_form("配置 " + name, fields):
+        dialog = self.form_dialog("配置 " + name, fields)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         try:
             prices = [

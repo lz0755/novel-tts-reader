@@ -36,7 +36,8 @@ class Editing:
             return view, line, a, b
         return view, line, line.start, line.end
 
-    def edit_form(self, title, fields):
+    def form_dialog(self, title, fields):
+        """Keep a reference to the dialog until its field values have been read."""
         dialog = QDialog(self)
         dialog.setWindowTitle(title)
         dialog.resize(460, 180)
@@ -50,7 +51,7 @@ class Editing:
         actions.accepted.connect(dialog.accept)
         actions.rejected.connect(dialog.reject)
         form.addRow(actions)
-        return dialog.exec() == QDialog.DialogCode.Accepted
+        return dialog
 
     def mutate(self, label, view, start, fn):
         self.stop()
@@ -72,7 +73,7 @@ class Editing:
             people.addItem(name, cid)
         people.setCurrentIndex(people.findData(line.speaker))
         name, style = QLineEdit(), QLineEdit(line.style)
-        if self.edit_form(
+        dialog = self.form_dialog(
             "人工标注",
             [
                 ("原文", QLabel(view.source[a - view.offset : b - view.offset][:100])),
@@ -80,7 +81,8 @@ class Editing:
                 ("或新建角色", name),
                 ("表演提示", style),
             ],
-        ):
+        )
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             args = view, a, b, people.currentData(), style.text(), name.text()
             self.mutate(
                 "保存标注", view, a, lambda _: self.repo.call("save_edit", *args)
@@ -99,9 +101,10 @@ class Editing:
         scope.addItems(["单句", "单书", "全局"])
         original = QLineEdit(view.source[a - view.offset : b - view.offset])
         replacement = QLineEdit()
-        if self.edit_form(
+        dialog = self.form_dialog(
             "纠正读音", [("范围", scope), ("原词", original), ("朗读为", replacement)]
-        ):
+        )
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             args = view, line, scope.currentText(), original.text(), replacement.text()
             self.mutate(
                 "保存纠音", view, a, lambda _: self.repo.call("save_rule", *args)

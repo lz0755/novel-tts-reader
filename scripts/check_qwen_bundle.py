@@ -19,16 +19,18 @@ from qwen_tts import Qwen3TTSModel
 
 def main():
     local, report, sample = map(Path, sys.argv[1:])
+    # Windows TEMP can use an 8.3 alias while Python reports the long path.
+    local = local.resolve(strict=True)
     config = local / "models/runtime.json"
     model, revision = MODELS["0.6B"]
     entry = read_settings(config)["models"][model]
-    folder = Path(entry["path"])
-    if Path(sys.prefix).resolve() != (
-        local / "python"
-    ).resolve() or not folder.is_relative_to(local):
+    folder = Path(entry["path"]).resolve(strict=True)
+    if not Path(sys.prefix).samefile(local / "python"):
         raise ValueError(
-            "The packaged interpreter and model must both follow the relocated desktop"
+            f"Interpreter prefix {sys.prefix} is outside {local / 'python'}"
         )
+    if not folder.is_relative_to((local / "models").resolve(strict=True)):
+        raise ValueError(f"Model path {folder} is outside {local / 'models'}")
     manifest = json.loads((folder / "novel-verified.json").read_text(encoding="utf-8"))
     if (manifest["repo"], manifest["revision"], entry["revision"]) != (
         model,

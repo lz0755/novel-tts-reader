@@ -1,12 +1,26 @@
 import json
+import os
 import secrets
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, QTimer, Signal
+from PySide6.QtCore import QCoreApplication, QObject, QProcess, QProcessEnvironment, QTimer, Signal
 from PySide6.QtGui import QActionGroup
 from PySide6.QtWidgets import QFileDialog
 
 from novel_tts.providers.local import MODELS, LocalTTS, client_from_hello
+
+
+def runtime_paths(prefs, directory):
+    python = Path(prefs.value("sidecar_python", ""))
+    settings = Path(prefs.value("sidecar_settings", ""))
+    if python.is_file() and settings.is_file():
+        return python, settings
+    bundle = directory / "local-qwen"
+    python = bundle / "python" / ("python.exe" if os.name == "nt" else "bin/python3")
+    settings = bundle / "models" / "runtime.json"
+    if python.is_file() and settings.is_file():
+        return python, settings
+    return None
 
 
 class ProcessHost(QObject):
@@ -36,6 +50,7 @@ class ProcessHost(QObject):
         env.insert("PYTHONUTF8", "1")
         env.insert("HF_HUB_OFFLINE", "1")
         env.insert("TRANSFORMERS_OFFLINE", "1")
+        env.insert("PYTHONNOUSERSITE", "1")
         proc.setProcessEnvironment(env)
         proc.started.connect(lambda: proc.write((self.token + "\n").encode()))
         proc.readyReadStandardOutput.connect(lambda: self.read(proc))
@@ -156,11 +171,11 @@ class LocalVoices:
         self.note.setText(message)
 
     def load_local(self, model):
-        python = self.prefs.value("sidecar_python", "")
-        settings = self.prefs.value("sidecar_settings", "")
-        if not Path(python).is_file() or not Path(settings).is_file():
+        paths = runtime_paths(self.prefs, Path(QCoreApplication.applicationFilePath()).parent)
+        if paths is None:
             self.note.setText("本地运行时或模型未准备。请从「朗读来源」选择推理环境。")
             return
+        python, settings = paths
         self.cancel_task()
         self.pending_local_load = (model, self.local_quantization)
         if self.host.process and self.local_client:

@@ -2,8 +2,11 @@
 
 import json
 import time
+from pathlib import Path
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QCoreApplication, QTimer
+
+from .local import runtime_paths
 
 
 def start_check(app, window, root, screenshot=None):
@@ -61,7 +64,26 @@ def start_check(app, window, root, screenshot=None):
                 ),
                 flush=True,
             )
-            finish(0)
+            directory = Path(QCoreApplication.applicationFilePath()).parent
+            if not (directory / "local-qwen").is_dir():
+                return finish(0)
+            paths = runtime_paths(window.prefs, directory)
+            if paths is None:
+                return finish(6)
+            stage = 4
+
+            def check_sidecar(client):
+                try:
+                    health = client.call("GET", "health").json()
+                    if health.get("control") != "alive":
+                        return finish(7)
+                except Exception:
+                    return finish(7)
+                print(json.dumps({"check": "bundled_qwen_handshake"}), flush=True)
+                finish(0)
+
+            window.host.ready.connect(check_sidecar)
+            window.host.start(*paths)
 
     timer.timeout.connect(tick)
     timer.start()

@@ -4,9 +4,9 @@
 
 ## 第一次使用
 
-Windows x64 与 Ubuntu 24.04 x86_64 的原生预览包可从同一发布页下载，每个包附有 SHA-256 校验文件。 [下载桌面预览版](https://github.com/lz0755/novel-tts-reader/releases/tag/desktop-0.1.0-preview)
+Windows x64 和 Ubuntu 24.04 x86_64 均有桌面核心版和本地 Qwen 完整版。核心版下载一个 ZIP 或 tar.gz。本地版包含阅读器、0.6B CustomVoice 权重、语音分词器、独立 Python 和 CUDA 12.8 推理库。下载所选平台全部 7z 分卷，放在同一目录，用 7-Zip 打开第一卷 `.7z.001` 并解压。每个版本均提供 SHA-256 校验。 [下载桌面发行版](https://github.com/lz0755/novel-tts-reader/releases/latest)
 
-1. 解压完整的发行包。Ubuntu x86_64 运行 `./NovelTTSReader`，Windows x64 便携预览包双击 `NovelTTSReader.exe`。
+1. 解压完整的发行包。Ubuntu x86_64 运行 `./NovelTTSReader`，Windows x64 双击 `NovelTTSReader.exe`。本地完整版可从「朗读来源 → 加载 0.6B-CustomVoice」开始，首次加载会校验权重并预热。
 2. 点击「打开样书」，选第一章后点击「播放」。右侧显示当前说话人、朗读文本及音频来源。样书有两章、三种固定普通话音色，未收录的文本和音色组合使用标为 Mock 的测试音。
 3. 点击「预生成本章」，完成后点击「导出章节」，输入新文件夹名。输出包含 `chapter.wav` 和逐段 `manifest.json`。样章可直接试听。 [第一章音频](docs/evidence/demo-chapter/chapter.wav) · [导出清单](docs/evidence/demo-chapter/manifest.json)
 4. 导入自己的 TXT 时可以预览编码和章节。在正文选择范围后，通过校对菜单编辑角色、声音、风格或纠音。重开书架会恢复到上次的原句。 [安装、书库备份与恢复](docs/installation.md)

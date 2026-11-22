@@ -6,6 +6,14 @@ Windows x64 将 ZIP 解压到独立目录，双击 NovelTTSReader.exe。Linux x8
 
 首次打开可以选择「打开样书」或「导入 TXT」。样书固定语音会显示 Mock 固定语音，未收录的文本和音色组合使用 Mock 测试音。先「预生成本章」再「导出章节」，为新文件夹命名，可得到 chapter.wav 和带顺序、来源、摘要的 manifest.json。导出拒绝覆盖已有目录。
 
+## 本地 Qwen 完整版
+
+选取发布页上名称含 `Qwen-0.6B` 和自己平台的全部 `.7z.001`、`.7z.002` 等分卷。把分卷放在同一文件夹，可用同名前缀的 `.sha256` 检查每卷。Windows 可用 `Get-FileHash -Algorithm SHA256 文件名` 查看摘要。Linux 可执行 `sha256sum -c NovelTTSReader-Qwen-0.6B-linux-x86_64.sha256`。
+
+用 7-Zip 解压第一卷。Linux 示例为 `7z x NovelTTSReader-Qwen-0.6B-linux-x86_64.7z.001`。进入解压出的 `NovelTTSReader-Qwen` 目录，Windows 双击 `NovelTTSReader.exe`，Linux 运行 `./NovelTTSReader`。打开「朗读来源 → 加载 0.6B-CustomVoice」，等状态栏显示模型就绪后播放或预生成章节。可以把全部分卷复制到另一台机器，解压和首次加载均可离线完成。
+
+随包的是 Qwen3-TTS-12Hz-0.6B-CustomVoice 原始权重和语音分词器，启动时按默认配置在显卡上量化为 INT4。默认模式需要支持 BF16、计算能力 8.0 或更高并配有兼容 CUDA 12.8 驱动的 NVIDIA 显卡。已有 RTX 4060 Laptop 8 GB 的实机记录。Qwen 完整版带有独立 Python、PyTorch、CUDA 用户态库和流式引擎。1.7B 可通过外部推理环境单独配置。已保存的有效自定义环境优先使用。 [本地模型配置](local-runtime.md)
+
 ## 数据与备份
 
 框架按操作系统定位用户数据和缓存。可以用 --data-dir "/路径/中文 书库" 指定独立书库。程序将原文件字节、书架、原文、修订、绑定、进度存入 library.sqlite3。正常退出后备份整个用户数据目录；运行中使用 SQLite 在线备份接口。恢复时关闭应用，在新的数据目录恢复副本，再用 --data-dir 打开。迁移前自动保留 .before-vN.sqlite3。音频缓存可由「清理缓存」释放，书籍原文和校对记录保留。凭据使用系统凭据服务或仅本次会话。

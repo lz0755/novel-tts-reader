@@ -13,6 +13,17 @@ def parent_watch():
     os._exit(2)
 
 
+def read_settings(settings):
+    if not isinstance(settings, Path):
+        return settings or {}
+    options = json.loads(settings.read_text(encoding="utf-8-sig"))
+    for entry in options.get("models", {}).values():
+        path = Path(entry["path"])
+        if not path.is_absolute():
+            entry["path"] = str((settings.parent / path).resolve())
+    return options
+
+
 def worker(pipe, folder, engine, settings, cancel_event=None):
     threading.Thread(target=parent_watch, daemon=True).start()
     if engine == "qwen":
@@ -25,12 +36,7 @@ def worker(pipe, folder, engine, settings, cancel_event=None):
             if kind == "load":
                 # Each new worker reads the selected file, including on a reload
                 # of the same model. Older control processes pass a snapshot.
-                options = (
-                    json.loads(settings.read_text(encoding="utf-8-sig"))
-                    if isinstance(settings, Path)
-                    else settings or {}
-                )
-                runner = Runner(options)
+                runner = Runner(read_settings(settings))
                 result = runner.load(data)
             else:
                 def publish(frames):

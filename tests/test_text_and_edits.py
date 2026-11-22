@@ -1,10 +1,11 @@
 import random
 from dataclasses import replace
+from threading import Event
 
 import pytest
 
 from novel_tts.domain.annotations import MockLLM, validate
-from novel_tts.domain.models import Candidate, Part, Stale
+from novel_tts.domain.models import AnnotationResult, Candidate, Part, Stale
 from novel_tts.domain.text import DisplayMap, boundaries, chapters, read_draft
 from novel_tts.infrastructure.store import page_chunks
 
@@ -67,6 +68,38 @@ def test_rules_locality(book):
         assert v.lines[0].spoken.endswith(rep) and v.lines[0].display == line.display
     after = [tts.prepare(l.spoken, l.voice, l.style).key for l in v.lines]
     assert before[1:] == after[1:] and before[0] != after[0]
+
+
+def test_whitespace_annotations_keep_source_offsets_but_skip_audio(book):
+    store, library, tts, _ = book
+    draft = read_draft("　甲。\r\n\t　\r\n 乙。 ".encode(), "空白旁白")
+    book_id = store.add_book(draft, draft.boundaries, Event())
+    chapter = store.toc(book_id)[0][0]
+    req = store.request(chapter, 0)
+    first, blank, last = req.targets
+    lines = (
+        (first.id, (Part(0, 3, "narrator"), Part(3, 4, "narrator"))),
+        (blank.id, (Part(0, 3, "unknown"),)),
+        (last.id, (Part(0, 4, "narrator"),)),
+    )
+    caps = tts.capabilities()
+    result = AnnotationResult(req.batch_id, req.import_revision, lines)
+    store.commit_annotations(req, result, caps)
+
+    view = store.view(chapter, 0, caps)
+    assert view.source == "　甲。\n\t　\n 乙。 "
+    assert [(line.start, line.end, line.spoken) for line in view.lines] == [
+        (0, 3, "　甲。"),
+        (7, 11, " 乙。 "),
+    ]
+    assert [view.line_index_at(cp) for cp in (0, 2, 3, 6, 7, 11)] == [
+        0, 0, 1, 1, 1, 1,
+    ]
+    assert library.chapter(view, tts, Event()) == 2
+    job_count = store.db.execute("SELECT count(*) FROM jobs WHERE book=?", (book_id,))
+    part_count = store.db.execute("SELECT count(*) FROM parts WHERE chapter=?", (chapter,))
+    assert job_count.fetchone()[0] == 2
+    assert part_count.fetchone()[0] == 4
 
 
 def test_invalid_annotation_and_independent_people(book):

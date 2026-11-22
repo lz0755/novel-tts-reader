@@ -6,6 +6,7 @@ import json
 import sqlite3
 import time
 import uuid
+from bisect import bisect_right
 from dataclasses import dataclass
 
 from novel_tts.domain.annotations import MockLLM, validate
@@ -60,6 +61,13 @@ class View:
     source: str
     lines: tuple[Line, ...]
     characters: tuple[tuple[str, str], ...]
+
+    def line_index_at(self, cp: int) -> int:
+        """Choose the next playable line in a gap, clamping to the page ends."""
+        if not self.lines:
+            return 0
+        index = bisect_right(self.lines, cp, key=lambda line: line.end)
+        return min(index, len(self.lines) - 1)
 
 
 def page_chunks(source):
@@ -450,10 +458,12 @@ class Store(Edits, CacheIndex):
             rules = self.rules(book, chapter)
             for parent, start, end, cid, style, manual in rows:
                 display = source[start - offset : end - offset]
+                spoken = self.spoken(rules, start, display)
+                if not spoken.strip():
+                    continue
                 if cid not in voices:
                     voices[cid] = self.binding(book, cid, caps)
                 voice, subst = voices[cid]
-                spoken = self.spoken(rules, start, display)
                 lines.append(
                     Line(
                         parent,

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import bisect
 import uuid
 from pathlib import Path
 
@@ -386,15 +385,24 @@ class ReaderWindow(
             resume = None
         self.load_page(None, resume[1] if resume else 0, resume)
 
-    def load_page(self, page=None, cp=None, resume=None, play=False, *, notice=None):
+    def load_page(
+        self, page=None, cp=None, resume=None, play=False, *, notice=None, page_step=0
+    ):
         self.stop()
+        playback_epoch = self.epoch
         self.generation += 1
         gen, chapter, caps = self.generation, self.chapter, self.provider.capabilities()
         self.view = None
 
-        def lookup(_):
+        def lookup(event):
             n = self.repo.call("page_at", chapter, cp or 0) if page is None else page
-            return self.repo.call("view", chapter, n, caps)
+            view = self.repo.call("view", chapter, n, caps)
+            while page_step and not view.lines and 0 <= n + page_step < view.page_count:
+                if event.is_set():
+                    break
+                n += page_step
+                view = self.repo.call("view", chapter, n, caps)
+            return view
 
         def render(view):
             self.view = view
@@ -402,18 +410,18 @@ class ReaderWindow(
             self.page_label.setText(f"{view.page + 1} / {view.page_count} 页")
             self.text.setPlainText(view.source)
             self.mapping = DisplayMap(view.source, view.offset)
-            self.index = max(
-                0, bisect.bisect_right([line.start for line in view.lines], cp or 0) - 1
-            )
+            self.index = view.line_index_at(cp or 0)
             self.resume = resume
             if resume:
                 self.speed.setCurrentText(str(resume[4]))
             self.paint_line()
             self.note.setText(notice or f"本页共 {len(view.lines)} 个朗读片段")
-            if play and view.lines:
+            if play and view.lines and self.epoch == playback_epoch:
                 self.start()
 
-        self.run("读取正文", lookup, render, guard=lambda: self.generation == gen)
+        event = self.run("读取正文", lookup, render, guard=lambda: self.generation == gen)
+        if page_step and event:
+            self.waiters.append(event)
 
     def page(self, direction):
         if self.view and 0 <= self.view.page + direction < self.view.page_count:

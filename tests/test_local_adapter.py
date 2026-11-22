@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from threading import Event
 from unittest.mock import Mock
+from uuid import uuid4
 
 import pytest
 
@@ -23,8 +24,26 @@ def test_qprocess_local_adapter(app, book, tmp_path):
             sys.executable, engine="mock", cwd=Path(__file__).parents[1] / "sidecar"
         )
         wait(app, lambda: bool(clients))
-        info = clients[0].load("mock", Event())
-        provider = LocalTTS(info, clients[0])
+        client = clients[0]
+        body = {"model": "mock", "voice": "mock-voice", "text": "桥上的灯还亮着。"}
+        with pytest.raises(ProviderError, match="模型尚未就绪"):
+            client.job("synthesis/jobs", body, Event())
+        info = client.load("mock", Event())
+        before = client.call("GET", "health").json()
+        body["stream_session"] = info["stream_session"]
+        with client.connection() as http:
+            for invalid in ({"text": "\n"}, {"text": "\t　 "}, {"voice": "missing"}):
+                ident = uuid4().hex
+                response = http.post(
+                    "synthesis/jobs", json=body | invalid | {"job_id": ident}
+                )
+                assert response.status_code == 400
+                assert response.json()["error"] == "invalid_voice_or_text"
+                assert http.get("jobs/" + ident).status_code == 404
+        assert client.call("GET", "health").json() == before
+        caps = client.call("GET", "capabilities").json()
+        assert caps["stream_session"] == info["stream_session"]
+        provider = LocalTTS(info, client)
         current = store.view(view.chapter, 0, provider.capabilities())
         art = library.audio(current, current.lines[0], provider, Event())
         assert art.request.origin == "mock_tone" and art.frames == 7200

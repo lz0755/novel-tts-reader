@@ -1,4 +1,3 @@
-import bisect
 from novel_tts.application.batch import AudioBatch, playable
 from novel_tts.infrastructure.audio import RATE
 from novel_tts.ui.pcm import PcmPlayback, pcm_format
@@ -61,21 +60,18 @@ class Playback:
     def clicked_text(self, pos):
         if self.view and self.view.lines:
             cp = self.mapping.from_qt(pos)
-            self.seek(
-                max(
-                    0,
-                    bisect.bisect_right([line.start for line in self.view.lines], cp)
-                    - 1,
-                )
-            )
+            self.seek(self.view.line_index_at(cp))
 
     def seek(self, index):
-        if not self.view or not self.view.lines:
+        if not self.view:
             return
         if not 0 <= index < len(self.view.lines):
-            page = self.view.page + (-1 if index < 0 else 1)
+            step = -1 if index < 0 else 1
+            page = self.view.page + step
             if 0 <= page < self.view.page_count:
-                self.load_page(page, cp=10**15 if index < 0 else None, play=self.intent)
+                self.load_page(
+                    page, cp=10**15 if index < 0 else None, play=self.intent, page_step=step
+                )
             return
         was_playing = self.intent
         self.stop()
@@ -111,7 +107,11 @@ class Playback:
             self.start()
 
     def start(self):
-        if not self.view or not self.view.lines:
+        if not self.view:
+            return
+        if not self.view.lines:
+            if self.view.page + 1 < self.view.page_count:
+                self.load_page(self.view.page + 1, play=True, page_step=1)
             return
         self.intent = True
         self.play_button.setText("暂停")
@@ -287,7 +287,7 @@ class Playback:
     def advance(self):
         view = self.view
         if self.index + 1 >= len(view.lines):
-            self.load_page(view.page + 1, play=True)
+            self.load_page(view.page + 1, play=True, page_step=1)
             return
         self.save_position()
         self.release_media()

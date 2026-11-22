@@ -49,15 +49,23 @@ class ControlClient:
     def request(client, method, path, data=None):
         try:
             response = client.request(method, path, json=data)
-            if not response.is_success:
-                if response.status_code == 409:
-                    reason = response.json().get("error")
-                    if reason == "busy":
+            if response.is_success:
+                return response
+            if response.status_code in (400, 409):
+                try:
+                    reason = response.json()["error"]
+                except (KeyError, TypeError, ValueError):
+                    reason = None
+                match response.status_code, reason:
+                    case 409, "busy":
                         raise ProviderError("local_worker_busy", True)
-                    if reason == "stream_session_changed":
+                    case 409, "stream_session_changed":
                         raise ProviderError("本地模型已切换，请重新播放当前句")
-                raise ProviderError(f"本地控制服务 HTTP {response.status_code}")
-            return response
+                    case 409, "model_not_ready":
+                        raise ProviderError("本地模型尚未就绪，请在「朗读来源」重新加载所选模型")
+                    case 400, "invalid_voice_or_text":
+                        raise ProviderError("本地朗读文本为空白，或所选音色不属于当前模型")
+            raise ProviderError(f"本地控制服务 HTTP {response.status_code}")
         except httpx.HTTPError as exc:
             raise ProviderError(f"无法连接本地控制服务（{type(exc).__name__}）") from exc
 

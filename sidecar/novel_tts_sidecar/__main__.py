@@ -123,6 +123,8 @@ class Controller:
                 return 409, {"error": "model_not_ready"}
             elif "stream_session" in data and data["stream_session"] != self.caps.get("stream_session"):
                 return 409, {"error": "stream_session_changed"}
+            elif not data["text"].strip() or data["voice"] not in self.caps["voices"]:
+                return 400, {"error": "invalid_voice_or_text"}
             if len(self.jobs) >= 256:
                 oldest = next(iter(self.jobs))
                 self.jobs.pop(oldest)

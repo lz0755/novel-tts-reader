@@ -5,6 +5,7 @@ from threading import Event, get_ident
 
 import pytest
 
+from novel_tts.domain.text import read_draft
 from novel_tts.infrastructure.paths import Paths
 from novel_tts.ui.window import ReaderWindow
 
@@ -66,3 +67,28 @@ def test_window_import_generate_and_resume(app, tmp_path):
         assert reopened.view.lines[reopened.index].start == cp
     finally:
         reopened.close()
+
+
+def test_sentence_navigation_crosses_whitespace_only_page(app, tmp_path, monkeypatch):
+    win = ReaderWindow(Paths(tmp_path), force_mock=True)
+    try:
+        source = "甲。\n" + "　" * 16000 + "\n乙。"
+        win.add_draft(read_draft(source.encode(), "空白页"))
+        wait(app, lambda: bool(win.view))
+        assert win.view.page == 0 and win.view.page_count == 3
+
+        played = []
+        monkeypatch.setattr(
+            win, "start", lambda: played.append(win.view.lines[win.index].spoken)
+        )
+        win.advance()
+        wait(app, lambda: bool(played))
+        assert win.view.page == 2 and played == ["乙。"]
+        win.seek(-1)
+        wait(app, lambda: bool(win.view) and win.view.page == 0)
+        assert win.view.lines[win.index].spoken == "甲。"
+        win.page(1)
+        wait(app, lambda: bool(win.view) and win.view.page == 1)
+        assert win.view.lines == () and win.view.source.isspace()
+    finally:
+        win.close()

@@ -127,9 +127,13 @@ class CloudSettings:
             if name == "qwen_cloud"
             else ("模型输出能力", output),
             ("本次操作请求上限（含重试）", budget),
-            ("API 密钥", secret),
-            ("", remember),
         ]
+        if name != "qwen_cloud":
+            read_timeout = QSpinBox()
+            read_timeout.setRange(1, 600)
+            read_timeout.setValue(p.analysis_read_timeout)
+            fields.append(("分析响应等待（秒）", read_timeout))
+        fields.extend([("API 密钥", secret), ("", remember)])
         currency = QLineEdit(p.currency)
         date = QLineEdit(p.price_date)
         incoming = QLineEdit(
@@ -185,6 +189,9 @@ class CloudSettings:
             output=output.currentText(),
             voices=tuple(v.strip() for v in voices.text().split(",") if v.strip()),
             budget=budget.value(),
+            analysis_read_timeout=(
+                read_timeout.value() if name != "qwen_cloud" else p.analysis_read_timeout
+            ),
         )
         key, persist = secret.text(), remember.isChecked()
 
@@ -224,12 +231,10 @@ class CloudSettings:
             return analyze_chapter(self.repo, view, caps, remote, event)
 
         def complete(n):
-            self.note.setText(f"已验证并提交 {n} 批标注")
-            self.load_page(view.page, view.offset)
+            self.load_page(view.page, view.offset, notice=f"已验证并提交 {n} 批标注")
 
         def interrupted(exc):
-            self.load_page(view.page, view.offset)
-            self.note.setText(f"云端标注中止 · {exc}")
+            self.load_page(view.page, view.offset, notice=f"云端标注中止 · {exc}")
 
         self.run(
             "分析本章",
@@ -318,11 +323,19 @@ class CloudSettings:
                 count += analyze_chapter(self.repo, current, caps, remote, event)
             return count
 
-        def done(_):
-            self.load_page(view.page, view.offset)
+        def done(count):
+            self.load_page(view.page, view.offset, notice=f"整书已验证并提交 {count} 批标注")
+
+        def interrupted(exc):
+            self.load_page(view.page, view.offset, notice=f"整书云端标注中止 · {exc}")
 
         self.run(
-            "整书云端标注", analyze, done, guard=lambda: self.view is view, task=True
+            "整书云端标注",
+            analyze,
+            done,
+            guard=lambda: self.view is view,
+            failed=interrupted,
+            task=True,
         )
 
     def show_attempts(self):

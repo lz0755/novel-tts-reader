@@ -37,6 +37,7 @@ def test_save_and_reopen_analysis_profile(app, tmp_path, monkeypatch, name, reme
             }
             fields["服务端点"].setText(endpoint)
             fields["模型 ID"].setText(model)
+            fields["分析响应等待（秒）"].setValue(150)
             fields["API 密钥"].setText(key)
             dialog.findChild(QCheckBox).setChecked(remember)
         finally:
@@ -61,6 +62,7 @@ def test_save_and_reopen_analysis_profile(app, tmp_path, monkeypatch, name, reme
         assert reopened.llm_name == name
         profile = reopened.profiles.all()[name]
         assert (profile.endpoint, profile.model) == (endpoint, model)
+        assert profile.analysis_read_timeout == 150
         if remember:
             assert reopened.profiles.credential(profile) == key
         else:

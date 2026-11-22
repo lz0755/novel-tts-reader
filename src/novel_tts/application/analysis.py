@@ -36,7 +36,7 @@ def analyze_chapter(repo, view, caps, remote, event, report=lambda n: None):
                     req,
                     targets=req.targets[half:],
                     batch_id=req.batch_id + "-b",
-                    context="".join(p.text for p in first.targets)[-256:],
+                    context=(req.context + "".join(p.text for p in first.targets))[-256:],
                 )
                 pending[:0] = [(first, True), (second, True)]
                 continue

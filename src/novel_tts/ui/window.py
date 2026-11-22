@@ -386,7 +386,7 @@ class ReaderWindow(
             resume = None
         self.load_page(None, resume[1] if resume else 0, resume)
 
-    def load_page(self, page=None, cp=None, resume=None, play=False):
+    def load_page(self, page=None, cp=None, resume=None, play=False, *, notice=None):
         self.stop()
         self.generation += 1
         gen, chapter, caps = self.generation, self.chapter, self.provider.capabilities()
@@ -409,7 +409,7 @@ class ReaderWindow(
             if resume:
                 self.speed.setCurrentText(str(resume[4]))
             self.paint_line()
-            self.note.setText(f"本页共 {len(view.lines)} 个朗读片段")
+            self.note.setText(notice or f"本页共 {len(view.lines)} 个朗读片段")
             if play and view.lines:
                 self.start()
 

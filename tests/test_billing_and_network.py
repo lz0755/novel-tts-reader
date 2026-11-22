@@ -19,13 +19,19 @@ from novel_tts.infrastructure.store import Store
 from novel_tts.providers.llm import RemoteLLM
 
 
-def test_lost_response_and_manual_resend_survive_restart(book, monkeypatch):
+@pytest.mark.parametrize(
+    "failure,reason",
+    [(httpx.ReadTimeout, "等待响应超时"), (httpx.RemoteProtocolError, "连接中断")],
+)
+def test_lost_response_and_manual_resend_survive_restart(
+    book, monkeypatch, failure, reason
+):
     store, _, _, view = book
     p = DEFAULTS["custom"]
     monkeypatch.setattr("novel_tts.infrastructure.store.time.time", lambda: 1800000000.0)
 
     def lost(request):
-        raise httpx.ReadTimeout("response lost")
+        raise failure("response lost")
 
     def send(db):
         client = RemoteLLM(
@@ -35,11 +41,13 @@ def test_lost_response_and_manual_resend_survive_restart(book, monkeypatch):
             record=lambda r: db.record_attempt(view.book, r),
         )
         # A fresh request has a new batch id, as it would from the desktop.
-        with pytest.raises(ProviderError, match="可能已执行并计费"):
+        with pytest.raises(ProviderError, match=reason + ".*可能已执行并计费"):
             client.analyze_chunk(db.request(view.chapter, 0), Event())
 
     send(store)
     first = store.attempts()[0]
+    assert first["transport_error"] == failure.__name__
+    assert first["elapsed_ms"] >= 0 and len(store.attempts()) == 1
     reopened = Store(store.paths)
     try:
         send(reopened)

@@ -27,6 +27,7 @@ class Profile:
     output_per_million: float | None = None
     currency: str = ""
     unit: str = "tokens"
+    analysis_read_timeout: int = 90
 
     def validate(self):
         u = urlsplit(self.endpoint)
@@ -53,6 +54,11 @@ class Profile:
             raise ValueError("请核对模型、请求上限和上下文预算")
         if self.protocol not in ("chat_completions", "responses", "qwen_audio_http"):
             raise ValueError("未知协议")
+        if (
+            type(self.analysis_read_timeout) is not int
+            or not 1 <= self.analysis_read_timeout <= 600
+        ):
+            raise ValueError("分析响应等待时间须为 1 至 600 秒")
         if self.output not in ("json_schema", "json_object", "text"):
             raise ValueError("未知结构化输出能力")
         if self.protocol == "qwen_audio_http" and (

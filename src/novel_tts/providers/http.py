@@ -1,6 +1,8 @@
+import asyncio
 import random
 import time
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from threading import Lock
@@ -47,11 +49,29 @@ class ContextLimit(ProviderError):
 
 
 class Attempts:
-    def __init__(self, logical_id=None):
+    def __init__(self, logical_id=None, *, read_timeout=30):
         self.job = uuid.uuid4().hex
         self.logical_id = logical_id
         self.count = 0
-        self.deadline = time.monotonic() + 90
+        self.read_timeout = read_timeout
+        self.deadline = time.monotonic() + max(90, read_timeout)
+
+
+async def _cancellable_post(client, url, cancel, deadline, **kwargs):
+    request = asyncio.create_task(client.post(url, **kwargs))
+    try:
+        while not request.done():
+            if cancel.is_set():
+                raise Cancelled()
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise httpx.ReadTimeout("Response deadline reached")
+            await asyncio.wait((request,), timeout=min(0.2, remaining))
+        return request.result()
+    finally:
+        if not request.done():
+            request.cancel()
+            await asyncio.gather(request, return_exceptions=True)
 
 
 class Remote:
@@ -62,21 +82,52 @@ class Remote:
         self.record = record or (lambda event: None)
         self.transport = transport
 
+    @contextmanager
+    def _post_sender(self, headers, cancel, deadline):
+        options = dict(transport=self.transport, follow_redirects=False, headers=headers)
+        try:
+            active_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            active_loop = None
+        if (
+            self.profile.protocol == "qwen_audio_http"
+            or active_loop is not None
+            or (
+                self.transport is not None
+                and not isinstance(self.transport, httpx.AsyncBaseTransport)
+            )
+        ):
+            with httpx.Client(**options) as client:
+                yield client.post
+            return
+
+        with asyncio.Runner() as runner:
+            client = httpx.AsyncClient(**options)
+
+            def send(url, **kwargs):
+                return runner.run(_cancellable_post(client, url, cancel, deadline, **kwargs))
+
+            try:
+                yield send
+            finally:
+                runner.run(client.aclose())
+
     def post(self, url, body, cancel, group=None):
         group = group or Attempts()
         job = group.job
         request_hash = fingerprint(body)
         deadline = group.deadline
         headers = {"Authorization": "Bearer " + self.secret} if self.secret else {}
-        with httpx.Client(
-            transport=self.transport, follow_redirects=False, headers=headers
-        ) as client:
+        with self._post_sender(headers, cancel, deadline) as send:
             while group.count < 2:
-                attempt = group.count
-                group.count += 1
                 if cancel.is_set():
                     raise Cancelled()
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise ProviderError("请求超过截止时间")
                 self.budget.reserve()
+                attempt = group.count
+                group.count += 1
                 row = dict(
                     job=job,
                     attempt=uuid.uuid4().hex,
@@ -111,26 +162,48 @@ class Remote:
                     if self.profile.protocol != "qwen_audio_http"
                     else "wav"
                 )
+                timeout = httpx.Timeout(
+                    min(30, remaining),
+                    connect=min(8, remaining),
+                    read=min(group.read_timeout, remaining),
+                )
+                row["read_timeout_s"] = round(timeout.read, 3)
                 self.record(row.copy())
+                started = time.monotonic()
                 try:
-                    response = client.post(
-                        url,
-                        json=body,
-                        timeout=httpx.Timeout(
-                            min(30, max(0.5, deadline - time.monotonic())), connect=8
-                        ),
+                    response = send(url, json=body, timeout=timeout)
+                except Cancelled:
+                    row.update(
+                        state="unknown",
+                        transport_error="cancelled_after_send",
+                        elapsed_ms=round((time.monotonic() - started) * 1000),
                     )
+                    self.record(row)
+                    raise
                 except (
                     httpx.ReadError,
                     httpx.ReadTimeout,
                     httpx.WriteError,
                     httpx.WriteTimeout,
                     httpx.RemoteProtocolError,
-                ):
-                    row["state"] = "unknown"
+                ) as exc:
+                    elapsed = time.monotonic() - started
+                    row.update(
+                        state="unknown",
+                        transport_error=type(exc).__name__,
+                        elapsed_ms=round(elapsed * 1000),
+                    )
                     self.record(row)
+                    if isinstance(exc, httpx.ReadTimeout):
+                        reason = f"等待响应超时（{elapsed:.1f} 秒）"
+                    elif isinstance(exc, httpx.WriteTimeout):
+                        reason = "发送请求超时"
+                    elif isinstance(exc, httpx.WriteError):
+                        reason = "发送请求时传输中断"
+                    else:
+                        reason = "接收响应时连接中断"
                     raise ProviderError(
-                        "响应丢失，供应商可能已执行并计费", False, "unknown"
+                        f"{reason}，供应商可能已执行并计费", False, "unknown"
                     ) from None
                 except httpx.ProxyError:
                     row["state"] = "proxy_failed"
@@ -156,6 +229,7 @@ class Remote:
                     raise ProviderError(
                         "连接失败，请检查端点、网络、代理和 TLS 证书", True
                     ) from None
+                row["elapsed_ms"] = round((time.monotonic() - started) * 1000)
                 row["remote_id"] = response.headers.get("x-request-id")
                 if response.is_success:
                     row["state"] = "received"

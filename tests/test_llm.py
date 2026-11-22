@@ -1,5 +1,7 @@
+import asyncio
 import json
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Event
@@ -7,9 +9,9 @@ from threading import Event
 import httpx
 import pytest
 
-from novel_tts.domain.models import ProviderError
+from novel_tts.domain.models import AnnotationRequest, Cancelled, Parent, ProviderError
 from novel_tts.infrastructure.profiles import DEFAULTS
-from novel_tts.providers.llm import RemoteLLM
+from novel_tts.providers.llm import RemoteLLM, chunks
 
 
 def answer(user):
@@ -33,6 +35,75 @@ def answer(user):
             for p in user["targets"]
         ],
     }
+
+
+def test_dense_paragraphs_keep_all_targets_and_context():
+    targets = tuple(Parent(f"p{i}", i * 2, "雨\n") for i in range(90))
+    req = AnnotationRequest("b", "c", "v1", 0, "batch", targets, "前" * 256)
+    batches = list(chunks(req, 18000))
+    assert max(len(batch.targets) for batch in batches) <= 32
+    assert tuple(p for batch in batches for p in batch.targets) == targets
+    assert len({batch.batch_id for batch in batches}) == len(batches)
+    prefix = req.context
+    for batch in batches:
+        assert batch.context == prefix[-256:]
+        prefix += "".join(p.text for p in batch.targets)
+
+
+@pytest.mark.parametrize("configured_wait,latency", [(None, 32), (150, 120)])
+def test_slow_model_uses_its_read_timeout(book, configured_wait, latency):
+    store, _, _, view = book
+    req = store.request(view.chapter, 0)
+    profile = DEFAULTS["custom"]
+    if configured_wait is not None:
+        profile = replace(profile, analysis_read_timeout=configured_wait)
+    log = []
+
+    def respond(request):
+        limits = request.extensions["timeout"]
+        assert limits["connect"] <= 8 and limits["write"] <= 30
+        if limits["read"] < latency:
+            raise httpx.ReadTimeout("model still generating")
+        body = json.loads(request.content)
+        result = answer(json.loads(body["messages"][-1]["content"]))
+        choice = {"finish_reason": "stop", "message": {"content": json.dumps(result)}}
+        return httpx.Response(200, json={"choices": [choice]})
+
+    api = RemoteLLM(
+        profile, "", record=log.append, transport=httpx.MockTransport(respond)
+    )
+    assert api.analyze_chunk(req, Event()).status == "completed"
+    assert [r["state"] for r in log] == ["sent", "received"]
+
+
+def test_cancel_during_model_generation_stops_waiting(book):
+    store, _, _, view = book
+    req = store.request(view.chapter, 0)
+    started, closed, cancel = Event(), Event(), Event()
+    log = []
+
+    async def generate(_):
+        started.set()
+        try:
+            await asyncio.sleep(5)
+            raise AssertionError("request outlived cancellation")
+        finally:
+            closed.set()
+
+    api = RemoteLLM(
+        DEFAULTS["custom"], "", record=log.append, transport=httpx.MockTransport(generate)
+    )
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(api.analyze_chunk, req, cancel)
+        try:
+            assert started.wait(2)
+        finally:
+            cancel.set()
+        with pytest.raises(Cancelled):
+            future.result(timeout=2)
+    assert closed.is_set()
+    assert [r["state"] for r in log] == ["sent", "unknown"]
+    assert log[-1]["transport_error"] == "cancelled_after_send"
 
 
 @pytest.mark.parametrize(

@@ -29,6 +29,9 @@ def load_settings(settings):
     return options
 
 
+read_settings = load_settings
+
+
 def worker(pipe, folder, engine, settings, cancel_event=None):
     threading.Thread(target=parent_watch, daemon=True).start()
     if engine == "qwen":

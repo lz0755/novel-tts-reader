@@ -50,3 +50,36 @@ def test_model_paths_follow_configuration_and_legacy_absolute_paths(
     entries = read_settings(config)["models"]
     assert Path(entries["bundled"]["path"]) == directory / "0.6B-85e237c1"
     assert Path(entries["external"]["path"]) == external
+
+
+def test_runtime_paths_also_discovers_qwen_runtime_layout(tmp_path):
+    prefs = QSettings(str(tmp_path / "user.ini"), QSettings.Format.IniFormat)
+    desktop = tmp_path / "便携 路径"
+    root = desktop / "qwen_runtime"
+    python = root / "python" / ("python.exe" if os.name == "nt" else "bin/python3")
+    settings = root / "models/runtime.json"
+    for path in (python, settings):
+        path.parent.mkdir(parents=True)
+        path.touch()
+    assert runtime_paths(prefs, desktop) == (python, settings)
+
+
+def test_package_qwen_accepts_desktop_release_cli_mode(tmp_path, capsys):
+    import sys
+
+    import pytest
+
+    scripts_dir = Path(__file__).resolve().parents[1] / "scripts"
+    sys.path.insert(0, str(scripts_dir))
+    try:
+        import package_qwen
+    finally:
+        sys.path.pop(0)
+
+    empty_desktop = tmp_path / "empty-desktop"
+    empty_desktop.mkdir()
+    with pytest.raises(SystemExit) as exc:
+        package_qwen.main(["--desktop", str(empty_desktop), "--output", str(tmp_path / "out")])
+    assert exc.value.code == 2
+    assert "missing native desktop executable" in capsys.readouterr().err
+

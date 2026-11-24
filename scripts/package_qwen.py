@@ -581,11 +581,251 @@ def archive_directory(
     return archive
 
 
+PYTHON_BUILD = "20261110"
+PYTHON_VERSION = "3.12.16"
+OFFLINE_RUNTIMES = {
+    "linux": (
+        "unknown-linux-gnu",
+        "6a9e62dad033790aef722dbd370e0ce76ce17b73627ba3ae679f537049350b39",
+    ),
+    "windows": (
+        "pc-windows-msvc",
+        "355ee61b8207b91574491b1c6dc9b0ebb4408fc56bfafe498f3ef439314b52dc",
+    ),
+}
+
+
+def _file_sha256(path: Path) -> str:
+    with path.open("rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
+
+
+def _remove_build_tree(path: Path) -> None:
+    # Virus scanners can briefly hold a DLL after a Windows process exits.
+    for attempt in range(6):
+        try:
+            shutil.rmtree(path)
+            return
+        except PermissionError:
+            if os.name != "nt" or attempt == 5:
+                raise
+            time.sleep(2)
+
+
+def _prepare_offline_split_runtime(project: Path, local: Path, temp: Path, target: str) -> None:
+    platform_name, checksum = OFFLINE_RUNTIMES[target]
+    filename = (
+        f"cpython-{PYTHON_VERSION}%2B{PYTHON_BUILD}-x86_64-"
+        f"{platform_name}-install_only_stripped.tar.gz"
+    )
+    url = (
+        "https://github.com/astral-sh/python-build-standalone/releases/download/"
+        f"{PYTHON_BUILD}/{filename}"
+    )
+    archive = temp / "python.tar.gz"
+    subprocess.run(
+        ["curl", "--fail", "--location", "--retry", "5", "-o", str(archive), url],
+        check=True,
+    )
+    if _file_sha256(archive) != checksum:
+        raise ValueError("Portable Python checksum mismatch")
+    with tarfile.open(archive) as package:
+        package.extractall(local, filter="data")
+    python = local / "python" / ("python.exe" if target == "windows" else "bin/python3")
+    lock = local / "pylock.qwen.toml"
+    subprocess.run(
+        [
+            "uv",
+            "export",
+            "--project",
+            str(project / "sidecar"),
+            "--locked",
+            "--no-dev",
+            "--extra",
+            "qwen",
+            "--no-emit-project",
+            "--format",
+            "pylock.toml",
+            "-o",
+            str(lock),
+        ],
+        stdout=subprocess.DEVNULL,
+        check=True,
+    )
+    # The cache lives on the same volume so the large CUDA libraries use hard links.
+    cache = temp / "wheel-cache"
+    options = [
+        "--python",
+        str(python),
+        "--break-system-packages",
+        "--cache-dir",
+        str(cache),
+        "--link-mode",
+        "hardlink",
+    ]
+    subprocess.run(["uv", "pip", "sync", *options, str(lock)], check=True)
+    subprocess.run(
+        ["uv", "pip", "install", *options, "--no-deps", str(project / "sidecar")],
+        check=True,
+    )
+    _remove_build_tree(cache)
+    subprocess.run(
+        [
+            str(python),
+            "-I",
+            "-m",
+            "novel_tts_sidecar.prepare",
+            "--model",
+            "0.6B",
+            "--relative-paths",
+            "--root",
+            str(local / "models"),
+        ],
+        env=dict(os.environ, HF_HUB_DISABLE_XET="1", HF_HUB_DOWNLOAD_TIMEOUT="180"),
+        check=True,
+    )
+    for cache_dir in (local / "models").glob("*/.cache"):
+        shutil.rmtree(cache_dir)
+    shutil.copy2(project / "packaging/Qwen-Model-LICENSE.txt", local / "models")
+    shutil.copy2(project / "sidecar/uv.lock", local / "sidecar-uv.lock")
+
+
+def _build_offline_split_release(
+    project: Path, desktop_dir: Path, output_dir: Path, work_dir: Path, parser: argparse.ArgumentParser
+) -> int:
+    target = "windows" if os.name == "nt" else "linux"
+    binary = "NovelTTSReader" + (".exe" if os.name == "nt" else "")
+    if not (desktop_dir / binary).is_file():
+        parser.error("missing native desktop executable")
+    seven_zip = shutil.which("7z") or shutil.which("7zz")
+    if not seven_zip:
+        parser.error("7-Zip is required to build the split archive")
+    output = output_dir.resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    prefix = f"NovelTTSReader-Qwen-0.6B-{target}-x86_64"
+    if any(output.glob(prefix + ".*")):
+        parser.error("use an empty output directory for this target")
+    with tempfile.TemporaryDirectory(
+        prefix="qwen-build-", dir=work_dir, ignore_cleanup_errors=True
+    ) as temp_name:
+        temp = Path(temp_name)
+        desktop = temp / "NovelTTSReader-Qwen"
+        shutil.copytree(desktop_dir, desktop, symlinks=True)
+        local = desktop / "local-qwen"
+        local.mkdir()
+        _prepare_offline_split_runtime(project, local, temp, target)
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=project, text=True
+        ).strip()
+        (local / "build.json").write_text(
+            json.dumps(
+                {
+                    "commit": commit,
+                    "python": PYTHON_VERSION,
+                    "python_distribution_sha256": OFFLINE_RUNTIMES[target][1],
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        archive = output / (prefix + ".7z")
+        subprocess.run(
+            [
+                seven_zip,
+                "a",
+                "-t7z",
+                "-mx=1",
+                "-mmt=2",
+                "-ms=off",
+                "-snl",
+                "-v1500m",
+                str(archive),
+                desktop.name,
+            ],
+            cwd=temp,
+            check=True,
+        )
+        _remove_build_tree(desktop)
+        parts = sorted(output.glob(archive.name + ".[0-9][0-9][0-9]"))
+        if not parts or any(p.stat().st_size >= 2**31 for p in parts):
+            raise ValueError("Invalid split archive")
+        moved = temp / "离线 校验"
+        subprocess.run([seven_zip, "x", "-y", "-o" + str(moved), str(parts[0])], check=True)
+        desktop = moved / desktop.name
+        local = desktop / "local-qwen"
+        python = local / "python" / ("python.exe" if os.name == "nt" else "bin/python3")
+        offline = dict(
+            os.environ,
+            HF_HUB_OFFLINE="1",
+            TRANSFORMERS_OFFLINE="1",
+            HF_HOME=str(temp / "empty-hf"),
+            TORCH_HOME=str(temp / "empty-torch"),
+            PYTHONNOUSERSITE="1",
+            PYTHONUTF8="1",
+            QT_QPA_PLATFORM="offscreen",
+            OMP_NUM_THREADS="2",
+        )
+        desktop_test = subprocess.run(
+            [str(desktop / binary), "--self-test"],
+            cwd=moved,
+            env=offline,
+            timeout=150,
+            check=True,
+            stdout=subprocess.PIPE,
+            encoding="utf-8",
+        )
+        print(desktop_test.stdout, flush=True)
+        checks = {
+            json.loads(line).get("check")
+            for line in desktop_test.stdout.splitlines()
+            if line.startswith("{")
+        }
+        if not {"mock_desktop", "bundled_qwen_handshake"}.issubset(checks):
+            raise ValueError(
+                "The installed desktop did not discover and start its bundled sidecar"
+            )
+        if (desktop / "edge_component").is_dir():
+            verify_staged_edge_component(desktop / "edge_component")
+        subprocess.run(
+            [
+                str(python),
+                "-I",
+                "-X",
+                "utf8",
+                str(project / "scripts/check_qwen_bundle.py"),
+                str(local),
+                str(output / (prefix + ".check.json")),
+                str(output / (prefix + ".sample.wav")),
+            ],
+            cwd=moved,
+            env=offline,
+            timeout=900,
+            check=True,
+        )
+        (output / (prefix + ".sha256")).write_text(
+            "".join(f"{_file_sha256(part)}  {part.name}\n" for part in parts),
+            encoding="ascii",
+            newline="\n",
+        )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Assemble a standalone Qwen full desktop package from a core build and verified weights."
     )
-    parser.add_argument("--platform", choices=["windows", "linux"], required=True)
+    parser.add_argument(
+        "--desktop",
+        type=Path,
+        help="已测试的原生 Nuitka 目录（启用 7z 分卷离线发布包模式）",
+    )
+    parser.add_argument(
+        "--work",
+        type=Path,
+        default=Path(tempfile.gettempdir()),
+        help="7z 分卷离线发布包模式的临时工作目录",
+    )
+    parser.add_argument("--platform", choices=["windows", "linux"])
     parser.add_argument("--core-dir", type=Path, help="已构建的核心版目录（如 dist/launcher.dist）")
     parser.add_argument("--core-archive", type=Path, help="已构建的核心版归档（.zip 或 .tar.gz）")
     parser.add_argument("--models-root", type=Path, default=Path("build/qwen-models"))
@@ -607,10 +847,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--keep-stage", action="store_true")
     args = parser.parse_args(argv)
 
+    root = Path(__file__).resolve().parents[1]
+    if args.desktop is not None:
+        return _build_offline_split_release(
+            root, args.desktop, args.output, args.work, parser
+        )
+
+    if not args.platform:
+        parser.error("the following arguments are required: --platform (or --desktop)")
+
     if platform.system().lower() != args.platform:
         parser.error("请在对应操作系统构建 Qwen 完整包")
 
-    root = Path(__file__).resolve().parents[1]
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=True)
     models_root = (
@@ -639,7 +887,9 @@ def main(argv: list[str] | None = None) -> int:
 
     binary = "NovelTTSReader.exe" if args.platform == "windows" else "NovelTTSReader"
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONUTF8="1")
-    with tempfile.TemporaryDirectory(prefix="小说 朗读室 Qwen ", dir=out) as test_root:
+    with tempfile.TemporaryDirectory(
+        prefix="小说 朗读室 Qwen ", dir=out, ignore_cleanup_errors=True
+    ) as test_root:
         installed = Path(test_root) / "安装"
         _rename_with_retry(stage_dir, installed)
         try:
@@ -674,7 +924,7 @@ def main(argv: list[str] | None = None) -> int:
         with archive.open("rb") as f:
             digest = hashlib.file_digest(f, "sha256").hexdigest()
         archive.with_suffix(archive.suffix + ".sha256").write_text(
-            f"{digest}  {archive.name}\n", encoding="utf-8"
+            f"{digest}  {archive.name}\n", encoding="ascii", newline="\n"
         )
         print(archive, digest, flush=True)
 

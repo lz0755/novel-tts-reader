@@ -65,7 +65,10 @@ def start_check(app, window, root, screenshot=None):
                 flush=True,
             )
             directory = Path(QCoreApplication.applicationFilePath()).parent
-            if not (directory / "local-qwen").is_dir():
+            if (
+                not (directory / "local-qwen").is_dir()
+                and not (directory / "qwen_runtime").is_dir()
+            ):
                 return finish(0)
             paths = runtime_paths(window.prefs, directory)
             if paths is None:

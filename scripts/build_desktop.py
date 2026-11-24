@@ -231,20 +231,21 @@ def main():
     embedded.unlink(missing_ok=True)
     stage_edge_component(root, directory, args.platform)
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONUTF8="1")
-    with tempfile.TemporaryDirectory(prefix="小说 朗读室 ", dir=out) as test_root:
+    with tempfile.TemporaryDirectory(
+        prefix="小说 朗读室 ", dir=out, ignore_cleanup_errors=True
+    ) as test_root:
         installed = Path(test_root) / "安装"
-        directory.rename(installed)
-        try:
-            subprocess.run(
-                [str(installed / binary), "--self-test"],
-                cwd=out,
-                env=env,
-                check=True,
-                timeout=120,
-            )
-            verify_staged_edge_component(installed / "edge_component")
-        finally:
-            installed.rename(directory)
+        # Windows can keep recently executed binaries open after the process exits.
+        # Exercise an installation copy and package the untouched build directory.
+        shutil.copytree(directory, installed, symlinks=True)
+        subprocess.run(
+            [str(installed / binary), "--self-test"],
+            cwd=out,
+            env=env,
+            check=True,
+            timeout=120,
+        )
+        verify_staged_edge_component(installed / "edge_component")
     shutil.copy2(root / "docs/installation.md", directory / "使用说明.md")
     shutil.copy2(root / "uv.lock", directory / "desktop-uv.lock")
     shutil.copy2(root / "docs/third-party.md", directory / "THIRD-PARTY.md")
@@ -299,7 +300,7 @@ def main():
     with archive.open("rb") as f:
         digest = hashlib.file_digest(f, "sha256").hexdigest()
     archive.with_suffix(archive.suffix + ".sha256").write_text(
-        f"{digest}  {archive.name}\n"
+        f"{digest}  {archive.name}\n", encoding="ascii", newline="\n"
     )
     print(archive, digest, flush=True)
 

@@ -31,6 +31,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libxkbcommon-x11-0 libxcb-cursor0 libpulse0 libasound2t64 libgssapi-krb5-2 libatomic1 libcups2t64 libgtk-3-0t64 libwayland-cursor0 libwayland-egl1 patchelf
       - run: uv sync --locked --python 3.12 --python-preference only-managed --group build
       - run: uv run --no-sync python scripts/build_desktop.py --platform ${{ matrix.target }}
+      - name: Make room for the CUDA runtime on the hosted Linux image
+        if: runner.os == 'Linux' && (inputs.include_qwen == true || (startsWith(github.ref, 'refs/tags/desktop-') && !contains(github.ref_name, 'preview')))
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$RUNNER_ENVIRONMENT" == github-hosted ]] && (( $(df --output=avail -BG "$RUNNER_TEMP" | tail -1 | tr -dc '0-9') < 28 )); then
+            sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /opt/ghc
+          fi
+          df -h "$RUNNER_TEMP"
       - if: ${{ inputs.include_qwen == true }}
         run: |
           uv sync --locked --project sidecar --extra qwen --python 3.12 --python-preference only-managed
@@ -44,15 +53,6 @@ jobs:
             dist/NovelTTSReader-*.zip*
             dist/NovelTTSReader-*.tar.gz*
           if-no-files-found: error
-      - name: Make room for the CUDA runtime on the hosted Linux image
-        if: runner.os == 'Linux' && startsWith(github.ref, 'refs/tags/desktop-') && !contains(github.ref_name, 'preview')
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "$RUNNER_ENVIRONMENT" == github-hosted ]] && (( $(df --output=avail -BG "$RUNNER_TEMP" | tail -1 | tr -dc '0-9') < 28 )); then
-            sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /opt/ghc
-          fi
-          df -h "$RUNNER_TEMP"
       - name: Build and test the offline Qwen desktop from the same native directory
         if: startsWith(github.ref, 'refs/tags/desktop-') && !contains(github.ref_name, 'preview')
         run: uv run --no-sync python scripts/package_qwen.py --desktop dist/launcher.dist --output dist/qwen

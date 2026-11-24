@@ -4,40 +4,77 @@ import secrets
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, QTimer, Signal
+from PySide6.QtCore import (
+    QCoreApplication,
+    QObject,
+    QProcess,
+    QProcessEnvironment,
+    QTimer,
+    Signal,
+)
 from PySide6.QtGui import QActionGroup
 from PySide6.QtWidgets import QFileDialog
 
 from novel_tts.providers.local import MODELS, LocalTTS, client_from_hello
 
 
+def _find_runtime_in_dir(candidate: Path, *, resolve: bool = False):
+    settings = candidate / "models" / "runtime.json"
+    if not settings.is_file():
+        return None
+    py_candidates = (
+        candidate / "python" / ("python.exe" if os.name == "nt" else "bin/python3"),
+        candidate / "python/python.exe",
+        candidate / "python/bin/python3",
+        candidate / "python/bin/python",
+        candidate / ".venv/Scripts/python.exe",
+        candidate / ".venv/bin/python",
+    )
+    python = next((p for p in py_candidates if p.is_file()), None)
+    if python is None:
+        return None
+    if resolve:
+        return python.resolve(), settings.resolve()
+    return python, settings
+
+
 def bundled_qwen_runtime(runtime_dir=None):
     """Locate a bundled standalone Qwen sidecar runtime next to the desktop binary."""
     candidates = []
     if runtime_dir is not None:
-        candidates.append(Path(runtime_dir))
+        base = Path(runtime_dir)
+        candidates.extend([base, base / "local-qwen", base / "qwen_runtime"])
     else:
         env_path = os.environ.get("NOVEL_TTS_QWEN_RUNTIME", "").strip()
         if env_path:
             candidates.append(Path(env_path))
         exe_dir = Path(sys.executable).resolve().parent
-        candidates.append(exe_dir / "qwen_runtime")
+        candidates.extend([exe_dir / "local-qwen", exe_dir / "qwen_runtime"])
         if exe_dir.name.lower() == "python":
-            candidates.append(exe_dir.parent / "qwen_runtime")
+            candidates.extend(
+                [exe_dir.parent / "local-qwen", exe_dir.parent / "qwen_runtime"]
+            )
     for candidate in candidates:
-        settings = candidate / "models/runtime.json"
-        if not settings.is_file():
-            continue
-        py_candidates = (
-            candidate / "python/python.exe",
-            candidate / "python/bin/python3",
-            candidate / "python/bin/python",
-            candidate / ".venv/Scripts/python.exe",
-            candidate / ".venv/bin/python",
-        )
-        python = next((p for p in py_candidates if p.is_file()), None)
-        if python is not None:
-            return python.resolve(), settings.resolve()
+        found = _find_runtime_in_dir(candidate, resolve=True)
+        if found is not None:
+            return found
+    return None
+
+
+def runtime_paths(prefs, directory):
+    """Resolve explicit user-selected sidecar paths or a bundled runtime next to the app."""
+    saved_python = prefs.value("sidecar_python", "")
+    saved_settings = prefs.value("sidecar_settings", "")
+    if saved_python and saved_settings:
+        python = Path(saved_python)
+        settings = Path(saved_settings)
+        if python.is_file() and settings.is_file():
+            return python, settings
+    base = Path(directory)
+    for name in ("local-qwen", "qwen_runtime"):
+        found = _find_runtime_in_dir(base / name, resolve=False)
+        if found is not None:
+            return found
     return None
 
 
@@ -193,6 +230,16 @@ class LocalVoices:
         settings = self.prefs.value("sidecar_settings", "")
         if python and settings and Path(python).is_file() and Path(settings).is_file():
             return str(Path(python)), str(Path(settings))
+        env_path = os.environ.get("NOVEL_TTS_QWEN_RUNTIME", "").strip()
+        if env_path:
+            bundled = bundled_qwen_runtime(env_path)
+            if bundled is not None:
+                return str(bundled[0]), str(bundled[1])
+        app_path = QCoreApplication.applicationFilePath()
+        if app_path:
+            paths = runtime_paths(self.prefs, Path(app_path).parent)
+            if paths is not None:
+                return str(paths[0]), str(paths[1])
         bundled = bundled_qwen_runtime()
         if bundled is not None:
             return str(bundled[0]), str(bundled[1])

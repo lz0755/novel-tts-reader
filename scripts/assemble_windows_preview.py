@@ -109,7 +109,9 @@ def main():
     )
     with dest.open("rb") as f:
         digest = hashlib.file_digest(f, "sha256").hexdigest()
-    dest.with_suffix(".zip.sha256").write_text(f"{digest}  {dest.name}\n")
+    dest.with_suffix(".zip.sha256").write_text(
+        f"{digest}  {dest.name}\n", encoding="ascii", newline="\n"
+    )
     print(dest, digest, flush=True)
 
 

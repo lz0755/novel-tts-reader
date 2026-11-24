@@ -33,6 +33,8 @@ class Capabilities:
     alignment: bool = False
     cancellation: str = "discard"
     verified_on: str = ""
+    narrator_voice: str = ""
+    voice_genders: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)

@@ -10,6 +10,11 @@ import tarfile
 import urllib.request
 from pathlib import Path
 
+if __package__:
+    from .build_desktop import stage_edge_component
+else:
+    from build_desktop import stage_edge_component
+
 RUNTIME = "https://github.com/astral-sh/python-build-standalone/releases/download/20261110/cpython-3.12.16%2B20261110-x86_64-pc-windows-msvc-install_only_stripped.tar.gz"
 DIGEST = "355ee61b8207b91574491b1c6dc9b0ebb4408fc56bfafe498f3ef439314b52dc"
 
@@ -77,6 +82,7 @@ def main():
         dirs_exist_ok=True,
         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
     )
+    stage_edge_component(project, bundle, "windows", python_root=python)
     if args.launcher:
         shutil.copy2(args.launcher, bundle / "NovelTTSReader.exe")
     (bundle / "NovelTTSReader.cmd").write_bytes(

@@ -1,6 +1,13 @@
 from novel_tts.application.batch import AudioBatch, playable
 from novel_tts.domain.voices import voice_label
 from novel_tts.infrastructure.audio import RATE
+from novel_tts.providers.edge_tts import (
+    EdgeAuthorizationRequired,
+    EdgeTTS,
+    PRIORITY_PLAYBACK,
+    PRIORITY_PREFETCH,
+    edge_priority,
+)
 from novel_tts.ui.pcm import PcmPlayback, pcm_format
 
 from PySide6.QtCore import QUrl
@@ -39,13 +46,30 @@ class Playback:
         self.speaker.setText(dict(self.view.characters).get(line.speaker, "待确认"))
         self.voice.clear()
         caps = self.provider.capabilities()
+        is_edge = caps.provider == "edge_tts"
         for voice in caps.voices:
-            self.voice.addItem(voice_label(caps.provider, voice), voice)
+            meta = self.edge_catalog.meta(voice) if is_edge and hasattr(self, "edge_catalog") else None
+            self.voice.addItem(voice_label(caps.provider, voice, meta), voice)
+        if line.voice and self.voice.findData(line.voice) < 0:
+            self.voice.addItem(f"{line.voice} · 已下架（仅缓存）", line.voice)
         self.voice.setCurrentIndex(self.voice.findData(line.voice))
         req = self.provider.prepare(line.spoken, line.voice, line.style)
-        self.origin.setText(
-            LABELS[req.origin] + (" · 临时替代音色" if line.substitute else "")
-        )
+        if is_edge and isinstance(self.provider, EdgeTTS):
+            base = (
+                "Edge 在线语音（本章已授权）"
+                if self.provider.is_authorized()
+                else "Edge 在线语音（仅用缓存）"
+            )
+            suffix = (
+                " · 原绑定音色已下架（旧句可重听，新句请选替代音色）"
+                if line.substitute
+                else ""
+            )
+            self.origin.setText(base + suffix)
+        else:
+            self.origin.setText(
+                LABELS[req.origin] + (" · 临时替代音色" if line.substitute else "")
+            )
         self.spoken.setText(
             "朗读文本\n"
             + line.spoken
@@ -127,6 +151,15 @@ class Playback:
 
         def failed(exc):
             self.stop()
+            if (
+                isinstance(exc, EdgeAuthorizationRequired)
+                and isinstance(self.provider, EdgeTTS)
+                and self.view is view
+            ):
+                self.prompt_edge_authorization(
+                    on_authorized=self.start, reason="当前句缺少缓存"
+                )
+                return
             self.note.setText(f"播放失败 · {exc}")
 
         index, combine = self.index, self.batch_action.isChecked()
@@ -153,9 +186,13 @@ class Playback:
             else:
                 self.play_artifact(artifact)
 
+        def prepare_audio(e):
+            with edge_priority(PRIORITY_PLAYBACK):
+                return playable(self.library, view, index, provider, e, combine, on_pcm)
+
         event = self.run(
             "准备音频",
-            lambda e: playable(self.library, view, index, provider, e, combine, on_pcm),
+            prepare_audio,
             ready,
             guard=lambda: (
                 self.epoch == epoch and self.stream_ticket is ticket
@@ -325,6 +362,7 @@ class Playback:
         self.waiters = [
             event for event in self.waiters if event in self.bg.events.values()
         ]
+        edge_cache_only = isinstance(provider, EdgeTTS) and not provider.is_authorized()
         for line, key in zip(lines[:count], keys):
             if key in self.prefetching:
                 continue
@@ -338,9 +376,15 @@ class Playback:
             def failed(exc, k=key):
                 self.prefetching.discard(k)
 
+            def do_prefetch(e, l=line):
+                with edge_priority(PRIORITY_PREFETCH):
+                    return self.library.audio(
+                        view, l, provider, e, cache_only=edge_cache_only, prefetch=True
+                    )
+
             event = self.run(
                 "预取",
-                lambda e, l=line: self.library.audio(view, l, provider, e, prefetch=True),
+                do_prefetch,
                 ready,
                 failed=failed,
                 guard=lambda: self.epoch == epoch,

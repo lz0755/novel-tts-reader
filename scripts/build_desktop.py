@@ -13,6 +13,164 @@ from importlib import metadata
 from pathlib import Path
 
 
+def resolve_standalone_python(python_root: Path | None = None) -> Path:
+    """Return a relocatable standalone CPython 3.12 root, never a system prefix like /usr."""
+    system_prefixes = {Path("/"), Path("/usr"), Path("/usr/local")}
+    candidate = (python_root or Path(sys.base_prefix)).resolve()
+    if os.name == "nt" or candidate not in system_prefixes:
+        return candidate
+    clean_env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("VIRTUAL_ENV", "UV_PYTHON", "CONDA_PREFIX")
+    }
+    find_cmd = ["uv", "python", "find", "--no-project", "--managed-python", "--system", "3.12"]
+    proc = subprocess.run(find_cmd, capture_output=True, text=True, env=clean_env)
+    if proc.returncode != 0 or not proc.stdout.strip():
+        subprocess.run(
+            ["uv", "python", "install", "--managed-python", "3.12"],
+            check=True,
+            env=clean_env,
+        )
+        proc = subprocess.run(
+            find_cmd, capture_output=True, text=True, check=True, env=clean_env
+        )
+    py_exe = Path(proc.stdout.strip().splitlines()[-1]).resolve()
+    prefix = py_exe.parents[1] if py_exe.parent.name == "bin" else py_exe.parent
+    if prefix in system_prefixes:
+        raise RuntimeError(f"无法解析可重定位的独立 CPython 3.12 运行时（得到系统路径 {prefix}）")
+    return prefix
+
+
+def stage_edge_component(
+    root: Path, directory: Path, target_platform: str, *, python_root: Path | None = None
+) -> Path:
+    """Stage the standalone, replaceable Edge TTS component next to the desktop binary."""
+    source = root / "edge_component"
+    dest = directory / "edge_component"
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in ("component.json", "pyproject.toml", "uv.lock", "README-REPLACE.md"):
+        shutil.copy2(source / name, dest / name)
+    shutil.copytree(
+        source / "novel_tts_edge",
+        dest / "novel_tts_edge",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    libs = dest / "libs"
+    libs.mkdir(parents=True, exist_ok=True)
+    py_platform = (
+        "x86_64-pc-windows-msvc"
+        if target_platform == "windows"
+        else "x86_64-unknown-linux-gnu"
+    )
+    with tempfile.TemporaryDirectory(prefix="edge-export-") as stage:
+        reqs = Path(stage) / "edge-lock.txt"
+        subprocess.run(
+            [
+                "uv",
+                "export",
+                "--locked",
+                "--no-dev",
+                "--no-emit-project",
+                "--no-annotate",
+                "--output-file",
+                str(reqs),
+            ],
+            cwd=source,
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+        subprocess.run(
+            [
+                "uv",
+                "pip",
+                "install",
+                "--python-platform",
+                py_platform,
+                "--python-version",
+                "3.12",
+                "--only-binary",
+                ":all:",
+                "--require-hashes",
+                "--target",
+                str(libs),
+                "-r",
+                str(reqs),
+            ],
+            check=True,
+        )
+    # Copy license files from every installed wheel in edge_component/libs.
+    licenses = dest / "licenses"
+    shutil.copytree(source / "licenses", licenses)
+    for dist_info in libs.glob("*.dist-info"):
+        for item in dist_info.rglob("*"):
+            if not item.is_file():
+                continue
+            rel = item.relative_to(libs)
+            if (
+                "licenses" in rel.parts
+                or item.name.lower().startswith(("license", "copying", "notice"))
+            ):
+                target = licenses / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(item, target)
+    # A cross-built Windows preview supplies the extracted Windows interpreter.
+    base_python = resolve_standalone_python(python_root)
+    py_dest = dest / "python"
+    shutil.copytree(
+        base_python,
+        py_dest,
+        symlinks=True,
+        ignore=shutil.ignore_patterns(
+            "__pycache__",
+            "*.pyc",
+            "site-packages",
+            "test",
+            "tests",
+            "tkinter",
+            "idlelib",
+            "turtledemo",
+            "tcl",
+            "include",
+            "Scripts",
+            "share",
+        ),
+    )
+    if (base_python / "LICENSE.txt").is_file():
+        licenses.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(base_python / "LICENSE.txt", licenses / "CPYTHON-LICENSE.txt")
+    return dest
+
+
+def verify_staged_edge_component(comp_dir: Path) -> None:
+    """Verify the staged Edge component completes handshake from its installed path."""
+    py_exe = (
+        comp_dir / "python/python.exe"
+        if os.name == "nt"
+        else comp_dir / "python/bin/python3"
+    )
+    if not py_exe.is_file():
+        py_exe = comp_dir / "python/bin/python"
+    env = dict(os.environ, PYTHONUTF8="1")
+    env["PYTHONPATH"] = os.pathsep.join([str(comp_dir / "libs"), str(comp_dir)])
+    proc = subprocess.run(
+        [str(py_exe), "-u", "-m", "novel_tts_edge"],
+        input='{"cmd":"shutdown"}\n',
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+        check=True,
+        timeout=20,
+    )
+    first = proc.stdout.splitlines()[0] if proc.stdout else ""
+    hello = json.loads(first)
+    if hello.get("type") != "hello" or hello.get("protocol_version") != 1:
+        raise RuntimeError(f"Edge component handshake invalid: {hello!r}")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--platform", choices=["windows", "linux"], required=True)
@@ -71,6 +229,7 @@ def main():
         / "PySide6/qt-plugins/egldeviceintegrations/libqeglfs-kms-integration.so"
     )
     embedded.unlink(missing_ok=True)
+    stage_edge_component(root, directory, args.platform)
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONUTF8="1")
     with tempfile.TemporaryDirectory(prefix="小说 朗读室 ", dir=out) as test_root:
         installed = Path(test_root) / "安装"
@@ -83,6 +242,7 @@ def main():
                 check=True,
                 timeout=120,
             )
+            verify_staged_edge_component(installed / "edge_component")
         finally:
             installed.rename(directory)
     shutil.copy2(root / "docs/installation.md", directory / "使用说明.md")

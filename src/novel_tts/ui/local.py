@@ -1,5 +1,7 @@
 import json
+import os
 import secrets
+import sys
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, QTimer, Signal
@@ -7,6 +9,36 @@ from PySide6.QtGui import QActionGroup
 from PySide6.QtWidgets import QFileDialog
 
 from novel_tts.providers.local import MODELS, LocalTTS, client_from_hello
+
+
+def bundled_qwen_runtime(runtime_dir=None):
+    """Locate a bundled standalone Qwen sidecar runtime next to the desktop binary."""
+    candidates = []
+    if runtime_dir is not None:
+        candidates.append(Path(runtime_dir))
+    else:
+        env_path = os.environ.get("NOVEL_TTS_QWEN_RUNTIME", "").strip()
+        if env_path:
+            candidates.append(Path(env_path))
+        exe_dir = Path(sys.executable).resolve().parent
+        candidates.append(exe_dir / "qwen_runtime")
+        if exe_dir.name.lower() == "python":
+            candidates.append(exe_dir.parent / "qwen_runtime")
+    for candidate in candidates:
+        settings = candidate / "models/runtime.json"
+        if not settings.is_file():
+            continue
+        py_candidates = (
+            candidate / "python/python.exe",
+            candidate / "python/bin/python3",
+            candidate / "python/bin/python",
+            candidate / ".venv/Scripts/python.exe",
+            candidate / ".venv/bin/python",
+        )
+        python = next((p for p in py_candidates if p.is_file()), None)
+        if python is not None:
+            return python.resolve(), settings.resolve()
+    return None
 
 
 class ProcessHost(QObject):
@@ -34,6 +66,7 @@ class ProcessHost(QObject):
             proc.setWorkingDirectory(str(cwd))
         env = QProcessEnvironment.systemEnvironment()
         env.insert("PYTHONUTF8", "1")
+        env.insert("PYTHONNOUSERSITE", "1")
         env.insert("HF_HUB_OFFLINE", "1")
         env.insert("TRANSFORMERS_OFFLINE", "1")
         proc.setProcessEnvironment(env)
@@ -155,10 +188,19 @@ class LocalVoices:
             self.provider.client = None
         self.note.setText(message)
 
-    def load_local(self, model):
+    def _resolve_local_runtime(self):
         python = self.prefs.value("sidecar_python", "")
         settings = self.prefs.value("sidecar_settings", "")
-        if not Path(python).is_file() or not Path(settings).is_file():
+        if python and settings and Path(python).is_file() and Path(settings).is_file():
+            return str(Path(python)), str(Path(settings))
+        bundled = bundled_qwen_runtime()
+        if bundled is not None:
+            return str(bundled[0]), str(bundled[1])
+        return "", ""
+
+    def load_local(self, model):
+        python, settings = self._resolve_local_runtime()
+        if not python or not settings:
             self.note.setText("本地运行时或模型未准备。请从「朗读来源」选择推理环境。")
             return
         self.cancel_task()

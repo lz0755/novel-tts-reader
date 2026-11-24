@@ -1,0 +1,298 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "6742d13664048ae1276c61de10c2ae5f6c803494",
+  "unpublished_worktree": true,
+  "environments": {
+    "windows": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "python": "3.12.16",
+      "nuitka": "4.3.5",
+      "compiler": "MSVC 14.5",
+      "qt": "6.9.3",
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "audio_device": "扬声器 (Realtek(R) Audio)",
+      "dev_tools_installed": true
+    },
+    "ubuntu": {
+      "os": "Ubuntu 24.04.5 LTS",
+      "kernel": "6.18.58.1-microsoft-standard-WSL2",
+      "host_type": "WSL2 (with RTX 4060 Laptop GPU pass-through and WSLg PulseAudio RDP Sink)",
+      "python": "3.12.16 (uv managed standalone)",
+      "nuitka": "4.3.5",
+      "compiler": "GCC 13",
+      "qt": "6.9.3",
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "audio_device": "RDP Sink",
+      "dev_tools_installed": true
+    }
+  },
+  "dependencies": {
+    "edge_tts": "7.3.1",
+    "miniaudio": "1.73",
+    "torch": "2.8.0+cu128",
+    "torchaudio": "2.8.0+cu128",
+    "qwen_tts": "0.1.1",
+    "faster_qwen3_tts": "0.2.6",
+    "qwen_model": {
+      "id": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+      "local_dir_name": "0.6B-85e237c1"
+    }
+  },
+  "automated_tests": {
+    "windows_offline_default": {
+      "command": "uv run --no-sync pytest -q -p no:cacheprovider",
+      "passed": 110,
+      "skipped": 5,
+      "failed": 0,
+      "duration_s": 90.84
+    },
+    "windows_full_with_online_and_sidecar": {
+      "passed": 121,
+      "skipped": 0,
+      "failed": 0,
+      "note": "Earlier worktree run with NOVEL_TTS_TEST_EDGE_ONLINE=1, Qwen sidecar deps, and OpenSSL before adding 4 tests in tests/test_package_qwen.py"
+    },
+    "ubuntu_offline_default": {
+      "command": "QT_QPA_PLATFORM=offscreen PYTHONUTF8=1 uv run --no-sync pytest -q",
+      "passed": 111,
+      "skipped": 4,
+      "failed": 0,
+      "duration_s": 47.65,
+      "smoke_exit": 0
+    },
+    "package_qwen_tests": {
+      "file": "tests/test_package_qwen.py",
+      "windows_passed": 4,
+      "ubuntu_passed": 4
+    }
+  },
+  "release_packages": {
+    "windows_core": {
+      "archive": "NovelTTSReader-windows-x86_64.zip",
+      "size_bytes": 73523258,
+      "sha256": "9c6b2c74c1a0c3a85643aa20623bebcf5215c5ad468ae159bd468ba6288603d1",
+      "chinese_space_path_verified": true,
+      "self_test": {
+        "check": "mock_desktop",
+        "chapters": 2,
+        "segments": 11,
+        "frames": 371937,
+        "origin": [
+          "mock_fixture"
+        ]
+      },
+      "gpl_and_lgpl_present": true,
+      "lgpl_replacement_verified": true,
+      "edge_online_segments": 2,
+      "playback": {
+        "device": "扬声器 (Realtek(R) Audio)",
+        "muted": true,
+        "started": true,
+        "play_to_first_audio_ms": 228.2,
+        "pos_play_ms": 85,
+        "pos_pause_ms": 85,
+        "pos_resume_ms": 170,
+        "pos_jump_ms": 85,
+        "rate_after": 1.5
+      },
+      "offline_export": {
+        "frames": 108288,
+        "segment_sum": 108288,
+        "peak_pcm": 18859,
+        "origins": [
+          "cloud"
+        ],
+        "offline_worker_starts": 0
+      }
+    },
+    "windows_qwen_full": {
+      "archive": "NovelTTSReader-windows-x86_64-qwen.zip",
+      "size_bytes": 6101245472,
+      "sha256": "9fff6d764737dd671a83eca2759f73bd0c04f5abcd74c285f2d8b7b7f8bda795",
+      "zip_entries": 35119,
+      "chinese_space_path_verified": true,
+      "self_test": {
+        "check": "mock_desktop",
+        "chapters": 2,
+        "segments": 11,
+        "frames": 371937,
+        "origin": [
+          "mock_fixture"
+        ]
+      },
+      "auto_discovered": true,
+      "offline_mode": true,
+      "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "backend": "faster-qwen3-tts",
+      "quantization": "int4",
+      "load_and_warmup_s": 26.709,
+      "uncached_synth_s": 8.128,
+      "frames": 111360,
+      "duration_s": 4.64,
+      "peak_pcm": 19200,
+      "manifest_origins": [
+        "local"
+      ],
+      "playback": {
+        "device": "扬声器 (Realtek(R) Audio)",
+        "muted": true,
+        "started": true,
+        "play_to_first_audio_ms": 1178.82,
+        "pos_play_ms": 85,
+        "pos_pause_ms": 85,
+        "pos_resume_ms": 170,
+        "pos_jump_ms": 170,
+        "rate_after": 1.5
+      },
+      "edge_requests_during_qwen": 0,
+      "cache_key_distinct_from_edge": true,
+      "edge_cache_miss_isolated": true
+    },
+    "ubuntu_core": {
+      "archive": "NovelTTSReader-linux-x86_64.tar.gz",
+      "size_bytes": 128876833,
+      "sha256": "4e9849d5d33486779da2803cd163b5bc1a3a2f8e378b4b9a8557d9c088c3db00",
+      "chinese_space_path_verified": true,
+      "self_test": {
+        "check": "mock_desktop",
+        "chapters": 2,
+        "segments": 11,
+        "frames": 371937,
+        "origin": [
+          "mock_fixture"
+        ]
+      },
+      "gpl_and_lgpl_present": true,
+      "lgpl_replacement_verified": true,
+      "edge_online_segments": 2,
+      "playback": {
+        "available": true,
+        "device": "RDP Sink",
+        "muted": true,
+        "started": true,
+        "play_to_first_audio_ms": 122.22,
+        "pos_play_ms": 85,
+        "pos_pause_ms": 85,
+        "pos_resume_ms": 170,
+        "pos_jump_ms": 85,
+        "rate_after": 1.5
+      },
+      "offline_export": {
+        "frames": 108288,
+        "segment_sum": 108288,
+        "peak_pcm": 18859,
+        "origins": [
+          "cloud"
+        ],
+        "offline_worker_starts": 0
+      }
+    },
+    "ubuntu_qwen_full": {
+      "archive": "NovelTTSReader-linux-x86_64-qwen.tar.gz",
+      "size_bytes": 6601072964,
+      "sha256": "be730540159002260cb101858156ef6cf91f0e1853ab3797925ad1dda43fd717",
+      "tar_entries": 39640,
+      "chinese_space_path_verified": true,
+      "self_test": {
+        "check": "mock_desktop",
+        "chapters": 2,
+        "segments": 11,
+        "frames": 371937,
+        "origin": [
+          "mock_fixture"
+        ]
+      },
+      "auto_discovered": true,
+      "offline_mode": true,
+      "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "backend": "faster-qwen3-tts",
+      "quantization": "int4",
+      "load_and_warmup_s": 23.626,
+      "uncached_synth_s": 1.609,
+      "frames": 122880,
+      "duration_s": 5.12,
+      "peak_pcm": 23296,
+      "manifest_origins": [
+        "local"
+      ],
+      "playback": {
+        "available": true,
+        "device": "RDP Sink",
+        "muted": true,
+        "started": true,
+        "play_to_first_audio_ms": 122.32,
+        "pos_play_ms": 85,
+        "pos_pause_ms": 85,
+        "pos_resume_ms": 170,
+        "pos_jump_ms": 170,
+        "rate_after": 1.5
+      },
+      "edge_requests_during_qwen": 0,
+      "cache_key_distinct_from_edge": true,
+      "edge_cache_miss_isolated": true
+    }
+  },
+  "edge_latency_benchmark": {
+    "timestamp": "2026-11-24T19:55:40+0800",
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.16",
+    "edge_tts": "7.3.1",
+    "miniaudio": "1.73",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "audio_device": "扬声器 (Realtek(R) Audio)",
+    "total_samples": 20,
+    "total_failures": 0,
+    "metrics": {
+      "cold_short": {
+        "chars_range": "7-8",
+        "count": 5,
+        "failures": 0,
+        "synth_ms_p50": 4141.54,
+        "synth_ms_p95": 6955.35,
+        "click_to_first_audio_ms_p50": 4816.13,
+        "click_to_first_audio_ms_p95": 8283.89,
+        "audio_duration_s_p50": 2.14
+      },
+      "warm_short": {
+        "chars_range": "7-8",
+        "count": 5,
+        "failures": 0,
+        "synth_ms_p50": 1188.37,
+        "synth_ms_p95": 1368.77,
+        "click_to_first_audio_ms_p50": 1353.95,
+        "click_to_first_audio_ms_p95": 1536.69,
+        "audio_duration_s_p50": 2.14
+      },
+      "cold_long": {
+        "chars_range": "56-58",
+        "count": 5,
+        "failures": 0,
+        "synth_ms_p50": 2022.71,
+        "synth_ms_p95": 2311.24,
+        "click_to_first_audio_ms_p50": 2189.8,
+        "click_to_first_audio_ms_p95": 2479.51,
+        "audio_duration_s_p50": 12.24
+      },
+      "warm_long": {
+        "chars_range": "56-58",
+        "count": 5,
+        "failures": 0,
+        "synth_ms_p50": 1383.56,
+        "synth_ms_p95": 3900.49,
+        "click_to_first_audio_ms_p50": 1550.08,
+        "click_to_first_audio_ms_p95": 4163.5,
+        "audio_duration_s_p50": 12.24
+      }
+    }
+  },
+  "pending_items": [
+    "无开发工具、无独显的干净 Windows 11 x64 目标机实机验证",
+    "无开发工具的原生 Ubuntu 24.04 x86_64 桌面物理机（非 WSL2）实体声卡实机验证",
+    "双平台真实扬声器/耳机的人工试听音质与倍速复核（本次自动化播放均为静音设备验证）",
+    "将最终提交推送并触发 GitHub Actions 发行工作流打标签发布",
+    "公开发行前对微软 Edge 在线朗读第三方桌面调用、持久缓存与导出音频再分发条款的正式确认"
+  ]
+}

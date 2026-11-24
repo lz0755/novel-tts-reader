@@ -1,0 +1,6 @@
+{
+  "name": "novel-tts-edge",
+  "protocol_version": 1,
+  "edge_tts_version": "7.3.1",
+  "miniaudio_version": "1.73"
+}

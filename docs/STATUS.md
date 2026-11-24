@@ -20,6 +20,7 @@
 - 预览标签交付时，本地 46 个自动化测试通过。主分支修复 Windows 管道等待和同一时间戳的费用记录排序，补充父进程关闭输入后的退出测试。GitHub Actions 中 Ubuntu 24.04 和 Windows Server 2022 各通过 47 项测试，桌面入口烟测均正常退出。 [预览标签测试](evidence/automated-tests.json) · [双平台复测](https://github.com/lz0755/novel-tts-reader/actions/runs/44915411279)
 - 112 万 Unicode 码点样本完成 20 次随机跳转和重开定位。十章、350 个带原文锚点的标注样本与 50 项纠音样本已入库。十章角色归属还需要独立人工复核。 [长书实测](evidence/long-book.json) · [样本清单](../fixtures/manifest.json)
 - 最新 52 项中 35 项通过、1 项未通过、4 项待测、12 项阻塞。本机源码回归 59 项通过。RTX 4060 Laptop 上两档均可生成新句，未缓存生成速度超过实时档时限。尚缺真实云端账号和账单、干净目标机、Ubuntu 原生桌面实体音频以及逐词人工评分。两档各自的 30 分钟边生成边播及缓存回放另约。 [52 项验收记录](ACCEPTANCE.md) · [本地模型复验](evidence/M7.md)
+- 2026-11-24，基于 `6742d13` 工作树完成 Edge 在线语音与双平台四个发行包（Windows 11 / WSL2 Ubuntu 24.04.5 的核心版与 Qwen 0.6B 便携完整版）构建及验收，并实测 20 样本真实网络 Edge 冷/热启动耗时（0 失败，热启动点击到首声 P50 短句 1.35 s、长句 1.55 s）。Windows 离线回归 110 通过、5 跳过；Ubuntu 离线回归 111 通过、4 跳过。四个包均在含中文及空格目录通过 `--self-test`、LGPLv3 替换或断网 Qwen 0.6B GPU 合成与 Edge 缓存隔离校验。干净无开发工具目标机、原生 Ubuntu 物理桌面实体声卡、人工试听、打标签 CI 发行及微软服务条款公开发行确认仍待完成。 [Edge 接入与验收记录](edgetts_implement.md) · [双平台发行取证](evidence/edge-release-20261124.json)
 
 ## GitHub 同步
 

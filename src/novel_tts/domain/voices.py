@@ -16,13 +16,96 @@ QWEN_PRESETS = {
 }
 
 
-def voice_label(provider, voice):
-    preset = QWEN_PRESETS.get(voice.lower()) if provider == "local_qwen" else None
-    return f"{voice} · {preset[1]}（{preset[2]}）" if preset else voice
+# Built-in Mandarin presets for Edge TTS (ShortName -> (gender, display_name, region_label)).
+EDGE_PRESETS = {
+    "zh-CN-XiaoxiaoNeural": ("female", "晓晓", "普通话"),
+    "zh-CN-XiaoyiNeural": ("female", "晓伊", "普通话"),
+    "zh-CN-YunxiNeural": ("male", "云希", "普通话"),
+    "zh-CN-YunjianNeural": ("male", "云健", "普通话"),
+}
+
+EDGE_KNOWN_VOICES = {
+    **EDGE_PRESETS,
+    "zh-CN-YunxiaNeural": ("male", "云夏", "普通话"),
+    "zh-CN-YunyangNeural": ("male", "云扬", "普通话"),
+    "zh-CN-liaoning-XiaobeiNeural": ("female", "晓北", "东北话"),
+    "zh-CN-shaanxi-XiaoniNeural": ("female", "晓妮", "陕西话"),
+    "zh-HK-HiuGaaiNeural": ("female", "晓佳", "粤语"),
+    "zh-HK-HiuMaanNeural": ("female", "晓曼", "粤语"),
+    "zh-HK-WanLungNeural": ("male", "云龙", "粤语"),
+    "zh-TW-HsiaoChenNeural": ("female", "晓臻", "台湾普通话"),
+    "zh-TW-HsiaoYuNeural": ("female", "晓雨", "台湾普通话"),
+    "zh-TW-YunJheNeural": ("male", "云哲", "台湾普通话"),
+}
+
+EDGE_DEFAULT_NARRATOR = "zh-CN-XiaoxiaoNeural"
+
+EDGE_BUILTIN_CATALOG = tuple(
+    {
+        "short_name": short_name,
+        "locale": "zh-CN",
+        "gender": "Female" if kind == "female" else "Male",
+        "friendly_name": f"{name}（{region}）",
+    }
+    for short_name, (kind, name, region) in EDGE_PRESETS.items()
+)
+
+_EDGE_KNOWN_LOWER = {k.lower(): (k, v) for k, v in EDGE_KNOWN_VOICES.items()}
+_EDGE_PRESETS_LOWER = {k.lower(): (k, v) for k, v in EDGE_PRESETS.items()}
 
 
-def matching_voices(voice_type, voices):
+def _gender_label(gender):
+    g = (gender or "").strip().lower()
+    if g == "female":
+        return "女声"
+    if g == "male":
+        return "男声"
+    return ""
+
+
+def voice_label(provider, voice, meta=None):
+    if provider == "local_qwen":
+        preset = QWEN_PRESETS.get(voice.lower())
+        return f"{voice} · {preset[1]}（{preset[2]}）" if preset else voice
+    if provider == "edge_tts":
+        known = _EDGE_KNOWN_LOWER.get(voice.lower())
+        if known:
+            _, (kind, name, region) = known
+            return f"{name} · {_gender_label(kind)}（{region}） [{voice}]"
+        if meta:
+            g = _gender_label(meta.get("gender"))
+            loc = (meta.get("locale") or "").strip()
+            parts = [p for p in (g, loc) if p]
+            if parts:
+                return f"{voice} · {' / '.join(parts)}"
+        return voice
+    return voice
+
+
+def matching_voices(voice_type, voices, provider="local_qwen", voice_genders=None):
     available = {voice.lower(): voice for voice in voices}
+    if provider == "edge_tts":
+        seen = set()
+        result = []
+        # 1. Built-in Mandarin presets first.
+        for key, (_, (kind, _, _)) in _EDGE_PRESETS_LOWER.items():
+            if kind == voice_type and key in available and key not in seen:
+                result.append(available[key])
+                seen.add(key)
+        # 2. Other known Chinese voices next.
+        for key, (_, (kind, _, _)) in _EDGE_KNOWN_LOWER.items():
+            if kind == voice_type and key in available and key not in seen:
+                result.append(available[key])
+                seen.add(key)
+        # 3. Any other catalog voices with matching gender metadata.
+        if voice_genders:
+            genders_lower = {k.lower(): (v or "").lower() for k, v in voice_genders.items()}
+            for voice in voices:
+                key = voice.lower()
+                if key not in seen and genders_lower.get(key) == voice_type:
+                    result.append(voice)
+                    seen.add(key)
+        return result
     return [
         available[key]
         for key, (kind, _, _) in QWEN_PRESETS.items()

@@ -18,7 +18,7 @@ from novel_tts.domain.models import (
     fingerprint,
 )
 from novel_tts.domain.text import chapters, parents
-from novel_tts.domain.voices import QWEN_PRESETS, matching_voices
+from novel_tts.domain.voices import EDGE_PRESETS, QWEN_PRESETS, matching_voices
 from novel_tts.infrastructure.casting import infer_voice_type
 
 SCHEMA = """
@@ -482,6 +482,83 @@ class Store(Edits, CacheIndex):
         )
         return voice, False
 
+    def _edge_binding(self, book, cid, profile, caps, row):
+        voices = caps.voices
+        genders = dict(caps.voice_genders)
+        narrator = caps.narrator_voice if caps.narrator_voice in voices else voices[0]
+        if row:
+            saved, manual = row
+            active = saved if saved in voices else next(
+                (v for v in voices if v.lower() == saved.lower()), None
+            )
+            if not active:
+                # Preserve retired voice ID so previously cached audio remains playable.
+                return saved, True
+            if manual or cid in ("narrator", "unknown"):
+                return active, False
+            kind = self._voice_type(book, cid)
+            if not kind:
+                return active, False
+            matches = matching_voices(kind, voices, provider="edge_tts", voice_genders=genders)
+            if not matches or active in matches:
+                return active, False
+            pool = [v for v in matches if v in EDGE_PRESETS] or matches
+            usage = dict(
+                self.db.execute(
+                    """SELECT lower(voice),count(*) FROM bindings WHERE book=? AND profile=?
+                       AND id NOT IN ('narrator','unknown') GROUP BY lower(voice)""",
+                    (book, profile),
+                )
+            )
+            voice = min(
+                pool,
+                key=lambda v: (usage.get(v.lower(), 0), 1 if v == narrator else 0),
+            )
+            self.db.execute(
+                """INSERT INTO bindings VALUES(?,?,?,?,0)
+                   ON CONFLICT(book,id,profile) DO UPDATE SET voice=excluded.voice
+                   WHERE bindings.manual=0""",
+                (book, cid, profile, voice),
+            )
+            return voice, False
+
+        if cid in ("narrator", "unknown"):
+            voice = narrator
+        else:
+            kind = self._voice_type(book, cid)
+            matches = (
+                matching_voices(kind, voices, provider="edge_tts", voice_genders=genders)
+                if kind
+                else []
+            )
+            if matches:
+                pool = [v for v in matches if v in EDGE_PRESETS] or matches
+                usage = dict(
+                    self.db.execute(
+                        """SELECT lower(voice),count(*) FROM bindings WHERE book=? AND profile=?
+                           AND id NOT IN ('narrator','unknown') GROUP BY lower(voice)""",
+                        (book, profile),
+                    )
+                )
+                voice = min(
+                    pool,
+                    key=lambda v: (usage.get(v.lower(), 0), 1 if v == narrator else 0),
+                )
+            else:
+                others = [v for v in voices if v != narrator]
+                if others:
+                    count = self.db.execute(
+                        "SELECT count(*) FROM bindings WHERE book=? AND profile=? AND id NOT IN ('narrator','unknown')",
+                        (book, profile),
+                    ).fetchone()[0]
+                    voice = others[count % len(others)]
+                else:
+                    voice = voices[0]
+        self.db.execute(
+            "INSERT INTO bindings VALUES(?,?,?,?,0)", (book, cid, profile, voice)
+        )
+        return voice, False
+
     def binding(self, book, cid, caps):
         profile = caps.provider + "/" + caps.model
         voices = caps.voices
@@ -491,6 +568,8 @@ class Store(Edits, CacheIndex):
             "SELECT voice,manual FROM bindings WHERE book=? AND id=? AND profile=?",
             (book, cid, profile),
         ).fetchone()
+        if caps.provider == "edge_tts":
+            return self._edge_binding(book, cid, profile, caps, row)
         if caps.provider == "local_qwen" and cid not in ("narrator", "unknown"):
             binding = self._qwen_binding(book, cid, profile, voices, row)
             if binding:

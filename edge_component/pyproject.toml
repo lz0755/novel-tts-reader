@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "novel-tts-edge"
+version = "0.1.0"
+description = "Standalone Edge TTS network and MP3 decode component for Novel TTS Reader"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "edge-tts==7.3.1",
+  "miniaudio==1.73",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["novel_tts_edge"]
+
+[tool.uv]
+environments = [
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]

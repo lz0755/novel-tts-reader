@@ -86,6 +86,9 @@ class Library:
                     pass
             if cache_only:
                 raise ValueError("本章尚有未生成或损坏的片段，请先预生成")
+            check_scope = getattr(provider, "check_synthesis_scope", None)
+            if check_scope:
+                check_scope(view.book, view.chapter)
             ticket = Ticket(
                 uuid.uuid4().hex, uuid.uuid4().hex, key, view.book, view.revision
             )
@@ -107,6 +110,8 @@ class Library:
                 if event.is_set():
                     raise Cancelled()
                 self.db.call("guard", view.book, view.revision)
+                if check_scope:
+                    check_scope(view.book, view.chapter)
                 os.replace(temp, final)
                 self.db.call("finish_audio", ticket, artifact)
                 quota = self.db.call("cache_over_quota")

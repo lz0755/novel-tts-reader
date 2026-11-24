@@ -26,6 +26,12 @@ from novel_tts.domain.text import DisplayMap, read_draft
 from novel_tts.infrastructure.paths import RESOURCES
 from novel_tts.infrastructure.store import Store
 from novel_tts.infrastructure.threads import Background, Repository
+from novel_tts.providers.edge_tts import (
+    EdgeAuthorizationRequired,
+    EdgeTTS,
+    PRIORITY_PREGEN,
+    edge_priority,
+)
 from novel_tts.providers.mock import MockTTS
 from novel_tts.ui.player import Playback
 from novel_tts.ui.editing import Editing
@@ -391,7 +397,8 @@ class ReaderWindow(
         self.stop()
         playback_epoch = self.epoch
         self.generation += 1
-        gen, chapter, caps = self.generation, self.chapter, self.provider.capabilities()
+        gen, chapter, provider = self.generation, self.chapter, self.provider
+        caps = provider.capabilities()
         self.view = None
 
         def lookup(event):
@@ -405,6 +412,9 @@ class ReaderWindow(
             return view
 
         def render(view):
+            if self.provider is not provider:
+                self.load_page(view.page, cp, resume, notice=notice)
+                return
             self.view = view
             self.heading.setText(view.title)
             self.page_label.setText(f"{view.page + 1} / {view.page_count} 页")
@@ -435,6 +445,9 @@ class ReaderWindow(
             self.voice.currentData(),
             self.provider.capabilities(),
         )
+        if voice not in caps.voices:
+            self.note.setText("所选音色已下架，请从可用列表中选择替代音色")
+            return
         line = view.lines[self.index]
         self.stop()
         self.run(
@@ -477,17 +490,36 @@ class ReaderWindow(
         label = "导出章节" if destination else "预生成本章"
         self.counter_label = uuid.uuid4().hex
         token = self.counter_label
+
+        def run_chapter(e):
+            with edge_priority(PRIORITY_PREGEN):
+                return self.library.chapter(
+                    view,
+                    provider,
+                    e,
+                    destination,
+                    lambda n, total: self.counter.emit(token, n, total),
+                )
+
+        def failed(exc):
+            if (
+                destination is None
+                and isinstance(exc, EdgeAuthorizationRequired)
+                and isinstance(self.provider, EdgeTTS)
+                and self.view is view
+            ):
+                self.prompt_edge_authorization(
+                    on_authorized=self.generate, reason="本章尚有未缓存的句子"
+                )
+                return
+            self.note.setText(f"{label} · {exc}")
+
         self.run(
             label,
-            lambda e: self.library.chapter(
-                view,
-                provider,
-                e,
-                destination,
-                lambda n, total: self.counter.emit(token, n, total),
-            ),
+            run_chapter,
             lambda result: self.note.setText(f"{label}完成 · {result}"),
-            guard=lambda: self.view is view,
+            guard=lambda: self.view is view and self.provider is provider,
+            failed=failed,
             task=True,
         )
 
@@ -499,8 +531,11 @@ class ReaderWindow(
     def closeEvent(self, event):
         self.closing = True
         self.clock.stop()
+        self.revoke_cloud(switching_source=True)
         self.stop()
         self.host.close()
+        if hasattr(self, "edge_runtime"):
+            self.edge_runtime.close()
         self.bg.close()
         self.repo.close()
         event.accept()

@@ -27,6 +27,7 @@ def main():
     cli = argparse.ArgumentParser()
     cli.add_argument("--model", choices=list(MODELS), required=True)
     cli.add_argument("--root", type=Path, required=True)
+    cli.add_argument("--relative-paths", action="store_true", help="随发行包移动模型目录")
     args = cli.parse_args()
     root = args.root.resolve()
     root.mkdir(parents=True, exist_ok=True)
@@ -70,7 +71,10 @@ def main():
             "length_margin": 1.55,
         }
     )
-    settings["models"][repo] = {"path": str(folder), "revision": revision}
+    settings["models"][repo] = {
+        "path": folder.relative_to(root).as_posix() if args.relative_paths else str(folder),
+        "revision": revision,
+    }
     with NamedTemporaryFile(mode="w", encoding="utf-8", dir=root, delete=False) as f:
         json.dump(settings, f, ensure_ascii=False, indent=2)
     os.replace(f.name, cfg)

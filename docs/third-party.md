@@ -9,7 +9,8 @@
 | httpx、httpcore、certifi、keyring、regex、jsonschema、platformdirs | HTTP、证书、凭据、字形处理、契约与路径；精确版本和包校验值见 desktop-uv.lock | https://pypi.org/ |
 | Nuitka | Linux 与 Windows 原生构建工具，仅构建时使用 | https://nuitka.net/ |
 | eSpeak NG | 以自制文本生成固定普通话 WAV。仅在素材制作环境使用，主包只携带音频文件和来源清单 | https://github.com/espeak-ng/espeak-ng |
-| Qwen3-TTS | 可选运行时，模型与 GPU 库由用户独立准备 | https://github.com/QwenLM/Qwen3-TTS |
+| Qwen3-TTS | 本地完整版附 0.6B CustomVoice 的固定修订、语音分词器、模型卡和 Apache 2.0 许可证 | https://github.com/QwenLM/Qwen3-TTS |
+| PyTorch、torchaudio 和 NVIDIA CUDA 12.8 库 | 本地 Qwen 完整版附带对应平台的锁定发行包及其许可证 | https://pytorch.org/get-started/previous-versions/ |
 | Faster Qwen3-TTS 0.2.6 | 本地推理环境中的 CUDA Graph 加速与分块语音生成 | https://github.com/andimarafioti/faster-qwen3-tts/tree/0.2.6 |
 | edge-tts 7.3.1（独立组件） | LGPLv3（`srt_composer.py` 为 MIT）；随独立 `edge_component/libs/` 目录分发，可按 `edge_component/README-REPLACE.md` 自由替换 | https://github.com/rany2/edge-tts/tree/7.3.1 |
 | miniaudio 1.73（独立组件） | MIT（内含 dr_mp3 等公有领域/MIT 解码器）；负责将 24 kHz MP3 解码为 24 kHz 单声道 16 位 PCM WAV | https://pypi.org/project/miniaudio/1.73/ |

@@ -1,4 +1,4 @@
-name: Attach native preview downloads
+name: Attach native release downloads
 
 on:
   workflow_run:
@@ -14,6 +14,10 @@ on:
 jobs:
   attach:
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'desktop-'))
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [linux, windows]
     runs-on: ubuntu-24.04
     permissions:
       actions: read
@@ -21,8 +25,10 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       BUILD_ID: ${{ inputs.build_run || github.event.workflow_run.id }}
+      TARGET: ${{ matrix.target }}
     steps:
-      - name: Verify the release tag and upload checked packages
+      - name: Identify the trusted build and release
+        id: release
         shell: bash
         run: |
           set -euo pipefail
@@ -33,27 +39,62 @@ jobs:
             .head_repository.full_name == $repo and .path == ".github/workflows/package.yml"
           ' <<< "$run" > /dev/null
           tag=$(jq -r .head_branch <<< "$run")
+          sha=$(jq -r .head_sha <<< "$run")
           [[ "$tag" =~ ^desktop-[a-zA-Z0-9._-]+$ ]]
-          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" = "$(jq -r .head_sha <<< "$run")"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" = "$sha"
           release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json apiUrl,isDraft,isPrerelease)
           jq -e '.isDraft or .isPrerelease' <<< "$release" > /dev/null
-          release_url=$(jq -r .apiUrl <<< "$release")
-          assets=$(gh api "$release_url" --jq .assets)
-          gh run download "$BUILD_ID" --repo "$GITHUB_REPOSITORY" --pattern 'NovelTTSReader-*' --dir downloaded
-          for target in linux windows; do
-            ext=tar.gz
-            if [[ "$target" == windows ]]; then ext=zip; fi
-            name="NovelTTSReader-$target-x86_64.$ext"
-            package="downloaded/NovelTTSReader-$target-x86_64/$name"
-            actual=$(sha256sum "$package" | cut -d' ' -f1)
-            test "$actual" = "$(cut -d' ' -f1 "$package.sha256")"
-            for file in "$package" "$package.sha256"; do
-              name=$(basename "$file")
-              digest=$(sha256sum "$file" | cut -d' ' -f1)
-              if jq -e --arg name "$name" 'any(.[]; .name == $name)' <<< "$assets" > /dev/null; then
-                jq -e --arg name "$name" --arg sum "sha256:$digest" 'any(.[]; .name == $name and .digest == $sum)' <<< "$assets" > /dev/null
-              else
-                gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY"
-              fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "BUILD_SHA=$sha" >> "$GITHUB_ENV"
+          echo "RELEASE_API=$(jq -r .apiUrl <<< "$release")" >> "$GITHUB_ENV"
+          echo "RELEASE_DRAFT=$(jq -r .isDraft <<< "$release")" >> "$GITHUB_ENV"
+          if [[ "$tag" != *preview* ]]; then echo "qwen=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.BUILD_ID }}
+          name: NovelTTSReader-${{ matrix.target }}-x86_64
+          path: core
+      - if: steps.release.outputs.qwen == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.BUILD_ID }}
+          name: OfflineQwen-${{ matrix.target }}-x86_64
+          path: full
+      - name: Verify checksums and attach release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          ext=tar.gz
+          if [[ "$TARGET" == windows ]]; then ext=zip; fi
+          core="NovelTTSReader-$TARGET-x86_64.$ext"
+          (cd core && sha256sum -c "$core.sha256")
+          files=("core/$core" "core/$core.sha256")
+          if [[ -d full ]]; then
+            prefix="NovelTTSReader-Qwen-0.6B-$TARGET-x86_64"
+            volumes=(full/"$prefix".7z.[0-9][0-9][0-9])
+            (( ${#volumes[@]} > 0 ))
+            (cd full && sha256sum -c "$prefix.sha256")
+            jq -e --arg sha "$BUILD_SHA" '
+              .commit == $sha and .verified_model_files == 13 and .sample_rate == 24000 and
+              .desktop_self_test == "passed" and .bundled_sidecar_handshake == "passed"
+            ' "full/$prefix.check.json" > /dev/null
+            test "$(sha256sum "full/$prefix.sample.wav" | cut -d' ' -f1)" = "$(jq -r .sample_sha256 "full/$prefix.check.json")"
+            files+=("${volumes[@]}" "full/$prefix.sha256" "full/$prefix.check.json" "full/$prefix.sample.wav")
+          fi
+          existing=$(gh api "$RELEASE_API" --jq .assets)
+          for file in "${files[@]}"; do
+            name=$(basename "$file")
+            digest="sha256:$(sha256sum "$file" | cut -d' ' -f1)"
+            previous=$(jq -r --arg n "$name" '.[] | select(.name == $n) | .digest // "pending"' <<< "$existing")
+            if [[ "$previous" == "$digest" ]]; then continue; fi
+            options=()
+            if [[ "$RELEASE_DRAFT" == true ]]; then options+=(--clobber); else test -z "$previous"; fi
+            for attempt in 1 2 3; do
+              if gh release upload "$TAG" "$file" --repo "$GITHUB_REPOSITORY" "${options[@]}"; then break; fi
+              if [[ "$attempt" == 3 ]]; then exit 1; fi
+              sleep 10
             done
           done
